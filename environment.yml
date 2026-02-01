@@ -1,0 +1,11 @@
+name: quasars-systematics
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - numpy
+  - scipy
+  - matplotlib
+  - astropy
+  - healpy
+  - pip

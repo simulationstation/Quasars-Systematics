@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Outputs / scratch
+outputs/
+results/
+*.log
+
+# Large downloads (keep the repo small; see README for download instructions)
+data/external/zenodo_*/
+data/external/secrest*/
+data/external/catwise*/
+data/cache/unwise_nexp/*/w1-n-m/
+data/cache/unwise_nexp/*/*.fits
+data/cache/unwise_nexp/*/*.fits.gz
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/

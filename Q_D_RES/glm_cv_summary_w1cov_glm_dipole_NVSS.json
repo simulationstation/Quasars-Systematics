@@ -1,0 +1,203 @@
+{
+  "aggregate": {
+    "axis_angle_to_secrest_deg_mean": 56.8193924978415,
+    "axis_angle_to_sn_deg_mean": 60.82737741982148,
+    "b_amp_mean": 0.00033100792155933326,
+    "b_b_deg_mean": -13.356891017661727,
+    "b_l_deg_mean": 196.5567377777147,
+    "b_vec_mean": [
+      -0.0003087011428018794,
+      -9.177405919265243e-05,
+      -7.646810202396085e-05
+    ]
+  },
+  "folds": [
+    {
+      "axis_angle_to_secrest_deg": 50.72314135352533,
+      "axis_angle_to_sn_deg": 34.84220299132458,
+      "b_amp": 0.0431739833233889,
+      "b_b_deg": 10.197970244406633,
+      "b_l_deg": 185.43499092374276,
+      "b_vec": [
+        -0.042300884951459415,
+        -0.00402467669364409,
+        0.007643948315059119
+      ],
+      "fold": 0,
+      "glm_axis_angle_to_secrest_deg": 76.76219170874882,
+      "glm_axis_angle_to_sn_deg": 25.177685199419933,
+      "glm_dipole_amp": 0.08315727772419379,
+      "glm_dipole_b_deg": 47.23399490958851,
+      "glm_dipole_l_deg": 133.9473029642587,
+      "glm_dipole_vec": [
+        -0.03918600959862126,
+        0.040653060248446726,
+        0.06104849042090739
+      ],
+      "n_test_pix": 4139,
+      "n_train_pix": 20693
+    },
+    {
+      "axis_angle_to_secrest_deg": 86.82402127946666,
+      "axis_angle_to_sn_deg": 48.917223880933946,
+      "b_amp": 0.012469566283248752,
+      "b_b_deg": -50.37410474612762,
+      "b_l_deg": 276.3409643802154,
+      "b_vec": [
+        0.0008783400522314067,
+        -0.00790408934496028,
+        -0.009604372632913905
+      ],
+      "fold": 1,
+      "glm_axis_angle_to_secrest_deg": 56.532659007019866,
+      "glm_axis_angle_to_sn_deg": 1.6997868353180807,
+      "glm_dipole_amp": 0.0654228607544594,
+      "glm_dipole_b_deg": 42.294829575810965,
+      "glm_dipole_l_deg": 166.55570453913268,
+      "glm_dipole_vec": [
+        -0.04706662068027244,
+        0.011251310221527715,
+        0.04402603712958595
+      ],
+      "n_test_pix": 4139,
+      "n_train_pix": 20693
+    },
+    {
+      "axis_angle_to_secrest_deg": 49.76970898515489,
+      "axis_angle_to_sn_deg": 38.58735261703427,
+      "b_amp": 0.010624526111754786,
+      "b_b_deg": -7.310874553353687,
+      "b_l_deg": 8.265923017076629,
+      "b_vec": [
+        0.010428676089027821,
+        0.0015150453421400613,
+        -0.0013520013834158603
+      ],
+      "fold": 2,
+      "glm_axis_angle_to_secrest_deg": 67.94104783555545,
+      "glm_axis_angle_to_sn_deg": 14.460519572648398,
+      "glm_dipole_amp": 0.1051018482118864,
+      "glm_dipole_b_deg": 44.97351518282538,
+      "glm_dipole_l_deg": 149.2786942283628,
+      "glm_dipole_vec": [
+        -0.06391811041404757,
+        0.0379839515664476,
+        0.07428386824910098
+      ],
+      "n_test_pix": 4139,
+      "n_train_pix": 20693
+    },
+    {
+      "axis_angle_to_secrest_deg": 42.761650688492,
+      "axis_angle_to_sn_deg": 55.60372166716276,
+      "b_amp": 0.014843440495638592,
+      "b_b_deg": 2.590040201244242,
+      "b_l_deg": 25.701389294188218,
+      "b_vec": [
+        0.013361263773645052,
+        0.0064307410269774795,
+        0.00067076520675467
+      ],
+      "fold": 3,
+      "glm_axis_angle_to_secrest_deg": 41.74164225413544,
+      "glm_axis_angle_to_sn_deg": 16.508994192998784,
+      "glm_dipole_amp": 0.08957465988408772,
+      "glm_dipole_b_deg": 51.301165857289234,
+      "glm_dipole_l_deg": 188.54501471123908,
+      "glm_dipole_vec": [
+        -0.055382794256929095,
+        -0.0083215029185199,
+        0.06990792789678235
+      ],
+      "n_test_pix": 4139,
+      "n_train_pix": 20693
+    },
+    {
+      "axis_angle_to_secrest_deg": 86.68814174738604,
+      "axis_angle_to_sn_deg": 48.953689859999805,
+      "b_amp": 0.014520097558743837,
+      "b_b_deg": 4.84314679100601,
+      "b_l_deg": 332.4808024112107,
+      "b_vec": [
+        0.012831259283247371,
+        -0.006684996065371128,
+        0.0012259061658583081
+      ],
+      "fold": 4,
+      "glm_axis_angle_to_secrest_deg": 74.74221772129283,
+      "glm_axis_angle_to_sn_deg": 20.5161083126928,
+      "glm_dipole_amp": 0.11227771731209242,
+      "glm_dipole_b_deg": 41.396418438151684,
+      "glm_dipole_l_deg": 141.2002164371921,
+      "glm_dipole_vec": [
+        -0.06564025109447388,
+        0.05277570861491403,
+        0.07424532188132965
+      ],
+      "n_test_pix": 4138,
+      "n_train_pix": 20694
+    },
+    {
+      "axis_angle_to_secrest_deg": 38.01022277603529,
+      "axis_angle_to_sn_deg": 89.74671168373003,
+      "b_amp": 0.010581755978186537,
+      "b_b_deg": 5.188549159731246,
+      "b_l_deg": 73.7489262011068,
+      "b_vec": [
+        0.002949138896496489,
+        0.010117331379702044,
+        0.0009569457165139032
+      ],
+      "fold": 5,
+      "glm_axis_angle_to_secrest_deg": 82.9758468452537,
+      "glm_axis_angle_to_sn_deg": 28.76894143624648,
+      "glm_dipole_amp": 0.1222617444863066,
+      "glm_dipole_b_deg": 38.42233894853146,
+      "glm_dipole_l_deg": 131.0869946591905,
+      "glm_dipole_vec": [
+        -0.06295103378318573,
+        0.07219519898002079,
+        0.0759799628500721
+      ],
+      "n_test_pix": 4138,
+      "n_train_pix": 20694
+    }
+  ],
+  "glm_aggregate": {
+    "glm_axis_angle_to_secrest_deg_mean": 68.43541666398126,
+    "glm_axis_angle_to_sn_deg_mean": 15.215278170219744,
+    "glm_dipole_amp_mean": 0.09337858105248115,
+    "glm_dipole_b_deg_mean": 45.48216176331515,
+    "glm_dipole_l_deg_mean": 148.2794397905597,
+    "glm_dipole_vec_mean": [
+      -0.05569080330458834,
+      0.0344229544521395,
+      0.06658193473796307
+    ]
+  },
+  "inputs": {
+    "b_cut": 30.0,
+    "catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "glm_include_dipole": true,
+    "kfold": 6,
+    "nside": 64,
+    "nvss_crossmatch": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/nvss/reference/NVSS_CatWISE2020_40arcsec_best_symmetric.fits",
+    "secrest_json": "outputs/secrest_reproduction_local_20260201_0300UTC/dipole.json",
+    "seed": 123,
+    "sn_scan_json": "outputs/horizon_anisotropy_fullscan_null100_dipoleT_field_axispar_nside4_surveyz_20260131_225012UTC/scan_summary.json",
+    "template_set": "ecliptic_harmonics",
+    "w1_max": 16.4,
+    "w1cov_min": 80.0
+  },
+  "notes": "This is a held-out residual dipole direction after fitting a Poisson GLM with systematics templates on training pixels. If the residual direction is stable across folds and shifts toward the SN axis, that supports a 'shared signal' hypothesis; if it wanders, the quasar dipole remains systematics-dominated.",
+  "reference_axes": {
+    "secrest_raw_axis": {
+      "b_deg": 28.774371321696368,
+      "l_deg": 236.01115215597412
+    },
+    "sn_best_axis": {
+      "b_deg": 41.81031489577859,
+      "l_deg": 168.75
+    }
+  }
+}
