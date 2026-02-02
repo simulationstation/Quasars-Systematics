@@ -9,6 +9,7 @@ Key artifacts for reviewers are in `Q_D_RES/`:
 - `Q_D_RES/Resolution.md` (ApJL letter draft in AASTeX; paste into Overleaf)
 - `Q_D_RES/fixed_axis_scaling_fit.png` (main result figure used in the letter)
 - `Q_D_RES/dipole_master_tests.md` (detailed run log + additional diagnostics and figures)
+- `Q_D_RES/rvmp_fig5_audit.md` (RvMP Fig. 5 / ecliptic-trend + estimator audit; includes injection test)
 - `Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
 
 ## References / DOIs used by this repository
@@ -86,6 +87,87 @@ Warning: regenerating from raw `w1-n-m` maps requires downloading a very large v
 All commands below assume you have the Secrest+22 catalog extracted at:
 
 `data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits`
+
+## New: RvMP Fig. 5 audit (Secrest-style vs Poisson-likelihood + injection)
+
+This repository now includes a “straightforward path” verification suite motivated by:
+- Secrest’s critique that (i) naive linear dipole estimators can be biased on a masked sky and
+  (ii) the strong ecliptic-latitude trend must be modeled, and
+- the 2025 RvMP review (2025RvMP...97d1001S) summarizing CatWISE dipole stability vs `W1_max`.
+
+These scripts:
+- reproduce the Secrest+22 masking + ecliptic correction logic in a self-contained way,
+- implement a Poisson maximum-likelihood analogue with the same footprint mask, and
+- include an injection test showing that “stability vs faint cut” does **not** by itself rule out
+  a selection-gradient mechanism.
+
+### A) Secrest-style Fig.5 scan (weighted linear dipole fit)
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise.py \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --nsim 400 \
+  --outdir outputs/rvmp_fig5_secrest_style
+```
+
+Outputs:
+- `outputs/rvmp_fig5_secrest_style/rvmp_fig5_repro.json`
+- `outputs/rvmp_fig5_secrest_style/rvmp_fig5_repro.png`
+
+### B) Poisson-likelihood Fig.5 scan (template-marginalized GLM)
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode none \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm
+```
+
+Outputs:
+- `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.json`
+- `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.png`
+
+### C) Mechanism-killing injection test (dipolar faint-limit modulation)
+
+This injects a purely selection-driven dipolar modulation of the effective faint limit:
+`W1_eff = W1 - delta_m * cos(theta_axis)` and re-runs the scan.
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise.py \
+  --inject-delta-m-mag 0.0125 \
+  --inject-axis cmb \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_secrest_style_injected
+```
+
+### D) NVSS removal + homogenization (Secrest 2_rm_nvss analogue; optional)
+
+This step uses additional files from the Zenodo bundle:
+- `.../nvss/reference/NVSS.fit`
+- `.../nvss/reference/nvss_artifacts.fits`
+- `.../nvss/reference/NVSS_CatWISE2020_40arcsec_best_symmetric.fits`
+- `.../reference/haslam408_dsds_Remazeilles2014_512.fits`
+
+Build the homogenized “no-NVSS” CatWISE sample:
+
+```bash
+python3 scripts/build_catwise_no_nvss_homogenized.py \
+  --outdir outputs/catwise_no_nvss_homog \
+  --w1cut-max 16.5 \
+  --nvss-scut-mjy 10 --nvss-tbcut-K 50
+```
+
+Then re-run either scan using:
+- `--catalog outputs/catwise_no_nvss_homog/catwise_no_nvss_homog.fits`
+- `--mask-catalog data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits`
+
+Important: `--mask-catalog` avoids spuriously masking pixels as “zero coverage” when the analysis
+catalog is a filtered/subsampled file.
 
 ### A) Baseline dipole reproduction (sanity check)
 
