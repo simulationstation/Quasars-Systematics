@@ -127,6 +127,22 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
   --outdir outputs/rvmp_fig5_poisson_glm
 ```
 
+#### Independent depth variant (recommended): unWISE Nexp as a depth covariate
+
+This uses the included `data/cache/unwise_nexp/neo7/w1_n_m_tile_stats_median.json` (a per-tile statistic)
+and maps each HEALPix pixel to the nearest unWISE tile center to build a depth proxy.
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode unwise_nexp_covariate \
+  --nexp-tile-stats-json data/cache/unwise_nexp/neo7/w1_n_m_tile_stats_median.json \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm_unwise_nexp
+```
+
 Outputs:
 - `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.json`
 - `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.png`

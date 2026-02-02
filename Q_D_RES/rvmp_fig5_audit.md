@@ -57,6 +57,24 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
   --outdir outputs/rvmp_fig5_poisson_glm
 ```
 
+### Independent depth test (unWISE Nexp)
+
+Use an imaging-derived depth proxy based on unWISE exposure maps. This repo includes a per-tile
+statistic file (`data/cache/unwise_nexp/neo7/w1_n_m_tile_stats_median.json`). The script maps each
+HEALPix pixel to the nearest unWISE tile center and uses `log(Nexp)` as a **covariate** (recommended)
+or as a fixed-coefficient offset (more aggressive).
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode unwise_nexp_covariate \
+  --nexp-tile-stats-json data/cache/unwise_nexp/neo7/w1_n_m_tile_stats_median.json \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm_unwise_nexp
+```
+
 ### Injection (selection gradient) scan
 
 ```bash
@@ -82,4 +100,3 @@ Then rerun either scan using:
 - `--mask-catalog data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits`
 
 (`--mask-catalog` ensures the “zero coverage” mask is built from the full catalog, not the filtered one.)
-

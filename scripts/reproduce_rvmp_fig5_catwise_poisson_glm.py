@@ -215,7 +215,24 @@ def main() -> int:
 
     ap.add_argument("--eclip-template", choices=["none", "abs_elat", "abs_sin_elat"], default="abs_elat")
     ap.add_argument("--dust-template", choices=["none", "ebv_mean"], default="none")
-    ap.add_argument("--depth-mode", choices=["none", "w1cov_covariate", "w1cov_offset"], default="none")
+    ap.add_argument(
+        "--depth-mode",
+        choices=["none", "w1cov_covariate", "w1cov_offset", "unwise_nexp_covariate", "unwise_nexp_offset"],
+        default="none",
+    )
+    ap.add_argument(
+        "--unwise-tiles-fits",
+        default="data/external/unwise/tiles.fits",
+        help="unWISE tiles table (ra/dec/coadd_id). Used to build a HEALPix depth proxy via nearest-tile mapping.",
+    )
+    ap.add_argument(
+        "--nexp-tile-stats-json",
+        default=None,
+        help=(
+            "Optional JSON mapping {coadd_id: nexp_stat} (e.g. median W1 exposures from unWISE w1-n-m maps). "
+            "Required for --depth-mode unwise_nexp_*."
+        ),
+    )
 
     ap.add_argument("--mc-draws", type=int, default=400, help="Approx marginalization draws from N(beta,cov).")
     ap.add_argument("--seed", type=int, default=123)
@@ -347,6 +364,47 @@ def main() -> int:
     abs_elat = np.abs(elat_deg)
     abs_sin_elat = np.abs(np.sin(np.deg2rad(elat_deg)))
 
+    # Optional: independent unWISE depth-of-coverage proxy (Nexp), mapped per HEALPix pixel
+    # via nearest unWISE tile center (as in experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py).
+    nexp_pix = None
+    nexp_missing_frac = None
+    if args.depth_mode.startswith("unwise_nexp_"):
+        if args.nexp_tile_stats_json is None:
+            raise SystemExit("--depth-mode unwise_nexp_* requires --nexp-tile-stats-json")
+
+        tile_stats = json.load(open(args.nexp_tile_stats_json, "r"))
+        from astropy.table import Table as ATable
+        from scipy.spatial import cKDTree
+
+        tiles = ATable.read(args.unwise_tiles_fits, memmap=True)
+        coadd_id = np.asarray(tiles["coadd_id"]).astype(str)
+        ra = np.asarray(tiles["ra"], dtype=float)
+        dec = np.asarray(tiles["dec"], dtype=float)
+        g = SkyCoord(ra=ra * u.deg, dec=dec * u.deg, frame="icrs").galactic
+        lg = np.deg2rad(g.l.deg % 360.0)
+        bg = np.deg2rad(g.b.deg)
+        cosb = np.cos(bg)
+        tile_vec = np.column_stack([cosb * np.cos(lg), cosb * np.sin(lg), np.sin(bg)])
+        tree = cKDTree(tile_vec)
+
+        # Map each HEALPix pixel to nearest tile.
+        _, nn_idx = tree.query(pix_unit, k=1)
+        pix_coadd = coadd_id[nn_idx]
+
+        nexp_pix = np.full(npix, np.nan, dtype=float)
+        v_idx = np.flatnonzero(seen)
+        for p in v_idx:
+            nexp_pix[p] = float(tile_stats.get(str(pix_coadd[p]), float("nan")))
+
+        missing = seen & (~np.isfinite(nexp_pix) | (nexp_pix <= 0.0))
+        nexp_missing_frac = float(missing.sum() / max(1, int(seen.sum())))
+        # Keep footprint fixed: fill missing with the median of available values on seen pixels.
+        ok = seen & np.isfinite(nexp_pix) & (nexp_pix > 0.0)
+        if not np.any(ok):
+            raise SystemExit("No valid Nexp values found for seen pixels; cannot use unwise_nexp depth-mode.")
+        fill = float(np.median(nexp_pix[ok]))
+        nexp_pix[missing] = fill
+
     # Base per-pixel means for EBV and W1COV.
     cnt_base = np.bincount(np.asarray(ipix_mask_base, dtype=np.int64), minlength=npix).astype(float)
     sum_w1cov = np.bincount(np.asarray(ipix_mask_base, dtype=np.int64), weights=np.asarray(w1cov_m_base, dtype=float), minlength=npix).astype(float)
@@ -391,6 +449,15 @@ def main() -> int:
             logw = np.log(np.clip(w1cov_mean, 1.0, np.inf))
             ref = float(np.median(logw[seen]))
             offset = (logw - ref)[seen]
+        elif args.depth_mode == "unwise_nexp_covariate":
+            assert nexp_pix is not None
+            logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
+            templates.append(zscore(logn, seen)[seen])
+        elif args.depth_mode == "unwise_nexp_offset":
+            assert nexp_pix is not None
+            logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
+            ref = float(np.median(logn[seen]))
+            offset = (logn - ref)[seen]
 
         cols = [np.ones_like(y), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2]]
         cols.extend(templates)
@@ -452,6 +519,7 @@ def main() -> int:
     payload = {
         "meta": {
             "catalog": str(args.catalog),
+            "mask_catalog": None if args.mask_catalog is None else str(args.mask_catalog),
             "exclude_mask_fits": str(args.exclude_mask_fits),
             "nside": int(args.nside),
             "w1cov_min": float(args.w1cov_min),
@@ -461,6 +529,9 @@ def main() -> int:
             "eclip_template": args.eclip_template,
             "dust_template": args.dust_template,
             "depth_mode": args.depth_mode,
+            "unwise_tiles_fits": None if args.unwise_tiles_fits is None else str(args.unwise_tiles_fits),
+            "nexp_tile_stats_json": None if args.nexp_tile_stats_json is None else str(args.nexp_tile_stats_json),
+            "nexp_missing_frac_seen": nexp_missing_frac,
             "mc_draws": int(args.mc_draws),
             "seed": int(args.seed),
             "inject_delta_m_mag": float(args.inject_delta_m_mag),
