@@ -1,0 +1,162 @@
+{
+  "label": "2-3-F",
+  "description": "Full-likelihood fixed-axis anisotropy g-scan on 3 axes (cmb, secrest, ecliptic_north).",
+  "axes": [
+    {
+      "axis": "cmb",
+      "axis_def": {
+        "name": "cmb",
+        "frame": "galactic",
+        "lon_deg": 264.021,
+        "lat_deg": 48.253
+      },
+      "g_grid": [
+        -0.6,
+        -0.5,
+        -0.4,
+        -0.3,
+        -0.2,
+        -0.1,
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6
+      ],
+      "logBF_mu_over_gr": 3.2709255923363116,
+      "BF_mu_over_gr": 26.335704191539044,
+      "logBF_mu_over_mu0": 0.24269555100519824,
+      "BF_mu_over_mu0": 1.2746804898440862,
+      "g_posterior_mean": 0.15176270510340306,
+      "g_posterior_std": 0.12421017861943512,
+      "g_best_on_grid": 0.2,
+      "g_best_curve": 0.2,
+      "delta_lpd_g0": 3.0282300413311134,
+      "delta_lpd_best": 4.178876042179837,
+      "delta_lpd_improvement": 1.1506460008487238,
+      "quad_fit": {
+        "g_hat": 0.2859014418083846,
+        "sigma_g": 0.20169951344291903
+      },
+      "logZ_mu": 243.21153911752367,
+      "edge_mass_low": 2.2551440411318155e-07,
+      "edge_mass_high": 0.0003260031147120104,
+      "best_is_edge": false,
+      "run": {
+        "timestamp_utc": "20260203_232157UTC",
+        "n_events": 36,
+        "n_draws": 256,
+        "pe_nside": 64,
+        "p_credible": 0.9
+      },
+      "dlogZ_vs_best_axis": 0.0,
+      "BF_vs_best_axis": 1.0
+    },
+    {
+      "axis": "secrest",
+      "axis_def": {
+        "name": "secrest",
+        "frame": "galactic",
+        "lon_deg": 236.01,
+        "lat_deg": 28.77
+      },
+      "g_grid": [
+        -0.6,
+        -0.5,
+        -0.4,
+        -0.3,
+        -0.2,
+        -0.1,
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6
+      ],
+      "logBF_mu_over_gr": 3.2439458304266964,
+      "BF_mu_over_gr": 25.63467251986387,
+      "logBF_mu_over_mu0": 0.21571578909558298,
+      "BF_mu_over_mu0": 1.2407496942918559,
+      "g_posterior_mean": 0.14923546464410983,
+      "g_posterior_std": 0.1293275099710361,
+      "g_best_on_grid": 0.2,
+      "g_best_curve": 0.3,
+      "delta_lpd_g0": 3.0282300413311134,
+      "delta_lpd_best": 4.163278994141649,
+      "delta_lpd_improvement": 1.1350489528105356,
+      "quad_fit": {
+        "g_hat": 0.2744245731410478,
+        "sigma_g": 0.2047394298012788
+      },
+      "logZ_mu": 243.18455935561406,
+      "edge_mass_low": 3.5277796739288077e-07,
+      "edge_mass_high": 0.0003214644226815803,
+      "best_is_edge": false,
+      "run": {
+        "timestamp_utc": "20260203_232145UTC",
+        "n_events": 36,
+        "n_draws": 256,
+        "pe_nside": 64,
+        "p_credible": 0.9
+      },
+      "dlogZ_vs_best_axis": -0.026979761909615263,
+      "BF_vs_best_axis": 0.9733809406964559
+    },
+    {
+      "axis": "ecliptic_north",
+      "axis_def": {
+        "name": "ecliptic_north",
+        "frame": "barycentricmeanecliptic",
+        "lon_deg": 0.0,
+        "lat_deg": 90.0
+      },
+      "g_grid": [
+        -0.6,
+        -0.5,
+        -0.4,
+        -0.3,
+        -0.2,
+        -0.1,
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6
+      ],
+      "logBF_mu_over_gr": 3.149708349543573,
+      "BF_mu_over_gr": 23.329259599442693,
+      "logBF_mu_over_mu0": 0.12147830821245975,
+      "BF_mu_over_mu0": 1.1291648720549983,
+      "g_posterior_mean": -0.12330255112311772,
+      "g_posterior_std": 0.1582183775784588,
+      "g_best_on_grid": -0.1,
+      "g_best_curve": -0.3,
+      "delta_lpd_g0": 3.0282300413311134,
+      "delta_lpd_best": 3.952137050191425,
+      "delta_lpd_improvement": 0.9239070088603114,
+      "quad_fit": {
+        "g_hat": -0.29657753443384877,
+        "sigma_g": 0.26914830325597605
+      },
+      "logZ_mu": 243.09032187473093,
+      "edge_mass_low": 0.0007677246190962481,
+      "edge_mass_high": 8.980893173842728e-06,
+      "best_is_edge": false,
+      "run": {
+        "timestamp_utc": "20260203_232144UTC",
+        "n_events": 36,
+        "n_draws": 256,
+        "pe_nside": 64,
+        "p_credible": 0.9
+      },
+      "dlogZ_vs_best_axis": -0.12121724279273849,
+      "BF_vs_best_axis": 0.8858414960074529
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+[triplet] START cmb preset=cmb utc=2026-02-03T23:03:34Z
+[triplet] START secrest preset=secrest utc=2026-02-03T23:03:34Z
+[triplet] START ecliptic_north preset=ecliptic_north utc=2026-02-03T23:03:34Z
+[triplet] DONE cmb ok utc=2026-02-03T23:21:57Z
+[triplet] DONE secrest ok utc=2026-02-03T23:21:57Z
+[triplet] DONE ecliptic_north ok utc=2026-02-03T23:21:57Z
+[triplet] ALL_DONE status=0 utc=2026-02-03T23:21:57Z
