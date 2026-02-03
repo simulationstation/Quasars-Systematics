@@ -35,6 +35,9 @@ New figures for the paper update (LSS covariance + validated completeness):
 - `figures/validate_depth_systematic_recovery.png`  
   End-to-end validation: inject (i) a known dipole and (ii) a depth-linked selection systematic, then compare fits
   **without** vs **with** a depth-map template.
+- `figures/ecllon_proxy.png`  
+  Fast “seasonal imprint” proxy: fit the dipole in bins of ecliptic longitude and compare a full-sky fit with/without
+  low-order ecliptic-longitude templates (`sinλ`, `cosλ`).
 
 ### Data products (tables + covariances)
 
@@ -53,6 +56,9 @@ Validated completeness (known-truth injection + depth systematic):
 
 Map-level depth proxy used by the validation:
 - `data/depth_maps/lognexp_healpix_nside64.fits` (+ `.meta.json`)
+
+Fast proxy (“seasonal imprint” in ecliptic longitude):
+- `data/ecllon_proxy.json`
 
 ## Headline numbers (copy-ready)
 
@@ -98,6 +104,22 @@ Results (500 mocks each):
 
 Interpretation for the paper: **a slightly misspecified depth/completeness model can bias both direction and amplitude**,
 and adding the correct map-level depth template materially improves recovery in known-truth tests.
+
+### Fast proxy: ecliptic-longitude dependence (seasonal imprint proxy)
+
+From `data/ecllon_proxy.json` (Poisson GLM at `W1_max=16.6`, `nside=64`, `abs_elat` template; bins of ecliptic longitude):
+- Full-sky baseline (abs\_elat only): **D\_hat = 0.01678**, angle-to-CMB ≈ **34.33°**
+- Full-sky with additional low-order longitude templates (`sinλ`, `cosλ`): **D\_hat = 0.01289**, angle-to-CMB ≈ **79.77°**
+
+Ecliptic-longitude-bin fits (abs\_elat template only) show large variation in recovered axis across longitude ranges:
+- λ∈[180°,270°]: angle-to-CMB ≈ **3.7°**
+- λ∈[0°,90°]: angle-to-CMB ≈ **68.8°**
+- λ∈[90°,180°]: angle-to-CMB ≈ **34.4°**
+- λ∈[270°,360°]: angle-to-CMB ≈ **56.4°**
+
+Important caveat for the paper: **partial-sky wedge fits inflate D and are not directly comparable to the full-sky D**;
+the key diagnostic is the strong *directional* dependence on ecliptic longitude and the sensitivity of the full-sky
+fit to adding simple ecliptic-longitude templates.
 
 ## Suggested paper edits (minimal, referee-proof)
 
