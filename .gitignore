@@ -17,6 +17,7 @@ data/external/secrest*/
 data/external/catwise*/
 data/cache/unwise_nexp/*/w1-n-m/
 data/cache/unwise_nexp/*/*.fits
+!data/cache/unwise_nexp/*/*healpix*.fits
 data/cache/unwise_nexp/*/*.fits.gz
 
 # OS/editor

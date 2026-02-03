@@ -391,8 +391,35 @@ def main() -> int:
     ap.add_argument("--dust-template", choices=["none", "ebv_mean"], default="none")
     ap.add_argument(
         "--depth-mode",
-        choices=["none", "w1cov_covariate", "w1cov_offset", "unwise_nexp_covariate", "unwise_nexp_offset"],
+        choices=[
+            "none",
+            "w1cov_covariate",
+            "w1cov_offset",
+            "unwise_nexp_covariate",
+            "unwise_nexp_offset",
+            "depth_map_covariate",
+            "depth_map_offset",
+        ],
         default="none",
+    )
+    ap.add_argument(
+        "--depth-map-fits",
+        default=None,
+        help=(
+            "Optional HEALPix depth map FITS (assumed Galactic coords). Required for --depth-mode depth_map_*. "
+            "If the map NSIDE differs from --nside, it is resampled with healpy.ud_grade."
+        ),
+    )
+    ap.add_argument(
+        "--depth-map-ordering",
+        choices=["ring", "nest"],
+        default="ring",
+        help="HEALPix ordering of --depth-map-fits (used when resampling).",
+    )
+    ap.add_argument(
+        "--depth-map-name",
+        default=None,
+        help="Optional label stored in output JSON (e.g. 'unwise_lognexp_nside64').",
     )
     ap.add_argument(
         "--unwise-tiles-fits",
@@ -611,6 +638,40 @@ def main() -> int:
         fill = float(np.median(nexp_pix[ok]))
         nexp_pix[missing] = fill
 
+    # Optional: generic map-level depth proxy provided as a HEALPix map.
+    depth_map = None
+    depth_map_meta = None
+    if args.depth_mode.startswith("depth_map_"):
+        if args.depth_map_fits is None:
+            raise SystemExit("--depth-mode depth_map_* requires --depth-map-fits")
+        depth_map_path = Path(str(args.depth_map_fits))
+        if not depth_map_path.exists():
+            raise SystemExit(f"Missing --depth-map-fits: {depth_map_path}")
+
+        depth_map = hp.read_map(str(depth_map_path), verbose=False)
+        nside_in = int(hp.get_nside(depth_map))
+        order_in = "NEST" if str(args.depth_map_ordering).lower() == "nest" else "RING"
+        if nside_in != int(args.nside):
+            depth_map = hp.ud_grade(depth_map, nside_out=int(args.nside), order_in=order_in, order_out="RING", power=0)
+            order_in = "RING"
+
+        depth_map = np.asarray(depth_map, dtype=float)
+        unseen = ~np.isfinite(depth_map) | (depth_map == hp.UNSEEN)
+        ok = seen & (~unseen)
+        if not np.any(ok):
+            raise SystemExit("Depth map has no finite values on seen pixels.")
+        fill = float(np.median(depth_map[ok]))
+        depth_map[unseen] = fill
+        depth_map_meta = {
+            "path": str(depth_map_path),
+            "ordering_in": str(args.depth_map_ordering),
+            "nside_in": nside_in,
+            "nside_used": int(args.nside),
+            "fill_value": float(fill),
+            "missing_frac_seen": float(np.mean(seen & unseen)),
+            "name": None if args.depth_map_name is None else str(args.depth_map_name),
+        }
+
     # Base per-pixel means for EBV and W1COV.
     cnt_base = np.bincount(np.asarray(ipix_mask_base, dtype=np.int64), minlength=npix).astype(float)
     sum_w1cov = np.bincount(np.asarray(ipix_mask_base, dtype=np.int64), weights=np.asarray(w1cov_m_base, dtype=float), minlength=npix).astype(float)
@@ -702,6 +763,15 @@ def main() -> int:
             ref = float(np.median(logn[seen]))
             offset = (logn - ref)[seen]
             offset_name = "log_unwise_nexp_offset"
+        elif args.depth_mode == "depth_map_covariate":
+            assert depth_map is not None
+            templates.append(zscore(depth_map, seen)[seen])
+            template_names.append("depth_map_z")
+        elif args.depth_mode == "depth_map_offset":
+            assert depth_map is not None
+            ref = float(np.median(depth_map[seen]))
+            offset = (depth_map - ref)[seen]
+            offset_name = "depth_map_offset"
 
         cols = [np.ones_like(y), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2]]
         cols.extend(templates)
@@ -881,6 +951,7 @@ def main() -> int:
             "unwise_tiles_fits": None if args.unwise_tiles_fits is None else str(args.unwise_tiles_fits),
             "nexp_tile_stats_json": None if args.nexp_tile_stats_json is None else str(args.nexp_tile_stats_json),
             "nexp_missing_frac_seen": nexp_missing_frac,
+            "depth_map": depth_map_meta,
             "mc_draws": int(args.mc_draws),
             "seed": int(args.seed),
             "w1_mode": str(args.w1_mode),

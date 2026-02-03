@@ -42,6 +42,19 @@ Numerically (ecliptic-template-only Poisson GLM; cumulative mode), the recovered
 - angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6` (see the JSON above).
 The sky jackknife scatter at fixed cut is small (∼degree-level) compared to the ∼tens-of-degrees drift across cuts, supporting the interpretation that the drift is not just noise.
 
+## Clustered mocks (LSS covariance; recommended next-tier check)
+
+To go beyond Poisson-only uncertainties and include large-scale-structure (sample variance), use:
+
+```bash
+python3 scripts/run_catwise_lognormal_mocks.py --help
+```
+
+This script fits the same Poisson GLM to obtain a baseline intensity map, estimates a crude residual
+power spectrum, and then generates lognormal Poisson mocks to estimate the dipole-vector covariance.
+This is the quickest “include LSS” option in a self-contained environment; for publication-grade
+covariances, swap in a proper pseudo-$C_\ell$ deconvolution (e.g.\ NaMaster) and/or theory-driven $C_\ell$.
+
 ## Mechanism test: injected faint-limit modulation
 
 Both scan scripts include an injection mode that applies a purely selection-driven faint-limit modulation:

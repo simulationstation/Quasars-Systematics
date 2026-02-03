@@ -76,6 +76,21 @@ To keep this repository lightweight, we **include a derived per-tile statistic**
 
 This file is sufficient to reproduce the `Nexp`-offset GLM results shown in `Q_D_RES/`.
 
+#### Map-level depth (recommended for identifiability)
+
+For template/dipole-degeneracy studies, it is often cleaner to work with a **map-level** depth proxy
+that does not depend on the catalog’s realized source positions.
+
+This repo now includes a small precomputed HEALPix map (Galactic coords):
+
+- `data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits`
+
+You can regenerate it from the included tile table + per-tile stats:
+
+```bash
+python3 scripts/build_unwise_nexp_healpix_map.py --nside 64 --value-mode log_nexp
+```
+
 If you want to regenerate this JSON from the full unWISE coadds, use:
 
 ```bash
@@ -175,11 +190,45 @@ Outputs:
 - `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.json`
 - `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.png`
 
+#### Map-level depth variant (HEALPix depth map; not catalog-proxy)
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode depth_map_covariate \
+  --depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+  --depth-map-name unwise_lognexp_nside64 \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm_depthmap
+```
+
 ### Quick smoke test (no external data)
 
 ```bash
 python3 scripts/smoke_rvmp_fig5_poisson_glm.py
 ```
+
+## LSS covariance: clustered (lognormal) mocks
+
+Poisson-only errors are optimistic because they neglect large-scale structure (sample variance).
+This script generates quick clustered mocks and returns a dipole covariance that includes LSS+shot noise:
+
+```bash
+python3 scripts/run_catwise_lognormal_mocks.py \
+  --w1-max 16.6 \
+  --n-mocks 500 \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode none \
+  --outdir outputs/lognormal_mocks_cov
+```
+
+The covariance is written to `outputs/lognormal_mocks_cov/lognormal_mocks_cov.json` and includes:
+- an estimated clustering `C_ell` from data residuals (with a crude f_sky correction),
+- the recovered dipole-vector covariance across mocks (`cov_b`),
+- optional injection recovery diagnostics (`--inject-dipole-amp ...`).
 
 ### C) Mechanism-killing injection test (dipolar faint-limit modulation)
 
