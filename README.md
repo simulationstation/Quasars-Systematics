@@ -10,6 +10,8 @@ Key artifacts for reviewers are in `Q_D_RES/`:
 - `Q_D_RES/fixed_axis_scaling_fit.png` (main result figure used in the letter)
 - `Q_D_RES/dipole_master_tests.md` (detailed run log + additional diagnostics and figures)
 - `Q_D_RES/rvmp_fig5_audit.md` (RvMP Fig. 5 / ecliptic-trend + estimator audit; includes injection test)
+- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png` (Poisson GLM scan + conservative jackknife)
+- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + fit diagnostics/templates/jackknife)
 - `Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
 
 ## References / DOIs used by this repository
@@ -70,6 +72,7 @@ unWISE W1 exposure-count maps (`w1-n-m`).
 To keep this repository lightweight, we **include a derived per-tile statistic**:
 
 - `data/cache/unwise_nexp/neo7/w1_n_m_tile_stats_median.json`
+- `data/external/unwise/tiles.fits` (used to map sky positions to unWISE tile IDs)
 
 This file is sufficient to reproduce the `Nexp`-offset GLM results shown in `Q_D_RES/`.
 
@@ -122,9 +125,34 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
   --eclip-template abs_elat \
   --dust-template none \
   --depth-mode none \
+  --w1-mode cumulative \
+  --jackknife-nside 2 --jackknife-stride 1 --jackknife-max-regions 48 \
   --make-plot \
   --w1-grid 15.5,16.6,0.05 \
   --outdir outputs/rvmp_fig5_poisson_glm
+```
+
+The output JSON now includes:
+- `fit_diag`: deviance/DOF, Pearson χ²/DOF (overdispersion diagnostics),
+- `dipole_quasi`: a conservative quasi-Poisson uncertainty variant (covariance scaled by dispersion),
+- `corr_b_templates` / `template_dipoles`: explicit dipole–template degeneracy summaries,
+- `jackknife` (if enabled): leave-one-region-out sky jackknife of the fitted dipole vector.
+
+Latest cached real-data run (included in `Q_D_RES/`):
+- `D ≃ 1.6×10^{-2}` across the scan, but the best-fit axis drifts strongly with depth:
+  angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6`
+  (see `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`).
+
+#### Differential-bin diagnostic (recommended add-on)
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode none \
+  --w1-mode differential \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm_differential
 ```
 
 #### Independent depth variant (recommended): unWISE Nexp as a depth covariate
@@ -146,6 +174,12 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
 Outputs:
 - `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.json`
 - `outputs/rvmp_fig5_poisson_glm/rvmp_fig5_poisson_glm.png`
+
+### Quick smoke test (no external data)
+
+```bash
+python3 scripts/smoke_rvmp_fig5_poisson_glm.py
+```
 
 ### C) Mechanism-killing injection test (dipolar faint-limit modulation)
 

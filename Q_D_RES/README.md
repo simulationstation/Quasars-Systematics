@@ -19,6 +19,7 @@ The most important robustness point we now have is that swapping a catalog-deriv
 - `Q_D_RES/fixed_axis_scaling_fit.png`
 - `Q_D_RES/glm_cv_axes_nexp_offset.png`
 - `Q_D_RES/glm_cv_angles_to_sn_nexp_offset.png`
+- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png`
 
 ### Key small JSON artifacts (easy to cite)
 
@@ -33,6 +34,9 @@ The most important robustness point we now have is that swapping a catalog-deriv
 
 - `Q_D_RES/glm_cv_summary_nexp_offset_nodipole.json`  
   GLM+CV with **independent unWISE Nexp offset** + Secrest exclude mask (primary robustness upgrade).
+
+- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`  
+  Poisson GLM faint-cut scan with overdispersion diagnostics + sky jackknife and explicit template-degeneracy outputs.
 
 ## Where the heavy stuff lives (not copied here)
 
@@ -49,4 +53,3 @@ Built by:
 and consumed by:
 
 - `experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py`
-
