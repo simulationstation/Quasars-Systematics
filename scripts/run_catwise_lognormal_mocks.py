@@ -393,10 +393,21 @@ def main() -> int:
 
     ap.add_argument("--eclip-template", choices=["none", "abs_elat", "abs_sin_elat"], default="abs_elat")
     ap.add_argument("--dust-template", choices=["none", "ebv_mean"], default="none")
+    depth_modes = [
+        "none",
+        "w1cov_covariate",
+        "w1cov_offset",
+        "unwise_nexp_covariate",
+        "unwise_nexp_offset",
+        "depth_map_covariate",
+        "depth_map_offset",
+    ]
+    ap.add_argument("--depth-mode", choices=depth_modes, default="none")
     ap.add_argument(
-        "--depth-mode",
-        choices=["none", "w1cov_covariate", "w1cov_offset", "unwise_nexp_covariate", "unwise_nexp_offset", "depth_map_covariate", "depth_map_offset"],
-        default="none",
+        "--fit-depth-mode",
+        choices=depth_modes,
+        default=None,
+        help="If set, fit each mock with this depth-mode while estimating mu_hat/C_ell using --depth-mode.",
     )
     ap.add_argument("--unwise-tiles-fits", default="data/external/unwise/tiles.fits")
     ap.add_argument("--nexp-tile-stats-json", default=None)
@@ -433,9 +444,16 @@ def main() -> int:
         default=0.0,
         help="If non-zero, mocks are generated with mu -> mu * exp(alpha * depth_z) on seen pixels.",
     )
+    ap.add_argument(
+        "--mock-zero-base-dipole",
+        action="store_true",
+        help="Remove the fitted dipole from mu_hat before applying injections (for known-truth tests).",
+    )
 
     ap.add_argument("--write-mock-betas", action="store_true", help="Store per-mock beta vectors in the output JSON.")
     args = ap.parse_args()
+
+    fit_depth_mode = str(args.depth_mode) if args.fit_depth_mode is None else str(args.fit_depth_mode)
 
     import healpy as hp
     from astropy.io import fits
@@ -511,7 +529,7 @@ def main() -> int:
 
     # Optional unWISE Nexp mapping (tile-level).
     nexp_pix = None
-    if args.depth_mode.startswith("unwise_nexp_"):
+    if str(args.depth_mode).startswith("unwise_nexp_") or str(fit_depth_mode).startswith("unwise_nexp_"):
         if args.nexp_tile_stats_json is None:
             raise SystemExit("--depth-mode unwise_nexp_* requires --nexp-tile-stats-json")
         tile_stats = json.loads(Path(str(args.nexp_tile_stats_json)).read_text())
@@ -523,18 +541,25 @@ def main() -> int:
         dec = np.asarray(tiles["dec"], dtype=float)
         g = SkyCoord(ra=ra * u.deg, dec=dec * u.deg, frame="icrs").galactic
         tile_vec = lb_to_unitvec(g.l.deg, g.b.deg)
-        tree = cKDTree(tile_vec)
+        # Only use tiles that actually exist in the stats JSON (otherwise nearest-neighbour mapping
+        # can land on a missing tile and force large-area fill values).
+        valid_tile = np.fromiter((str(cid) in tile_stats for cid in coadd_id), dtype=bool, count=coadd_id.size)
+        if not np.any(valid_tile):
+            raise SystemExit("nexp-tile-stats-json contains no keys matching tiles.fits coadd_id values.")
+        tree = cKDTree(tile_vec[valid_tile])
         _, nn_idx = tree.query(pix_unit, k=1)
-        pix_coadd = coadd_id[nn_idx]
-        nexp_pix = np.array([float(tile_stats.get(str(cid), float("nan"))) for cid in pix_coadd], dtype=float)
-        bad = seen & (~np.isfinite(nexp_pix) | (nexp_pix <= 0.0))
-        ok = seen & np.isfinite(nexp_pix) & (nexp_pix > 0.0)
-        fill = float(np.median(nexp_pix[ok])) if np.any(ok) else 1.0
-        nexp_pix[bad] = fill
+        pix_coadd = coadd_id[valid_tile][np.asarray(nn_idx, dtype=int)]
+        nexp_pix = np.array([float(tile_stats[str(cid)]) for cid in pix_coadd], dtype=float)
+
+        bad = ~np.isfinite(nexp_pix) | (nexp_pix <= 0.0)
+        if np.any(bad):
+            ok = seen & (~bad)
+            fill = float(np.median(nexp_pix[ok])) if np.any(ok) else 1.0
+            nexp_pix[bad] = fill
 
     # Optional generic depth map.
     depth_map = None
-    if args.depth_mode.startswith("depth_map_"):
+    if str(args.depth_mode).startswith("depth_map_") or str(fit_depth_mode).startswith("depth_map_"):
         if args.depth_map_fits is None:
             raise SystemExit("--depth-mode depth_map_* requires --depth-map-fits")
         depth_map = hp.read_map(str(args.depth_map_fits), verbose=False)
@@ -548,59 +573,73 @@ def main() -> int:
         fill = float(np.median(depth_map[ok])) if np.any(ok) else 0.0
         depth_map[unseen] = fill
 
-    # Build design matrix.
-    templates: list[np.ndarray] = []
-    template_names: list[str] = []
+    # Build design matrices.
+    base_templates: list[np.ndarray] = []
+    base_template_names: list[str] = []
     if args.eclip_template == "abs_elat":
-        templates.append(zscore(abs_elat, seen)[seen])
-        template_names.append("abs_elat_z")
+        base_templates.append(zscore(abs_elat, seen)[seen])
+        base_template_names.append("abs_elat_z")
     elif args.eclip_template == "abs_sin_elat":
-        templates.append(zscore(abs_sin_elat, seen)[seen])
-        template_names.append("abs_sin_elat_z")
+        base_templates.append(zscore(abs_sin_elat, seen)[seen])
+        base_template_names.append("abs_sin_elat_z")
     if args.dust_template == "ebv_mean":
-        templates.append(zscore(ebv_mean, seen)[seen])
-        template_names.append("ebv_mean_z")
+        base_templates.append(zscore(ebv_mean, seen)[seen])
+        base_template_names.append("ebv_mean_z")
 
-    offset = None
-    offset_name = None
-    if args.depth_mode == "w1cov_covariate":
-        templates.append(zscore(np.log(np.clip(w1cov_mean, 1.0, np.inf)), seen)[seen])
-        template_names.append("log_w1cov_mean_z")
-    elif args.depth_mode == "w1cov_offset":
-        logw = np.log(np.clip(w1cov_mean, 1.0, np.inf))
-        ref = float(np.median(logw[seen]))
-        offset = (logw - ref)[seen]
-        offset_name = "log_w1cov_mean_offset"
-    elif args.depth_mode == "unwise_nexp_covariate":
-        assert nexp_pix is not None
-        logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
-        templates.append(zscore(logn, seen)[seen])
-        template_names.append("log_unwise_nexp_z")
-    elif args.depth_mode == "unwise_nexp_offset":
-        assert nexp_pix is not None
-        logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
-        ref = float(np.median(logn[seen]))
-        offset = (logn - ref)[seen]
-        offset_name = "log_unwise_nexp_offset"
-    elif args.depth_mode == "depth_map_covariate":
-        assert depth_map is not None
-        templates.append(zscore(depth_map, seen)[seen])
-        template_names.append("depth_map_z")
-    elif args.depth_mode == "depth_map_offset":
-        assert depth_map is not None
-        ref = float(np.median(depth_map[seen]))
-        offset = (depth_map - ref)[seen]
-        offset_name = "depth_map_offset"
+    def build_design(depth_mode: str) -> tuple[np.ndarray, np.ndarray | None, list[str], str | None]:
+        templates = list(base_templates)
+        names = list(base_template_names)
+        offset = None
+        offset_name = None
 
-    cols = [np.ones_like(y), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2]]
-    cols.extend(templates)
-    X = np.column_stack(cols)
+        if depth_mode == "w1cov_covariate":
+            templates.append(zscore(np.log(np.clip(w1cov_mean, 1.0, np.inf)), seen)[seen])
+            names.append("log_w1cov_mean_z")
+        elif depth_mode == "w1cov_offset":
+            logw = np.log(np.clip(w1cov_mean, 1.0, np.inf))
+            ref = float(np.median(logw[seen]))
+            offset = (logw - ref)[seen]
+            offset_name = "log_w1cov_mean_offset"
+        elif depth_mode == "unwise_nexp_covariate":
+            assert nexp_pix is not None
+            logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
+            templates.append(zscore(logn, seen)[seen])
+            names.append("log_unwise_nexp_z")
+        elif depth_mode == "unwise_nexp_offset":
+            assert nexp_pix is not None
+            logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
+            ref = float(np.median(logn[seen]))
+            offset = (logn - ref)[seen]
+            offset_name = "log_unwise_nexp_offset"
+        elif depth_mode == "depth_map_covariate":
+            assert depth_map is not None
+            templates.append(zscore(depth_map, seen)[seen])
+            names.append("depth_map_z")
+        elif depth_mode == "depth_map_offset":
+            assert depth_map is not None
+            ref = float(np.median(depth_map[seen]))
+            offset = (depth_map - ref)[seen]
+            offset_name = "depth_map_offset"
 
-    beta_hat, _ = fit_poisson_glm(X, y, offset=offset, max_iter=int(args.max_iter))
-    eta_hat = (np.zeros_like(y) if offset is None else offset) + X @ beta_hat
-    eta_hat = np.clip(eta_hat, -25.0, 25.0)
-    mu_hat = np.exp(eta_hat)
-    diag = poisson_glm_diagnostics(y, mu_hat, n_params=int(X.shape[1]))
+        cols = [np.ones_like(y), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2]]
+        cols.extend(templates)
+        X = np.column_stack(cols)
+        return X, offset, names, offset_name
+
+    X_gen, offset_gen, template_names_gen, offset_name_gen = build_design(str(args.depth_mode))
+    X_fit, offset_fit, template_names_fit, offset_name_fit = build_design(str(fit_depth_mode))
+
+    beta_hat_gen, _ = fit_poisson_glm(X_gen, y, offset=offset_gen, max_iter=int(args.max_iter))
+    eta_gen = (np.zeros_like(y) if offset_gen is None else offset_gen) + X_gen @ beta_hat_gen
+    eta_gen = np.clip(eta_gen, -25.0, 25.0)
+    mu_hat = np.exp(eta_gen)
+    diag_gen = poisson_glm_diagnostics(y, mu_hat, n_params=int(X_gen.shape[1]))
+
+    beta_hat_fit, _ = fit_poisson_glm(X_fit, y, offset=offset_fit, max_iter=int(args.max_iter))
+    eta_fit = (np.zeros_like(y) if offset_fit is None else offset_fit) + X_fit @ beta_hat_fit
+    eta_fit = np.clip(eta_fit, -25.0, 25.0)
+    mu_fit = np.exp(eta_fit)
+    diag_fit = poisson_glm_diagnostics(y, mu_fit, n_params=int(X_fit.shape[1]))
 
     # Residual-based clustering C_ell.
     lmax = int(args.lmax) if args.lmax is not None else int(3 * int(args.nside) - 1)
@@ -642,6 +681,12 @@ def main() -> int:
         fill = float(np.median(mock_depth_map[ok])) if np.any(ok) else 0.0
         mock_depth_map[unseen] = fill
         mock_depth_z_seen = zscore(mock_depth_map, seen)[seen].astype(float)
+
+    mu_hat_for_mocks = mu_hat
+    base_dipole_removed = None
+    if bool(args.mock_zero_base_dipole):
+        base_dipole_removed = np.asarray(beta_hat_gen[1:4], dtype=float)
+        mu_hat_for_mocks = mu_hat_for_mocks * np.exp(-(n_seen @ base_dipole_removed))
 
     n_mocks = int(args.n_mocks)
     if n_mocks < 1:
@@ -685,10 +730,10 @@ def main() -> int:
         "nside": int(args.nside),
         "lmax": int(lmax),
         "seen": seen,
-        "mu_hat": mu_hat,
-        "X": X,
-        "offset": offset,
-        "beta_hat": beta_hat,
+        "mu_hat": mu_hat_for_mocks,
+        "X": X_fit,
+        "offset": offset_fit,
+        "beta_hat": beta_hat_fit,
         "max_iter": int(args.max_iter),
         "inject_D": float(inject_D),
         "b_inj": b_inj,
@@ -771,9 +816,15 @@ def main() -> int:
             "w1_max": float(args.w1_max),
             "eclip_template": str(args.eclip_template),
             "dust_template": str(args.dust_template),
-            "depth_mode": str(args.depth_mode),
-            "template_names": template_names,
-            "offset_name": offset_name,
+            "depth_mode": str(fit_depth_mode),
+            "depth_mode_gen": str(args.depth_mode),
+            "depth_mode_fit": str(fit_depth_mode),
+            "template_names": template_names_fit,
+            "template_names_gen": template_names_gen,
+            "template_names_fit": template_names_fit,
+            "offset_name": offset_name_fit,
+            "offset_name_gen": offset_name_gen,
+            "offset_name_fit": offset_name_fit,
             "n_mocks": int(args.n_mocks),
             "seed": int(args.seed),
             "n_proc": int(args.n_proc),
@@ -786,15 +837,26 @@ def main() -> int:
             "mock_depth_alpha": float(mock_depth_alpha),
             "mock_depth_map_fits": None if args.mock_depth_map_fits is None else str(args.mock_depth_map_fits),
             "mock_depth_map_ordering": str(args.mock_depth_map_ordering),
+            "mock_zero_base_dipole": bool(args.mock_zero_base_dipole),
+            "base_dipole_removed": None if base_dipole_removed is None else [float(x) for x in base_dipole_removed],
         },
         "fit": {
-            "beta_hat": [float(x) for x in beta_hat],
+            "beta_hat": [float(x) for x in beta_hat_fit],
             "dipole_hat": {
-                "D": float(np.linalg.norm(beta_hat[1:4])),
-                "l_deg": vec_to_lb(beta_hat[1:4])[0],
-                "b_deg": vec_to_lb(beta_hat[1:4])[1],
+                "D": float(np.linalg.norm(beta_hat_fit[1:4])),
+                "l_deg": vec_to_lb(beta_hat_fit[1:4])[0],
+                "b_deg": vec_to_lb(beta_hat_fit[1:4])[1],
             },
-            "diag": diag,
+            "diag": diag_fit,
+        },
+        "gen": {
+            "beta_hat": [float(x) for x in beta_hat_gen],
+            "dipole_hat": {
+                "D": float(np.linalg.norm(beta_hat_gen[1:4])),
+                "l_deg": vec_to_lb(beta_hat_gen[1:4])[0],
+                "b_deg": vec_to_lb(beta_hat_gen[1:4])[1],
+            },
+            "diag": diag_gen,
         },
         "cl_estimate": {
             "meta": cl_meta,

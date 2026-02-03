@@ -247,6 +247,7 @@ python3 scripts/run_catwise_lognormal_mocks.py \
   --inject-axis cmb \
   --mock-depth-alpha 0.6 \
   --mock-depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+  --mock-zero-base-dipole \
   --depth-mode none \
   --outdir outputs/lognormal_mocks_inj_depth_misspecified
 
@@ -258,7 +259,9 @@ python3 scripts/run_catwise_lognormal_mocks.py \
   --inject-axis cmb \
   --mock-depth-alpha 0.6 \
   --mock-depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
-  --depth-mode depth_map_covariate \
+  --mock-zero-base-dipole \
+  --depth-mode none \
+  --fit-depth-mode depth_map_covariate \
   --depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
   --outdir outputs/lognormal_mocks_inj_depth_modeled
 ```
