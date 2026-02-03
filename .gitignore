@@ -10,6 +10,8 @@ venv/
 outputs/
 results/
 *.log
+pid.txt
+pid_*.txt
 
 # Large downloads (keep the repo small; see README for download instructions)
 data/external/zenodo_*/

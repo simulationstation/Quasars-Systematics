@@ -198,6 +198,11 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
   --dust-template none \
   --depth-mode depth_map_covariate \
   --depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+  --depth-map-name unwise_lognexp_nside64 \
+  --make-plot \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm_depthmap
+```
 
 ## New: EntropyPaper tie-in (fast dark-siren hemisphere proxy)
 
@@ -225,10 +230,30 @@ Run:
   --outdir outputs/darksiren_axis_proxy_cmb
 ```
 
-  --depth-map-name unwise_lognexp_nside64 \
-  --make-plot \
-  --w1-grid 15.5,16.6,0.05 \
-  --outdir outputs/rvmp_fig5_poisson_glm_depthmap
+## New: Full dark-siren fixed-axis anisotropy scan (2-3-F)
+
+This is a full-likelihood fixed-axis scan for a 1-parameter anisotropy `g`:
+
+`dL_gw(z,n) → dL_gw(z,n) * exp(g * cosθ)`
+
+Run bundle and results (3 axes: `cmb`, `secrest`, `ecliptic_north`) are archived here:
+
+- `2-3-F/master_summary.md` (human-readable results table + interpretation)
+- `2-3-F/artifacts/` (per-axis JSON + PNG plots)
+- `2-3-F/summary_metrics.json` (machine-readable extracted metrics)
+
+Re-run (example axis):
+
+```bash
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
+python3 scripts/run_darksiren_fixed_axis_gscan_full.py \
+  --axis cmb \
+  --g-grid=-0.6,0.6,0.1 \
+  --nproc 36 \
+  --g-prior-type normal --g-prior-mu 0.0 --g-prior-sigma 0.2 \
+  --cache-outdir <CACHE_OUTDIR> \
+  --outdir outputs/darksiren_fixed_axis_full_cmb \
+  --make-plot
 ```
 
 ### Quick smoke test (no external data)
