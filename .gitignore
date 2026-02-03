@@ -20,6 +20,11 @@ data/cache/unwise_nexp/*/*.fits
 !data/cache/unwise_nexp/*/*healpix*.fits
 data/cache/unwise_nexp/*/*.fits.gz
 
+# Exception: small GWTC-3 skymap subset used by `scripts/run_darksiren_axis_split_proxy.py`
+!data/external/zenodo_5546663/
+!data/external/zenodo_5546663/skymaps/
+!data/external/zenodo_5546663/skymaps/*.fits
+
 # OS/editor
 .DS_Store
 .idea/

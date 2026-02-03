@@ -1,0 +1,1644 @@
+\documentclass[11pt]{article}
+
+% ==================== Packages ====================
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref} % keep near the end
+
+% --- table helpers ---
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{threeparttable}
+
+% --- graphics ---
+\usepackage{graphicx}
+% Make compilation robust whether invoked from repo root or from update_paper/.
+\graphicspath{{./}{update_paper/}{../update_paper/}{FINAL_FIGURES/}{FINAL_FIGURES/generated/}{LAST_FIGURE/}{../FINAL_FIGURES/}{../FINAL_FIGURES/generated/}{../LAST_FIGURE/}}
+% --- robust figure inclusion (compile even if a figure file is missing) ---
+\newcommand{\maybeincludegraphics}[2][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \fbox{%
+      \parbox{0.9\linewidth}{\centering\small Missing figure: \texttt{\detokenize{#2}}}%
+    }%
+  }%
+}
+
+% ==================== Environments ====================
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem{proposition}{Proposition}
+\newtheorem{conjecture}{Conjecture}
+
+% ==================== Macros ====================
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\bbR}{\mathbb{R}}
+\newcommand{\bbN}{\mathbb{N}}
+
+\title{Inverse Reconstruction of an Effective Horizon--Entropy Slope Deformation from Late-Time Data\\
+\large A Calibrated Nonparametric Pipeline with Mapping and Perturbation-Sector Sensitivity Control}
+\author{Aiden B. Smith}
+\date{January 31, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+I develop a calibrated, nonparametric inverse-inference pipeline that reconstructs an \emph{effective} horizon--entropy \emph{slope} deformation function $\mu(A)$ from late-time cosmological data, rather than fitting a pre-chosen parametric entropy model. Under a minimal running--Planck-mass embedding, the reconstruction implies a standard-siren propagation prediction for the luminosity-distance ratio $d_L^{\mathrm{GW}}(z)/d_L^{\mathrm{EM}}(z)=\sqrt{\mu(A(z))/\mu(A(0))}$. Using a sample of 36 GWTC-3 dark sirens, evaluating event likelihoods by re-weighting public PE posterior samples with analytic removal of the PE distance prior, and marginalizing over galaxy-catalog incompleteness with a mixture model, I find strong predictive-score evidence for the horizon-entropy propagation history over an internal GR baseline ($\Delta\mathrm{LPD}_{\mathrm{tot}}\simeq +3.03$, corresponding to a Bayes-factor proxy $\exp(\Delta\mathrm{LPD})\simeq 20$). A sky-rotation control yields a comparably large score ($\Delta\mathrm{LPD}_{\mathrm{rot}}\simeq +2.99$), indicating that the preference is driven primarily by population-level distance-distribution (``spectral'') consistency with the inferred $d_L(z)$ relation rather than by unique host-galaxy associations; a small subset of events provides most of the leverage (notably GW200308\_090415 and GW200220\_061928). In a GR control mode the same pipeline recovers $H_0\simeq 68.5\,\mathrm{km\,s^{-1}\,Mpc^{-1}}$, providing a basic implementation check. In the cosmological reconstruction itself, extended ``info+'' likelihoods (SN+BAO+CC with growth and CMB lensing/full-shape anchors) prefer a negative slope scar statistic ($s<0$) across independent multistarts, but mapping-variant tests show partial degeneracy with residual-closure freedom. Complementary void-based perturbation probes remain noise-dominated (Tier~1.5 prism $\Delta\mathrm{LPD}\approx 0$), motivating future calibrated analyses that combine larger siren samples, validated selection functions, and higher-S/N void and lensing measurements.
+\end{abstract}
+
+\tableofcontents
+
+% ============================================================
+\section{Introduction}
+I ask whether late-time cosmological data can support an \emph{effective} deformation of the
+horizon-entropy \emph{slope}, without assuming a parametric Tsallis/Barrow/Kaniadakis form.
+The core idea is to invert the map from $\mu(A)$ to observables (e.g.\ $H(z)$ and distances) and
+to infer $\mu(A)$ directly from data.
+
+I treat this reconstruction as an \emph{effective} inference problem. In particular, when I add
+growth and CMB lensing information, I explicitly separate:
+(i) background-driven effects (how $\mu(A)$ modifies $H(z)$), from
+(ii) perturbation-sector assumptions (how growth and lensing respond).
+This framing turns the ``info+'' configuration into a controlled \emph{consistency test} rather than
+a claim of full microphysical reconstruction.
+
+This work contributes:
+\begin{enumerate}[leftmargin=2.0em]
+\item A nonparametric inverse reconstruction of $\mu(A)$, with post hoc proximity tests to parametric
+families only after inference.
+\item A calibrated inference pipeline: SBC under $\mu=1$, explicit hard-bound transforms with
+Jacobian factors, and synthetic-data generator audits.
+\item Explicit mapping-variant control (M0/M1/M2), enabling sensitivity tests to ``first law''
+ambiguities in the thermodynamic map.
+\item Robustness checks via multi-starts, seeds, and likelihood configuration changes.
+\item A pilot hemispherical consistency scan for direction-dependent texture or survey-footprint systematics in the reconstructed entropy slope (Section~\ref{sec:hemi_slope_asymmetry}).
+
+\item An external dipole mechanism-control analysis (CatWISE/Secrest-style quasar counts) as a systematics stress test: a ladder of template regression and magnitude-shift controls reproduces the reported dipole amplitude suppression, a fixed-axis multi-cut scaling fit isolates a statistically nonzero selection-driven magnitude-gradient component, and an independent depth-template substitution check (catalog \texttt{w1cov} versus an unWISE exposure-count map) shows that the recovered dipole \emph{direction} is unstable to depth modeling.
+\end{enumerate}
+
+For reader convenience, I summarize the paper structure. Section~2 introduces the thermodynamic forward map that connects an effective horizon--entropy slope deformation $\mu(A)$ to the background expansion history through an ODE for $u(z)\equiv H(z)^2$ and standard distance relations. Section~3 enumerates the mapping variants (M0/M1/M2) that encode controlled ``first-law'' ambiguities, including residual-closure freedom and a curvature-dependent horizon-area map, and records a minimal perturbation-sector embedding used only for out-of-sample targets. Section~4 describes the inference methodology (PTEMCEE sampling, hard-bound transforms, and prior construction) together with reproducibility bookkeeping. Section~5 presents simulation-based calibration results for the forward inference pipeline under a $\mu=1$ truth. Section~6 presents the main results, organized into a clean proxy-stack baseline (with mapping/seed robustness) versus an extended ``info+'' configuration that adds growth and full lensing/full-shape information as an explicitly labeled consistency test.
+
+% ============================================================
+\section{Forward model and mapping}
+\subsection{Definition of \texorpdfstring{$\mu(A)$}{mu(A)}}
+I define the entropy-slope deformation
+\begin{equation}
+\mu(A)\coloneqq
+\frac{(\dd S/\dd A)_{\mathrm{BH}}}{\dd S/\dd A}.
+\label{eq:mu_def}
+\end{equation}
+
+
+\subsection{Log-area coordinate and log-deformation}
+I work in a log-area coordinate centered at the present-epoch horizon area:
+\begin{equation}
+x \coloneqq \log\!\left(\frac{A}{A_0}\right),
+\qquad
+g(x) \coloneqq \log \mu(A)\quad (A=A_0 e^{x}).
+\label{eq:gx}
+\end{equation}
+
+
+\subsection{Forward map from \texorpdfstring{$\mu(A)$}{mu(A)} to \texorpdfstring{$H(z)$}{H(z)}}
+I define
+\begin{equation}
+u(z)\coloneqq H(z)^2,
+\label{eq:u_def}
+\end{equation}
+and use a Cai--Kim/Clausius-style late-time mapping (matter-dominance approximation for $(\rho+p)$)
+to obtain the ODE
+\begin{equation}
+\frac{\dd u}{\dd z}
+=
+3 H_0^2 \Omega_{m0} (1+z)^2\,\mu\!\bigl(A(z)\bigr).
+\label{eq:forward_u}
+\end{equation}
+An explicit Clausius derivation consistent with the sign and normalization used in the implementation is given in Appendix~\ref{app:clausius_derivation}.
+The apparent-horizon area mapping is
+\begin{equation}
+A(z)
+=
+\frac{4\pi c^2}{H(z)^2 - \Omega_{k0} H_0^2 (1+z)^2},
+\qquad
+H(z)^2 - \Omega_{k0} H_0^2 (1+z)^2 > 0.
+\label{eq:area_general}
+\end{equation}
+For $\Omega_{k0}=0$, this reduces to $A(z)=4\pi c^2/H(z)^2$.
+
+I also define the apparent-horizon radius $R_A(z)$ by $A(z)=4\pi R_A(z)^2$:
+\begin{equation}
+R_A(z)\coloneqq \sqrt{\frac{A(z)}{4\pi}}
+=
+\frac{c}{\sqrt{H(z)^2 - \Omega_{k0} H_0^2 (1+z)^2}}.
+\label{eq:RA_def}
+\end{equation}
+
+
+\subsection{Distances}
+Distances are computed from $H(z)$ using standard FRW relations:
+\begin{align}
+D_C(z) &= c \int_0^z \frac{\dd z'}{H(z')}, \label{eq:DC}\\
+D_M(z) &=
+\begin{cases}
+\frac{c}{H_0\sqrt{\Omega_{k0}}}\,
+\sinh\!\left(\sqrt{\Omega_{k0}}\; \frac{H_0 D_C(z)}{c}\right), & \Omega_{k0}>0,\\[6pt]
+D_C(z), & \Omega_{k0}=0,\\[6pt]
+\frac{c}{H_0\sqrt{|\Omega_{k0}|}}\,
+\sin\!\left(\sqrt{|\Omega_{k0}|}\; \frac{H_0 D_C(z)}{c}\right), & \Omega_{k0}<0,
+\end{cases}
+\label{eq:DM}
+\end{align}
+with angular diameter distance $D_A(z)=D_M(z)/(1+z)$ and luminosity distance
+$D_L(z)=(1+z)\,D_M(z)$.
+
+
+% ============================================================
+\section{Mapping variants (M0/M1/M2)}
+I implement three mapping variants to capture ``first law'' ambiguities and allow sensitivity
+tests.
+
+\paragraph{M0 (baseline).}
+Baseline mapping with $\Omega_{k0}=0$ and no residual closure term:
+\begin{equation}
+\frac{\dd u}{\dd z}
+=
+3 H_0^2 \Omega_{m0} (1+z)^2\,\mu\!\bigl(A(z)\bigr),
+\qquad
+A(z) = \frac{4\pi c^2}{u(z)}.
+\label{eq:M0}
+\end{equation}
+
+
+\paragraph{M1 (residual closure).}
+Adds a smooth residual $R(z)$ to capture closure ambiguities:
+\begin{equation}
+\frac{\dd u}{\dd z}
+=
+3 H_0^2 \Omega_{m0} (1+z)^2\,\mu\!\bigl(A(z)\bigr)\,[1+R(z)].
+\label{eq:M1}
+\end{equation}
+I parameterize $R(z)$ with a low-order spline (e.g.\ $N_R$ knots on $[0,z_{\max}]$), with Gaussian
+priors at the knots and a smoothness prior on second differences.
+
+\paragraph{M2 (curved-horizon mapping).}
+Promotes $\Omega_{k0}$ to a nuisance parameter and updates $A(z)$ accordingly:
+\begin{equation}
+\frac{\dd u}{\dd z}
+=
+3 H_0^2 \Omega_{m0} (1+z)^2\,\mu\!\bigl(A(z)\bigr),
+\qquad
+A(z) = \frac{4\pi c^2}{u(z) - \Omega_{k0} H_0^2 (1+z)^2}.
+\label{eq:M2}
+\end{equation}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.88\linewidth]{horizon_radius_mapping_demo.pdf}
+\caption{Illustration of the curvature-dependent apparent-horizon map $A(z)$ (Eq.~\eqref{eq:area_general}) through the horizon radius $R_A(z)$ for representative $\Omega_{k0}$ values.}
+\label{fig:horizon_radius_mapping_demo}
+\end{figure}
+
+\begin{remark}[Nomenclature note]
+Some internal batch scripts reserve the label ``M3'' for additional experimental mappings (e.g.\ alternative horizon definitions or perturbation-sector couplings). Results reported here use only M0--M2.
+\end{remark}
+
+
+\subsection{Minimal perturbation embedding for out-of-sample targets}
+\label{sec:minimal_embedding}
+Our reconstruction maps $\mu(A)$ into background observables through Eqs.~\eqref{eq:forward_u}--\eqref{eq:DM}. To define falsifiable out-of-sample targets that probe the perturbation/propagation sector, I record a minimal embedding in which the horizon entropy slope is set by an effective gravitational coupling,
+\begin{equation}
+\frac{\dd S}{\dd A} = \frac{1}{4\,G_{\mathrm{eff}}(A)},
+\qquad \Rightarrow\qquad
+\mu(A) = \frac{G_{\mathrm{eff}}(A)}{G_N},
+\label{eq:Geff_mu}
+\end{equation}
+so that $G_{\mathrm{eff}}(z)=G_N\,\mu(A(z))$. Interpreting this as a running Planck mass $M_*^2\propto 1/G_{\mathrm{eff}}$, one has $M_*^2(z)\propto 1/\mu(A(z))$ and therefore an EFT-of-DE Planck-mass running
+\begin{equation}
+\alpha_M(z)\equiv \frac{\dd\ln M_*^2}{\dd\ln a}
+=-\frac{\dd\ln\mu}{\dd\ln a}.
+\label{eq:alphaM}
+\end{equation}
+
+\paragraph{Local time-variation proxy.}
+At $z=0$, the implied fractional time variation is
+\begin{equation}
+\frac{\dot G_{\mathrm{eff}}}{G_{\mathrm{eff}}}
+=
+\frac{\dd \ln G_{\mathrm{eff}}}{\dd t}
+=
+\frac{\dd\ln\mu}{\dd t}
+=
+-(H\,\alpha_M)\big|_{z=0},
+\label{eq:dotG_over_G}
+\end{equation}
+which provides a concrete local-consistency stress test under this minimal identification.
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{proxy_M0_seed123_dotG_over_G_hist.pdf}
+\caption{Consistency check under the minimal $\alpha_M$-only embedding: posterior for the present-day time variation $\dot G_{\mathrm{eff}}/G_{\mathrm{eff}}$ implied by the reconstructed $\mu(A)$, shown here for the proxy-stack clean M0 seed 123 reconstruction.}
+\label{fig:dotG_over_G_constraints}
+\end{figure}
+
+\begin{remark}[Local-constraint caveat for the minimal embedding]
+Constraints on present-day time variation of Newton's constant are very strong. If the reconstructed
+$\mu(A)$ posterior implies a present-day drift $\dot G_{\mathrm{eff}}/G_{\mathrm{eff}}$ that violates
+local bounds when interpreted through Eq.~\eqref{eq:dotG_over_G}, then the $\alpha_M$-only embedding
+is ruled out (even if the background reconstruction remains a valid phenomenological description).
+In that case, any physical completion would require either screening/decoupling between local and
+cosmological couplings or additional perturbation-sector structure beyond the minimal ansatz.
+\end{remark}
+
+\paragraph{Standard-siren propagation target.}
+In running-Planck-mass phenomenology with luminal GW speed, the standard-siren distance ratio obeys the well-known relation
+\begin{equation}
+\frac{d_L^{\mathrm{GW}}(z)}{d_L^{\mathrm{EM}}(z)}
+=
+\frac{M_*(0)}{M_*(z)}
+=
+\sqrt{\frac{\mu(A(z))}{\mu(A(0))}}.
+\label{eq:dlGW_over_dlEM}
+\end{equation}
+In Section~\ref{sec:dark_siren_gap} I implement a pilot ``dark-siren gap'' scoring test on GWTC-3 BBH events,
+including selection correction and an explicit sensitivity check to host-catalog completeness correction.
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{proxy_M0_seed123_dLgw_over_dLem_band.pdf}
+\caption{Proxy-stack clean M0 seed 123: standard-siren propagation target under the minimal $\alpha_M$-only embedding, shown as the posterior band of $d_L^{\mathrm{GW}}/d_L^{\mathrm{EM}}$ implied by Eq.~\eqref{eq:dlGW_over_dlEM}.}
+\label{fig:dlGW_over_dlEM_band}
+\end{figure}
+
+\paragraph{Pilot ``siren gap'' scalar summary (proxy-stack; post hoc).}
+To provide a one-number summary of the propagation target in Eq.~\eqref{eq:dlGW_over_dlEM} over a chosen
+redshift window, I define for each posterior draw $(j)$
+\begin{equation}
+\mathcal{S}^{(j)}_{\mathrm{siren}} \coloneqq
+\int_{z_{\min}}^{z_{\max}} w_{\mathrm{siren}}(z)\,
+\log\!\left[\frac{d_L^{\mathrm{GW},(j)}(z)}{d_L^{\mathrm{EM},(j)}(z)}\right]\dd z,
+\qquad
+\int_{z_{\min}}^{z_{\max}} w_{\mathrm{siren}}(z)\,\dd z = 1,
+\label{eq:siren_gap_def}
+\end{equation}
+with $w_{\mathrm{siren}}(z)=1/(z_{\max}-z_{\min})$ in this pilot.
+I also report the corresponding geometric-mean distance ratio
+$\overline{R}_{\mathrm{siren}}^{(j)}\equiv \exp\!\bigl(\mathcal{S}^{(j)}_{\mathrm{siren}}\bigr)$.
+Table~\ref{tab:siren_gap_proxy} summarizes $\mathcal{S}_{\mathrm{siren}}$ and $\overline{R}_{\mathrm{siren}}$
+for the proxy-stack clean M0 seed~123 run over $z\in[0.02,0.62]$ (no standard-siren data are fitted in any configuration here).
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Quantity & mean$\pm$std & 95\% CI & sign probability \\
+\midrule
+$\overline{R}_{\mathrm{siren}}$ & $1.049\pm 0.018$ & $[1.015,1.083]$ & $P(\overline{R}_{\mathrm{siren}}>1)=0.996$ \\
+$\mathcal{S}_{\mathrm{siren}}$ & $0.0478\pm 0.0171$ & $[0.0146,0.0807]$ & $P(\mathcal{S}_{\mathrm{siren}}>0)=0.996$ \\
+\bottomrule
+\end{tabular}
+\caption{Pilot standard-siren propagation summary under the minimal $\alpha_M$-only embedding (Eq.~\eqref{eq:dlGW_over_dlEM}),
+computed from the proxy-stack clean M0 seed~123 posterior and averaged uniformly over $z\in[0.02,0.62]$ (Eq.~\eqref{eq:siren_gap_def}).}
+\label{tab:siren_gap_proxy}
+\end{table}
+
+\noindent
+The positive mean $\mathcal{S}_{\mathrm{siren}}$ (equivalently $\overline{R}_{\mathrm{siren}}>1$) is the expected sign under the
+proxy-stack negative-tilt reconstructions, since $s<0$ typically implies $\mu(A(z))/\mu(A(0))>1$ at higher redshift (smaller mapped area).
+This is an out-of-sample propagation-sector \emph{target} under the minimal embedding; confrontation with real siren data requires an explicit treatment
+of selection, host identification, and any screening/decoupling between local and cosmological couplings.
+
+\begin{remark}[Reproducibility note (pilot siren gap)]
+This post-processing prediction is generated by \path{scripts/run_siren_gap_test.py} with config
+\path{configs/siren_gap_test_proxy_M0_seed123.yaml}, writing to
+\path{outputs/siren_gap_test_proxy_M0_seed123_20260131_0034UTC/} on git SHA
+\texttt{7f2cbc9e9ea1500c9819f04d91ee46bb93c48a03}. Reported artifacts include
+\path{figure_dLgw_over_dLem_band.pdf}, \path{siren_gap_summary.json}, and \path{siren_gap_summary.txt}.
+\end{remark}
+
+\paragraph{Out-of-sample prediction: a void-lensing amplitude proxy (Tier 1).}
+As an additional lightweight falsification probe under the same $\alpha_M$-only embedding, I map
+posterior draws of $\mu(A)$ into a crude, amplitude-only proxy intended to capture the leading
+dependence of void-lensing-type signals on an effective Newton coupling.
+In this Tier~1 construction, the proxy amplitude is a redshift-weighted average of the coupling
+ratio $G_{\mathrm{eff}}(z)/G_{\mathrm{eff}}(0)=\mu(A(z))/\mu(A(0))$; values above unity correspond to an
+effective strengthening relative to today over the chosen window.
+
+For a chosen void-sample redshift window $z\in[z_{\min},z_{\max}]$, define for each posterior draw
+$(j)$
+\begin{equation}
+\mathcal{A}_{\mathrm{void}}^{(j)} \coloneqq
+\int_{z_{\min}}^{z_{\max}} w_V^{(j)}(z)\,
+\frac{G_{\mathrm{eff}}^{(j)}(z)}{G_{\mathrm{eff}}^{(j)}(0)}\,\dd z
+=
+\int_{z_{\min}}^{z_{\max}} w_V^{(j)}(z)\,
+\frac{\mu^{(j)}(A(z))}{\mu^{(j)}(A(0))}\,\dd z,
+\qquad
+\int_{z_{\min}}^{z_{\max}} w_V^{(j)}(z)\,\dd z = 1.
+\label{eq:void_amp_proxy}
+\end{equation}
+Here $w_V^{(j)}(z)\ge 0$ is a user-chosen weight; it may be taken draw-independent or computed per posterior draw using that draw's distance--redshift relation.
+A uniform choice is $w_V^{(j)}(z)=1/(z_{\max}-z_{\min})$.
+In the \texttt{weight=cmb\_kappa} option used in Section~\ref{sec:void_amp_tier1}, I adopt a normalized CMB-lensing-kernel-like shape computed from distances inferred per draw (dropping overall constants that cancel under normalization):
+\begin{align}
+\tilde w_{\kappa}^{(j)}(z) &\coloneqq (1+z)\,\frac{\chi^{(j)}(z)\,\bigl[\chi_s-\chi^{(j)}(z)\bigr]}{\chi_s},
+\qquad
+\chi^{(j)}(z)\equiv D_C^{(j)}(z), \label{eq:wV_cmbkappa_raw}\\
+w_V^{(j)}(z) &\coloneqq
+\frac{\tilde w_{\kappa}^{(j)}(z)}{\int_{z_{\min}}^{z_{\max}} \tilde w_{\kappa}^{(j)}(z')\,\dd z'}.
+\label{eq:wV_cmbkappa_norm}
+\end{align}
+Equation~\eqref{eq:wV_cmbkappa_raw} is the standard (flat) CMB-lensing efficiency kernel shape for a single source plane at comoving distance $\chi_s$,
+$W^\kappa(z)\propto (1+z)\,\chi(z)\,[\chi_s-\chi(z)]/\chi_s$, with overall prefactors (e.g.\ $(3/2)\,\Omega_{m0}H_0^2/c^2$) dropped because $w_V^{(j)}$ is normalized on $[z_{\min},z_{\max}]$.
+
+I fix the effective source comoving distance to $\chi_s=14{,}000\,\mathrm{Mpc}$ (approximately the CMB last-scattering distance).
+Because $\chi^{(j)}(z)$ depends on the inferred $H^{(j)}(z)$, this weight is model-dependent; the Tier~1 proxy should therefore be interpreted as a directional, profile-dependent consistency check rather than a pure amplitude rescaling of a fixed kernel.
+
+Using Eq.~\eqref{eq:dlGW_over_dlEM}, the integrand can equivalently be written as the square of the
+standard-siren distance ratio:
+$\mu(A(z))/\mu(A(0))=[d_L^{\mathrm{GW}}(z)/d_L^{\mathrm{EM}}(z)]^2$.
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{void_amp_proxy_schematic.pdf}
+\caption{Conceptual illustration for the Tier~1 void-lensing proxy. The full analysis requires a profile-based template and a verified measurement definition; this schematic is included to make the sign logic and the role of $G_{\mathrm{eff}}$ intuitive.}
+\label{fig:void_schematic}
+\end{figure}
+
+\paragraph{Minimal growth modification under this embedding (not used in Results).}
+In GR, the linear growth factor $D(a)$ (normalized at $a=1$) obeys
+\begin{equation}
+\frac{\dd^2 D}{\dd a^2}
++
+\left(
+\frac{3}{a}
++
+\frac{\dd \ln H}{\dd a}
+\right)
+\frac{\dd D}{\dd a}
+-
+\frac{3}{2}\,
+\frac{\Omega_{m0} H_0^2}{a^5\,H(a)^2}\,D
+=0.
+\label{eq:growth_ode}
+\end{equation}
+If one further assumes that the same $G_{\mathrm{eff}}$ controls the strength of clustering in the
+subhorizon Poisson equation (and assumes negligible gravitational slip, $\Phi=\Psi$), then the GR
+growth equation is modified only by a rescaling of the source term:
+\begin{equation}
+\frac{\dd^2 D}{\dd a^2}
++
+\left(
+\frac{3}{a}
++
+\frac{\dd \ln H}{\dd a}
+\right)
+\frac{\dd D}{\dd a}
+-
+\frac{3}{2}\,
+\frac{\Omega_{m0} H_0^2}{a^5\,H(a)^2}\,
+\mu\!\bigl(A(a)\bigr)\,D
+=0,
+\label{eq:growth_ode_embed}
+\end{equation}
+where $A(a)$ denotes the mapped area evaluated at $z(a)=a^{-1}-1$.
+This extension is deferred to future work; the present paper treats growth/lensing likelihoods as controlled anchors under explicitly stated assumptions rather than as a unique perturbation reconstruction.
+
+
+% ============================================================
+\section{Inference algorithm}
+\subsection{Sampler}
+I sample the posterior using PTEMCEE (parallel-tempered ensemble MCMC). In all production runs I use a fixed temperature ladder with $n_T$ temperatures and maximum temperature $T_{\max}$, and I report posterior results from the cold chain only ($T=1$). After discarding burn-in, the cold chain is flattened over walkers and steps and a fixed number of draws is selected uniformly at random without replacement for downstream post-processing (posterior bands, scar summaries, and derived predictions). Exact $(n_T,T_{\max},N_w,N_{\mathrm{step}},N_{\mathrm{burn}},N_{\mathrm{draw}})$ values are documented per configuration in Section~\ref{sec:results}.
+
+\subsection{Hard-bounded parameter transforms}
+For a parameter $\theta$ constrained to an interval $[\theta_{\min},\theta_{\max}]$, I sample an
+unconstrained variable $u\in\bbR$ and transform via a logistic map
+\begin{equation}
+\theta(u)=\theta_{\min}+\frac{\theta_{\max}-\theta_{\min}}{1+e^{-u}},
+\label{eq:logistic}
+\end{equation}
+with Jacobian
+\begin{equation}
+\left|\frac{\dd \theta}{\dd u}\right|
+=
+(\theta_{\max}-\theta_{\min})\,
+\frac{e^{-u}}{(1+e^{-u})^2}.
+\label{eq:jacobian}
+\end{equation}
+The log-Jacobian term $\log|\dd\theta/\dd u|$ is added to the log posterior.
+
+
+\subsection{Baseline prior bounds and nuisance priors (as implemented)}
+For transparency, Table~\ref{tab:priors_baseline} lists the hard bounds and the explicit nuisance/hyperparameter priors used in the clean proxy-stack baseline.
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Quantity & Prior / bound & Comment \\
+\midrule
+$H_0$ & $[40,100]$ & hard bound (km/s/Mpc) \\
+$\Omega_{m0}$ & $[0.2,0.4]$ & hard bound \\
+$r_d$ & $[120,170]$ & hard bound (Mpc) \\
+$\sigma_{8,0}$ & $[0.6,1.0]$ & hard bound \\
+$\sigma_{\mathrm{cc,jit}}$ & $\mathrm{HalfNormal}(\text{scale}=10)$ & CC jitter (km/s/Mpc) \\
+$\sigma_{\mathrm{sn,jit}}$ & $\mathrm{HalfNormal}(\text{scale}=0.05)$ & SN jitter (mag) \\
+$\log\sigma_{d2}$ & $[-12,3]$ & hard bound on smoothness scale (log-space) \\
+$\sigma_{d2}$ & $\mathrm{HalfNormal}(\text{scale}=0.185)$ & truncated by $\log\sigma_{d2}$ bound \\
+\bottomrule
+\end{tabular}
+\caption{Baseline prior bounds and nuisance/hyperparameter priors used in the clean proxy-stack rerun. In the implementation the scale parameters are sampled in log space and include the appropriate Jacobian terms.}
+\label{tab:priors_baseline}
+\end{table}
+
+\subsection{Diagnostics}
+I report acceptance fractions, integrated autocorrelation time (IAT), and effective sample sizes
+(ESS) for key scalar projections.
+
+
+\subsection{Overlap domain and scar statistics}
+\label{sec:scar_stats}
+The primary inferred object is the function $g(x)=\log\mu(A_0e^{x})$ (Eq.~\eqref{eq:gx}), represented
+numerically on a finite $x$ grid. Because the mapped horizon-area domain can vary across posterior
+draws (notably when $A(z)$ depends on additional nuisance parameters, as in mapping M2), scalar
+summaries require a common comparison domain.
+
+\paragraph{Overlap domain.}
+For each posterior draw $(j)$, let $[x^{(j)}_{\min},x^{(j)}_{\max}]$ denote the $x$ interval on which
+$g^{(j)}(x)$ is defined for that draw over the analysis redshift range.
+The \emph{strict} overlap domain is the intersection
+\begin{equation}
+x_{\min}\coloneqq \max_j x^{(j)}_{\min},
+\qquad
+x_{\max}\coloneqq \min_j x^{(j)}_{\max},
+\qquad
+x_{\min}<x_{\max}.
+\label{eq:overlap_domain_strict}
+\end{equation}
+In configurations where the strict intersection is ill-conditioned (empty or too narrow), I use a
+\emph{robust} fallback overlap construction based on trimming outlier draw endpoints; the run metadata
+records which overlap method was used.
+
+\paragraph{Weight.}
+Given an overlap domain $[x_{\min},x_{\max}]$, choose a nonnegative weight function $w(x)\ge 0$
+normalized on that domain:
+\begin{equation}
+\int_{x_{\min}}^{x_{\max}} w(x)\,\dd x = 1.
+\label{eq:scar_weight_norm}
+\end{equation}
+Unless otherwise stated, I use a uniform weight $w(x)=1/(x_{\max}-x_{\min})$.
+
+\paragraph{Scar summaries.}
+For each posterior draw $(j)$, define the ``mean'' and ``slope'' scar statistics
+\begin{align}
+m^{(j)} &\coloneqq \int_{x_{\min}}^{x_{\max}} w(x)\,g^{(j)}(x)\,\dd x,
+\label{eq:scar_m_def}\\
+s^{(j)} &\coloneqq
+\frac{\int_{x_{\min}}^{x_{\max}} w(x)\,\bigl(x-\bar x\bigr)\,\bigl(g^{(j)}(x)-m^{(j)}\bigr)\,\dd x}
+{\int_{x_{\min}}^{x_{\max}} w(x)\,\bigl(x-\bar x\bigr)^2\,\dd x},
+\qquad
+\bar x\coloneqq \int_{x_{\min}}^{x_{\max}} w(x)\,x\,\dd x.
+\label{eq:scar_s_def}
+\end{align}
+Equation~\eqref{eq:scar_s_def} is the slope of the weighted least-squares linear fit of
+$g^{(j)}(x)$ versus $x$ under weight $w(x)$. In the Bekenstein--Hawking limit ($\mu=1$ so $g\equiv 0$),
+one has $m=0$ and $s=0$.
+
+In Tables I report the posterior mean and posterior standard deviation of $m^{(j)}$ and $s^{(j)}$
+across stored draws, and the corresponding posterior sign probabilities $P(m>0)$ and $P(s>0)$.
+
+
+% ============================================================
+\section{Simulation-based calibration and coverage}
+I assess calibration by generating synthetic datasets under a known truth (here $\mu=1$ with a fiducial cosmology) and verifying rank uniformity and nominal coverage.
+
+\paragraph{SBC configuration (BH truth).}
+I use $N=256$ replicates under a Bekenstein--Hawking truth ($\mu=1$), with $z_{\max}=0.77$ and the geometry-only forward inference stack (binned Pantheon+ SN, cosmic chronometers, and BAO). Each replicate uses PTEMCEE with $n_T=4$, $T_{\max}=25$, $N_w=32$, $N_{\mathrm{step}}=5000$, and burn-in $N_{\mathrm{burn}}=2000$, recording $N_{\mathrm{draw}}=400$ posterior draws.
+
+\paragraph{Rank histograms and coverage.}
+Figure~\ref{fig:sbc_rank_hist} shows SBC rank histograms for $H_0$, $\Omega_{m0}$, and the slope scar $s$. Table~\ref{tab:sbc_coverage} summarizes empirical coverage for selected parameters at nominal 68\% and 95\% credible levels.
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{figure_C_sbc_rank_hist.png}
+\caption{Simulation-based calibration (BH truth, $\mu=1$): rank histograms for $H_0$, $\Omega_{m0}$, and the slope scar statistic $s$. The gray band indicates the 99\% expected range per bin under perfect uniformity (for the chosen binning).}
+\label{fig:sbc_rank_hist}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Quantity & coverage (68\%) & coverage (95\%) \\
+\midrule
+$m$ (scar mean) & 0.453 & 0.617 \\
+$s$ (scar slope) & 0.410 & 0.711 \\
+$H_0$ & 0.477 & 0.727 \\
+$\Omega_{m0}$ & 0.676 & 0.949 \\
+$r_d$ & 0.496 & 0.793 \\
+\bottomrule
+\end{tabular}
+\caption{SBC (BH truth, geometry-only forward inference): empirical coverage for selected parameters. The scar summaries are substantially under-covered in this configuration.}
+\label{tab:sbc_coverage}
+\end{table}
+
+\paragraph{Implication for ``negative slope'' significance.}
+In this SBC configuration, using a one-sided ``negative slope'' rule $P(s>0)<\alpha$ with $\alpha=0.05$ yields a BH-null false-positive rate $\mathrm{FPR}\simeq 0.238$, indicating that naive posterior sign-probabilities for $s$ can substantially overstate significance until the calibration issue is resolved. Accordingly, throughout I treat sign preferences as descriptive bookkeeping and interpret scar summaries conservatively as configuration-dependent consistency information.
+
+
+% ============================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Proxy-stack clean replacement and mapping sensitivity suite}
+\label{sec:results_proxy}
+This section reports a clean, paper-grade replacement of the earlier proxy-stack baseline run
+(FSBAO + compressed Planck lensing proxy; mapping M0) and a robustness suite: multi-seed repeats for
+M0 (four seeds total), multi-seed mapping-variant repeats for M1 and M2 (four seeds each), and an
+extended-redshift single-seed check. All runs in this section use commit SHA
+\texttt{32b23931ca199aa06078d2d9d88e333959946a4d}; the base clean rerun is recorded with
+\texttt{dirty=False}.
+
+\paragraph{Shared likelihood stack (proxy configuration).}
+All runs in this section use the dataset stack in Table~\ref{tab:datasets_proxy} over the automatic SN-density-selected redshift domain $z\in[0.02,0.62]$. Planck lensing information enters only through a compressed proxy constraint (no full $C_\ell^{\phi\phi}$ bandpowers are used in these proxy runs).
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l c c X@{}}
+\toprule
+Dataset component & points & redshift/scale & Source / notes \\
+\midrule
+Pantheon+ (cosmology subset; stat+sys; $z_{\mathrm{HD}}$) & 1322 (binned to 12) & $z\in[0.02,0.62]$ & PantheonPlusSH0ES/DataRelease (commit \texttt{c447f0f...}); full covariance with $M$-marginalization; binned for forward inference \\
+Cosmic chronometers (BC03\_all) & 9 & $z\in[0.09,0.593]$ & baudren/montepython\_public (tag 2.2); diagonal errors plus jitter $\sigma_{\mathrm{cc,jit}}$ \\
+FSBAO (SDSS DR12 consensus FS) & 9 & $z=\{0.38,0.51,0.61\}$ & CobayaSampler/bao\_data (commit \texttt{bb0c1c9...}); $(D_M/r_s,\,H r_s,\,f\sigma_8)$ with full covariance \\
+FSBAO (SDSS DR16 LRG BAO+FSBAO) & 6 & $z=\{0.38,0.51\}$ & CobayaSampler/bao\_data (commit \texttt{bb0c1c9...}); $(D_M/r_s,\,D_H/r_s,\,f\sigma_8)$ with full covariance (in-range subset) \\
+BAO-only (DESI 2024 ``ALL'') & 3 & $z=\{0.295,0.51\}$ & CobayaSampler/bao\_data (commit \texttt{bb0c1c9...}); includes $D_V/r_s$ at $z=0.295$ and $(D_M/r_s,D_H/r_s)$ at $z=0.51$ \\
+Planck CMB lensing proxy & 1 & -- & Gaussian proxy on $\sigma_8\,\Omega_{m0}^{0.25}=0.589\pm0.020$ parsed from Planck 2018 parameters paper source (arXiv:1807.06209) \\
+\bottomrule
+\end{tabularx}
+\caption{Datasets used in the proxy-stack configuration (geometry + FSBAO + compressed Planck lensing proxy). Counts reflect the automatically selected domain $z\in[0.02,0.62]$.}
+\label{tab:datasets_proxy}
+\end{table}
+
+\paragraph{Shared sampler settings.}
+Sampler: PTEMCEE with $n_T=8$ temperatures, $T_{\max}=50$, and $N_w=64$ walkers. Steps/burn/draws
+$=600/200/400$.
+
+\paragraph{Derived parameter $S_8$.}
+For compact reporting, I use
+\begin{equation}
+S_8\coloneqq \sigma_{8,0}\left(\frac{\Omega_{m0}}{0.3}\right)^{1/2}.
+\label{eq:S8_def}
+\end{equation}
+
+\subsubsection{Cosmological summary}
+Table~\ref{tab:proxy_cosmo_multirun} summarizes p50 medians for selected cosmological parameters
+across mapping variants and seeds in the proxy configuration.
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}c r r *{3}{>{\centering\arraybackslash}X}@{}}
+\toprule
+Map & seed & $z_{\max}$ & $H_0$ p50 & $\Omega_{m0}$ p50 & $S_8$ p50 \\
+\midrule
+M0 & 101 & 0.62 & 70.365 & 0.337 & 0.817 \\
+M0 & 123 & 0.62 & 70.615 & 0.317 & 0.808 \\
+M0 & 202 & 0.62 & 70.732 & 0.343 & 0.825 \\
+M0 & 303 & 0.62 & 70.739 & 0.325 & 0.814 \\
+\addlinespace
+M1 & 101 & 0.62 & 70.400 & 0.285 & 0.773 \\
+M1 & 123 & 0.62 & 71.341 & 0.306 & 0.799 \\
+M1 & 202 & 0.62 & 69.012 & 0.306 & 0.799 \\
+M1 & 303 & 0.62 & 70.682 & 0.291 & 0.785 \\
+\addlinespace
+M2 & 101 & 0.62 & 70.660 & 0.316 & 0.800 \\
+M2 & 123 & 0.62 & 70.126 & 0.330 & 0.814 \\
+M2 & 202 & 0.62 & 69.701 & 0.335 & 0.817 \\
+M2 & 303 & 0.62 & 70.306 & 0.342 & 0.810 \\
+\addlinespace
+M0 & 123 & 0.77 & 68.993 & 0.332 & 0.816 \\
+\bottomrule
+\end{tabularx}
+\caption{Proxy-stack cosmological medians by mapping variant and seed. For compactness I report p50
+medians; full marginal intervals are available in the machine-readable summaries for each run. The
+final row is an extended-redshift single-seed check with $z_{\max}=0.77$ (same proxy stack, enlarged
+domain).}
+\label{tab:proxy_cosmo_multirun}
+\end{table}
+
+
+\subsubsection{Scar statistics}
+Table~\ref{tab:proxy_scars_multirun} summarizes scar statistics and overlap-domain bookkeeping in the
+proxy configuration (sampler diagnostics are reported in the machine-readable summaries).
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}c r r c c *{3}{>{\centering\arraybackslash}X}@{}}
+\toprule
+Map & seed & $z_{\max}$ & log$A$ method & fallback &
+$m$ (mean$\pm$std) & $s$ (mean$\pm$std) & $P(s>0)$ \\
+\midrule
+M0 & 101 & 0.62 & strict & False & $-0.049\pm0.160$ & $-0.486\pm0.345$ & 0.065 \\
+M0 & 123 & 0.62 & strict & False & $-0.020\pm0.183$ & $-0.480\pm0.356$ & 0.083 \\
+M0 & 202 & 0.62 & strict & False & $-0.079\pm0.152$ & $-0.623\pm0.372$ & 0.048 \\
+M0 & 303 & 0.62 & strict & False & $-0.047\pm0.180$ & $-0.500\pm0.372$ & 0.092 \\
+\addlinespace
+M1 & 101 & 0.62 & strict & False & $-0.004\pm0.171$ & $-0.242\pm0.268$ & 0.158 \\
+M1 & 123 & 0.62 & strict & False & $-0.064\pm0.161$ & $-0.182\pm0.271$ & 0.195 \\
+M1 & 202 & 0.62 & strict & False & $-0.065\pm0.132$ & $-0.400\pm0.259$ & 0.037 \\
+M1 & 303 & 0.62 & strict & False & $+0.004\pm0.148$ & $-0.321\pm0.318$ & 0.128 \\
+\addlinespace
+M2 & 101 & 0.62 & robust & True & $-0.033\pm0.199$ & $-0.487\pm0.354$ & 0.070 \\
+M2 & 123 & 0.62 & robust & True & $-0.054\pm0.191$ & $-0.531\pm0.324$ & 0.055 \\
+M2 & 202 & 0.62 & robust & True & $-0.077\pm0.194$ & $-0.501\pm0.324$ & 0.058 \\
+M2 & 303 & 0.62 & robust & True & $-0.098\pm0.180$ & $-0.448\pm0.374$ & 0.117 \\
+\addlinespace
+M0 & 123 & 0.77 & strict & False & $-0.035\pm0.142$ & $-0.325\pm0.275$ & 0.110 \\
+\bottomrule
+\end{tabularx}
+\caption{Proxy-stack scar statistics by mapping variant and seed. $P(s>0)$ is the posterior sign
+probability for the slope scar. ``fallback'' indicates whether a robust log$A$ overlap-domain
+procedure was used to define the common summary domain across posterior draws; in this run suite,
+all M2 runs required the fallback. The final row is an extended-redshift single-seed check with
+$z_{\max}=0.77$.}
+\label{tab:proxy_scars_multirun}
+\end{table}
+
+
+\paragraph{Interpretation (proxy stack).}
+Across four clean M0 seeds, the mean deviation statistic remains small and consistent with zero
+($m\in[-0.079,-0.020]$), while the slope statistic remains preferentially negative
+($s\in[-0.623,-0.480]$) with $P(s>0)\in[0.048,0.092]$ across seeds.
+Across four M1 seeds, the slope magnitude is reduced relative to M0
+($s\in[-0.400,-0.182]$ with $P(s>0)\in[0.037,0.195]$), supporting the interpretation that part of the
+M0 tilt can be absorbed by residual closure freedom rather than by $\mu(A)$ alone.
+Across four M2 seeds, the slope remains negative with magnitude similar to M0
+($s\in[-0.531,-0.448]$), but all M2 runs require a robust overlap-domain construction for the scalar
+summaries, reflecting curvature-induced variation in the horizon-area map across posterior draws.
+Finally, an extended-redshift single-seed check to $z_{\max}=0.77$ weakens the slope to
+$s=-0.325\pm0.275$, indicating that the slope scar is sensitive to the adopted redshift domain and
+overlap region.
+
+\begin{remark}[M1 as a closure-degeneracy diagnostic]
+Because M1 modifies the forward map through the product $\mu(A(z))\,[1+R(z)]$ (Eq.~\eqref{eq:M1}),
+background-only data cannot uniquely attribute a smooth redshift-dependent correction to the entropy
+slope rather than to the closure residual. The observed reduction in $|s|$ under M1 is therefore
+interpreted as a \emph{systematic sensitivity} of the reconstructed tilt to mapping/closure
+ambiguity, not as evidence that the M0 tilt is ``real'' microphysics. A key next step is to repeat
+the full-likelihood ``info+'' suite under M1 (and M2) to test whether the negative-slope preference
+persists once the closure freedom and growth/lensing anchors are combined.
+\end{remark}
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}c r r r c@{}}
+\toprule
+Map & $N_{\mathrm{seed}}$ & mean($s$ mean) & sd across seeds & range($P(s>0)$) \\
+\midrule
+M0 & 4 & $-0.522$ & 0.068 & $[0.048,0.092]$ \\
+M1 & 4 & $-0.286$ & 0.095 & $[0.037,0.195]$ \\
+M2 & 4 & $-0.492$ & 0.035 & $[0.055,0.117]$ \\
+\bottomrule
+\end{tabular}
+\caption{Seed-repeatability summary for the proxy configuration. These aggregates summarize
+repeatability across random seeds for fixed data and priors; they are not independent measurements.}
+\label{tab:proxy_seed_repeat}
+\end{table}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.95\linewidth]{figure_A_logmu_band.png}
+\caption{Proxy-stack clean M0 base run (seed 123): posterior band for $\log\mu$ as a function of $\log A$ over the overlap domain used for scalar summaries. The horizontal dashed line at $\log\mu=0$ indicates the Bekenstein--Hawking limit.}
+\label{fig:proxy_M0_seed123_logmu_band}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.80\linewidth]{figure_B_m_s_joint.png}
+\caption{Proxy-stack clean M0 base run (seed 123): joint posterior for the scar statistics $(m,s)$, with the Bekenstein--Hawking point $(0,0)$ marked.}
+\label{fig:proxy_M0_seed123_m_s_joint}
+\end{figure}
+
+
+\subsection{Info+ full-likelihood pilot (M0)}
+\label{sec:results_infoplus}
+I completed a pilot ``info+'' multi-seed suite that augments the late-time geometry data with (i)
+RSD $f\sigma_8(z)$ points, (ii) the full Planck 2018 $C_\ell^{\phi\phi}$ lensing bandpower
+likelihood (via a CAMB backend), and (iii) a DR12 Shapefit full-shape monopole $P(k)$ likelihood.
+The run output base is
+\texttt{outputs/finalization/info\_plus\_full\_256\_detached\_20260129\_0825UTC}.
+The recorded Git SHA is \texttt{cbc5bd4a646b31d263df02508a2c4abf62f80b91} with
+\texttt{dirty=True}; for publication-grade reproducibility this suite should be repeated on a clean
+commit, but I report the numerical summaries as logged.
+
+\paragraph{Shared likelihood stack.}
+All five seeds use mapping M0 over the automatically selected redshift domain $z\in[0.02,0.62]$ and
+the dataset stack in Table~\ref{tab:datasets_infoplus}. The compressed lensing proxy likelihood is
+disabled in this configuration to avoid double counting when the full $C_\ell^{\phi\phi}$
+bandpowers are included.
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l c c X@{}}
+\toprule
+Dataset component & points & redshift/scale & Source / notes \\
+\midrule
+Pantheon+ (cosmology subset; stat+sys; $z_{\mathrm{HD}}$) & 1322 (binned to 12) & $z\in[0.02,0.62]$ & PantheonPlusSH0ES/DataRelease (commit \texttt{c447f0f...}); full covariance with $M$-marginalization; binned for forward inference \\
+Cosmic chronometers (BC03\_all) & 9 & $z\in[0.09,0.593]$ & baudren/montepython\_public (tag 2.2); diagonal errors plus jitter $\sigma_{\mathrm{cc,jit}}$ \\
+BAO-only (SDSS DR12 consensus BAO) & 6 & $z=\{0.38,0.51,0.61\}$ & CobayaSampler/bao\_data (commit \texttt{bb0c1c9...}); $(D_M/r_s,\,H r_s)$ with full covariance \\
+BAO-only (DESI 2024 ``ALL'') & 3 & $z=\{0.295,0.51\}$ & CobayaSampler/bao\_data (commit \texttt{bb0c1c9...}); $D_V/r_s$ and $(D_M/r_s,D_H/r_s)$ points in-range \\
+RSD (DR16 LRG $f\sigma_8$) & 2 & $z=\{0.38,0.51\}$ & Derived from the SDSS DR16 LRG FSBAO covariance source (CobayaSampler/bao\_data) using the $f\sigma_8$ sub-block \\
+Planck 2018 lensing bandpowers & 9 & $\ell\in[8,400]$ & CobayaSampler/planck\_supp\_data\_and\_covmats (commit \texttt{4c160c7...}); $C_\ell^{\phi\phi}$ bandpowers with full covariance; CAMB backend \\
+Full-shape $P(k)$ monopole (Shapefit) & 13 & $k\in[0.026,0.145]\,h\,\mathrm{Mpc}^{-1}$; $z_{\mathrm{eff}}=0.51$ & Shapefit BOSS DR12 release (arXiv:2204.11868 data package); monopole-only block with covariance \\
+\bottomrule
+\end{tabularx}
+\caption{Datasets used in the info+ configuration. The compressed Planck lensing proxy is disabled here to avoid double counting when full $C_\ell^{\phi\phi}$ bandpowers are included.}
+\label{tab:datasets_infoplus}
+\end{table}
+
+\paragraph{Shared sampler settings.}
+Sampler: PTEMCEE with $n_T=4$ temperatures, $T_{\max}=10$, and $N_w=64$ walkers.
+Steps/burn/draws $=1500/500/800$ with $N_{\mathrm{proc}}=52$ likelihood worker processes per seed.
+Wall-clock time per seed is $\sim 14.3$--$14.9$ hours in this run registry.
+
+\subsubsection{Cosmological summaries}
+Table~\ref{tab:infoplus_cosmo} reports marginal posterior summaries for core cosmological parameters.
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}r*{5}{>{\centering\arraybackslash}X}@{}}
+\toprule
+Seed &
+$H_0$ p50 [p16,p84] &
+$\Omega_{m0}$ p50 [p16,p84] &
+$r_d$ [Mpc] p50 [p16,p84] &
+$\sigma_{8,0}$ p50 [p16,p84] &
+$S_8$ p50 [p16,p84] \\
+\midrule
+101 & 67.652 [66.307, 69.268] & 0.310 [0.286, 0.325] & 146.479 [141.574, 150.717] & 0.812 [0.796, 0.828] & 0.825 [0.789, 0.850] \\
+202 & 68.085 [65.183, 87.650] & 0.255 [0.222, 0.279] & 150.617 [120.000, 160.938] & 0.795 [0.764, 1.000] & 0.765 [0.714, 0.874] \\
+303 & 65.061 [62.922, 66.916] & 0.307 [0.293, 0.319] & 162.753 [154.488, 169.783] & 0.783 [0.754, 0.806] & 0.793 [0.748, 0.826] \\
+404 & 67.664 [66.220, 69.438] & 0.295 [0.266, 0.313] & 148.424 [143.704, 152.497] & 0.806 [0.790, 0.824] & 0.799 [0.756, 0.831] \\
+505 & 68.339 [66.623, 72.037] & 0.297 [0.258, 0.313] & 152.862 [146.497, 157.524] & 0.815 [0.798, 0.835] & 0.806 [0.765, 0.833] \\
+\bottomrule
+\end{tabularx}
+\caption{Info+ pilot (M0): posterior summaries by seed for core cosmological parameters. Values are
+p50 medians with $[p16,p84]$ in brackets.}
+\label{tab:infoplus_cosmo}
+\end{table}
+
+\subsubsection{Scar statistics and diagnostics}
+Table~\ref{tab:infoplus_scars} reports the scalar scar summaries and sampler diagnostics.
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}r*{7}{>{\centering\arraybackslash}X}@{}}
+\toprule
+Seed &
+$m$ mean$\pm$std &
+$P(m>0)$ &
+$s$ mean$\pm$std &
+$P(s>0)$ &
+acc\_mean &
+ESS\_min &
+$\tau_{\max}$ \\
+\midrule
+101 & $+0.1893\pm 0.1182$ & 0.9313 & $-0.2105\pm 0.4661$ & 0.3387 & 0.344 & 451.3 & 141.8 \\
+202 & $-0.0644\pm 0.2043$ & 0.3875 & $-0.3661\pm 0.4339$ & 0.1875 & 0.327 & 466.4 & 137.2 \\
+303 & $-0.2932\pm 0.1384$ & 0.0200 & $-0.5074\pm 0.4482$ & 0.1150 & 0.340 & 456.5 & 140.2 \\
+404 & $+0.1359\pm 0.1224$ & 0.8725 & $-0.1937\pm 0.4756$ & 0.3375 & 0.349 & 449.4 & 142.4 \\
+505 & $-0.1605\pm 0.1108$ & 0.0612 & $-0.3938\pm 0.4594$ & 0.2288 & 0.333 & 456.4 & 140.2 \\
+\bottomrule
+\end{tabularx}
+\caption{Info+ pilot (M0): scar summaries and sampler diagnostics by seed. $\tau_{\max}$ is the
+largest estimated integrated autocorrelation time among a monitored set of 10 scalar projections.
+In all seeds the post-burn chain length is shorter than $50\,\tau_{\max}$, triggering the emcee IAT
+warning and motivating the pilot-quality classification. Seed 202 used a global log$A$ overlap
+fallback procedure for the scalar summaries; all other seeds used the strict overlap method.}
+\label{tab:infoplus_scars}
+\end{table}
+
+\paragraph{Summary interpretation.}
+Across seeds, the weighted-mean scar $m$ is not stable in sign (two seeds positive, three negative)
+and is consistent with zero at the across-seed level.
+By contrast, the slope scar $s$ has a negative posterior mean in all five seeds. The mean of the
+five per-seed slope means is $-0.334$ with an across-seed standard deviation $0.132$, and the
+per-seed $P(s>0)$ values lie in the range $[0.115,0.339]$.
+This is qualitatively consistent with the proxy-stack behavior (a negative tilt preference), but
+the magnitude is reduced and the posterior for $s$ is broader.
+The reduction in $|s|$ is expected when adding strong growth/lensing/full-shape anchors; it suggests that the
+tilt is being \emph{squeezed} by independent information rather than reflecting an unconstrained flexible mode.
+However, given that M1 reduces $|s|$ in the proxy stack (Section~\ref{sec:results_proxy}), an ``info+'' mapping
+sensitivity test (M1/M2) is required before interpreting the remaining negative mean as anything beyond a
+configuration-dependent consistency hint.
+
+
+\subsubsection{DES Y3 superstructures x Planck CMB-lensing amplitudes (Tier 1; post hoc)}
+\label{sec:void_amp_tier1}
+As a post-processing holdout check (no refitting), I map the five finished info+ M0 posteriors
+(seeds 101/202/303/404/505) into a Tier~1, amplitude-only prediction for the DES Y3 void/supercluster
+CMB-lensing amplitude parameter $A_\kappa$ measured by Kov\'acs et al.\ \cite{Kovacs2022Void}
+(via DES Y3 superstructures $\times$ Planck 2018 $\kappa$).
+The published quantity $A_\kappa$ is an amplitude of a stacked lensing profile relative to a
+simulation template and is \emph{not} a direct measurement of $G_{\mathrm{eff}}(z)$; consequently, the
+mapping in Eq.~\eqref{eq:void_amp_proxy} should be interpreted only as a fast directional
+consistency probe under the minimal $\alpha_M$-only embedding.
+
+\paragraph{Procedure.}
+For each posterior draw $(j)$ and for each redshift bin $[z_{\min},z_{\max}]$ in
+Ref.~\cite{Kovacs2022Void}, I evaluate $\mu^{(j)}(A(z))/\mu^{(j)}(A(0))$ on a dense grid
+($n_z=200$ points per bin) and form $\mathcal{A}_{\mathrm{void}}^{(j)}$ using
+Eq.~\eqref{eq:void_amp_proxy}.
+This run uses a simple CMB-lensing-kernel-like redshift weight (\texttt{weight=cmb\_kappa})
+computed from distances per draw and normalized on $[z_{\min},z_{\max}]$ as in
+Eqs.~\eqref{eq:wV_cmbkappa_raw}--\eqref{eq:wV_cmbkappa_norm}, with an effective source comoving distance
+fixed to $14{,}000\,\mathrm{Mpc}$.
+For bins extending beyond the stored posterior $z$ grid (notably $z_{\max}=0.80$), I do not
+extrapolate $\mu$; instead I re-solve the background history $H(z)$ implied by the draw's $\mu(A)$
+out to $z_{\max}$ and then evaluate $\mu(z)$ on the extended grid.
+
+\paragraph{Aggregation across the five info+ runs.}
+For each measurement bin, I summarize each seed run $r$ by its predicted mean
+$\hat{\mathcal{A}}_r$ and predicted standard deviation $\sigma_r$ across posterior draws, and report
+a practical inverse-variance combination
+\begin{equation}
+\hat{\mathcal{A}}_{\mathrm{comb}}
+\coloneqq
+\frac{\sum_{r=1}^{N_{\mathrm{runs}}} \hat{\mathcal{A}}_r\,\sigma_r^{-2}}
+{\sum_{r=1}^{N_{\mathrm{runs}}} \sigma_r^{-2}},
+\qquad
+\sigma_{\mathrm{comb}}^2
+\coloneqq
+\left(\sum_{r=1}^{N_{\mathrm{runs}}} \sigma_r^{-2}\right)^{-1},
+\label{eq:void_Acomb}
+\end{equation}
+with $N_{\mathrm{runs}}=5$ here. This is a convenient summary statistic, not a formally combined
+posterior.
+
+To provide an interpretable ``sigma-units'' summary (again, descriptive only), I also report
+\begin{equation}
+Z_{\mathrm{GR}}\coloneqq \frac{\hat{\mathcal{A}}_{\mathrm{comb}}-1}{\sigma_{\mathrm{comb}}},
+\qquad
+Z_{\mathrm{obs}}\coloneqq
+\frac{\hat{\mathcal{A}}_{\mathrm{comb}}-\mathcal{A}_{\mathrm{obs}}}
+{\sqrt{\sigma_{\mathrm{comb}}^2+\sigma_{\mathcal{A}}^2}},
+\label{eq:void_Zscores}
+\end{equation}
+where $\mathcal{A}_{\mathrm{obs}}\pm\sigma_{\mathcal{A}}$ is the published amplitude for that bin.
+
+\begin{remark}[Reproducibility note (Tier 1 DES Y3 void proxy)]
+This post-processing check is generated by \path{scripts/run_void_amp_test.py} applied to the five
+info+ M0 runs, using \path{experiments/voids/data/void_lensing_amplitudes.json}, and written to
+\path{outputs/void_amp_test_infoplus_extz_20260130_032539UTC/} on git SHA
+\texttt{7f2cbc9e9ea1500c9819f04d91ee46bb93c48a03}. All 20 comparisons (5 runs $\times$ 4 measurements)
+completed successfully.
+\end{remark}
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}lcccccc@{}}
+\toprule
+Bin & $[z_{\min},z_{\max}]$ &
+$\mathcal{A}_{\mathrm{obs}}\pm\sigma_{\mathcal{A}}$ &
+$\hat{\mathcal{A}}_{\mathrm{comb}}\pm\sigma_{\mathrm{comb}}$ &
+$Z_{\mathrm{GR}}$ &
+$Z_{\mathrm{obs}}$ &
+$\langle\Delta \mathrm{LPD}\rangle$ \\
+\midrule
+Voids (low-$z$) & $[0.15,0.55]$ & $0.55\pm0.23$ & $1.167\pm0.098$ & $+1.70$ & $+2.47$ & $-0.37$ \\
+Voids (high-$z$) & $[0.55,0.80]$ & $0.88\pm0.13$ & $1.429\pm0.266$ & $+1.61$ & $+1.86$ & $-1.13$ \\
+Voids (all-$z$) & $[0.15,0.80]$ & $0.79\pm0.12$ & $1.319\pm0.193$ & $+1.65$ & $+2.33$ & $-0.35$ \\
+Superclusters (low-$z$) & $[0.15,0.55]$ & $0.70\pm0.15$ & $1.167\pm0.098$ & $+1.70$ & $+2.61$ & $-0.22$ \\
+\bottomrule
+\end{tabularx}
+\caption{Tier~1 void/supercluster CMB-lensing amplitude proxy from the five info+ M0 posteriors,
+compared to DES Y3 superstructures $\times$ Planck 2018 lensing amplitudes from Kov\'acs et al.\
+\cite{Kovacs2022Void}. $\hat{\mathcal{A}}_{\mathrm{comb}}\pm\sigma_{\mathrm{comb}}$ is the inverse-variance
+aggregated prediction defined in Eq.~\eqref{eq:void_Acomb} (a practical summary, not a formally combined
+posterior). $Z_{\mathrm{GR}}$ and $Z_{\mathrm{obs}}$ are defined in Eq.~\eqref{eq:void_Zscores}.
+$\langle\Delta \mathrm{LPD}\rangle$ is the mean log predictive density difference between the $\mu(A)$-implied predictive distribution and the GR baseline $\mathcal{A}=1$, averaged across the five runs.}
+\label{tab:void_amp_proxy}
+\end{table}
+
+\paragraph{Interpretation (Tier 1).}
+Across bins, the Tier~1 mapping predicts $\hat{\mathcal{A}}_{\mathrm{comb}}>1$, consistent in sign with
+the negative-tilt behavior in $g(x)=\log\mu$ (which typically implies $\mu(A(z))/\mu(A(0))>1$ at higher
+redshift/smaller mapped area under the $\alpha_M$-only identification).
+However, the DES Y3 superstructure amplitude measurements in Ref.~\cite{Kovacs2022Void} are all below
+unity, and the predictive score $\langle\Delta \mathrm{LPD}\rangle$ is negative for each bin, indicating
+that (under this simplified amplitude proxy) the GR baseline $\mathcal{A}=1$ tends to fit these
+amplitudes better than the $\mu(A)$-implied scaling.
+Given that $A_\kappa$ is an amplitude relative to a simulation template and depends on selection,
+profile shape, and nonlinear structure, this should \emph{not} be read as a decisive falsification of
+$\mu(A)$, but rather as an informative out-of-sample stress test that is sensitive to the assumed
+perturbation-sector embedding.
+A publication-grade void test would require a profile-based prediction matched to the measurement
+definition and covariance, and an explicit treatment of screening and gravitational slip beyond the
+Tier~1 amplitude-only mapping.
+
+A complementary Tier~1.5 void-prism ratio test (Section~\ref{sec:void_prism_tier15}), designed to reduce profile and amplitude-degeneracy sensitivity, currently yields $\Delta\mathrm{LPD}$ values consistent with a tie relative to the internal GR baseline and passes an explicit null battery; this indicates that present void-prism data are noise-dominated and cannot decisively confirm or refute the minimal embedding.
+
+
+
+\subsubsection{Void prism and E\_G-type ratio consistency (Tier 1.5; post hoc)}
+\label{sec:void_prism_tier15}
+The Tier~1 amplitude proxy in Section~\ref{sec:void_amp_tier1} maps $\mu(A)$ into an overall void/superstructure
+lensing-profile amplitude. While useful as a fast sign and scaling check, that construction is sensitive to
+template normalization, void-profile systematics, and nonlinear selection effects.
+To reduce this dependence, I implemented a Tier~1.5 ``void prism'' test: a ratio-style, $E_G$-inspired
+consistency statistic built from void-conditioned cross-spectra, intended to probe the perturbation-sector
+response with reduced sensitivity to an overall amplitude and profile shape.
+
+\paragraph{Measurement schema and scoring.}
+The prism test is defined as a measured suite vector $\hat{\mathbf{E}}^{\mathrm{void}}_G$ (binned in multipole and
+split by redshift and void radius), together with an estimated covariance $\mathbf{C}$.
+Given a posterior over background histories and $\mu(A)$ from the finished info+ reconstructions, I evaluate the
+posterior predictive density of the measured suite under two perturbation-response prescriptions:
+(i) an internal GR-like baseline with fixed response parameters $(\Sigma,\mu_P)=(1,1)$, and
+(ii) the minimal embedding in which $(\Sigma,\mu_P)=\mu(z)/\mu(0)$ (convention A).
+I summarize the relative predictive performance by a log predictive density difference
+\begin{equation}
+\Delta \mathrm{LPD}_{\mathrm{prism}}
+\coloneqq
+\log p\!\left(\hat{\mathbf{E}}^{\mathrm{void}}_G \mid d,\ \text{minimal embedding}\right)
+-
+\log p\!\left(\hat{\mathbf{E}}^{\mathrm{void}}_G \mid d,\ \text{GR baseline}\right),
+\label{eq:delta_lpd_prism}
+\end{equation}
+where $d$ denotes the dataset stack used in the $\mu(A)$ reconstruction.
+Positive $\Delta \mathrm{LPD}_{\mathrm{prism}}$ favors the minimal embedding (within this scoring convention),
+while negative values favor the GR baseline.
+
+\paragraph{ACT+SDSS pilot measurement and null battery.}
+I ran an end-to-end ``plumbing + first-data'' check using a kSZ-weighted $\theta$ proxy built from an ACT DR6.02 $150\,\mathrm{GHz}$ source-free temperature map and SDSS/BOSS galaxies, combined with Planck 2018 CMB lensing convergence $\kappa$
+and a BOSS DR12 void catalog, yielding a joint prism suite of dimension 48 (8 blocks across redshift and void-radius
+splits, with 6 multipole bins).
+I then scored this measurement against the five finished info+ M0 posterior sets (seeds 101/202/303/404/505),
+using per-draw amplitude fitting (shape-only scoring) and up to 2000 posterior draws per seed.
+
+Across the five seeds, the resulting $\Delta \mathrm{LPD}_{\mathrm{prism}}$ values are tiny but consistently positive,
+$\Delta \mathrm{LPD}_{\mathrm{prism}}\in[+0.0116,+0.0249]$ with mean $\simeq +0.018$, i.e.\ statistically indistinguishable from a tie.
+Because the absolute normalization of the current prism estimator is not yet physically calibrated, the scoring fits a per-draw scalar amplitude $A_j$ (generalized least squares).
+Writing the measured suite vector as $\mathbf{y}\equiv\hat{\mathbf{E}}^{\mathrm{void}}_G$ and the predicted mean vector for draw $j$ as $\boldsymbol{\mu}_j$, I take
+\begin{equation}
+A_j=\frac{\boldsymbol{\mu}_j^{\mathsf{T}}\mathbf{C}^{-1}\mathbf{y}}{\boldsymbol{\mu}_j^{\mathsf{T}}\mathbf{C}^{-1}\boldsymbol{\mu}_j},
+\label{eq:void_prism_amp_fit}
+\end{equation}
+and evaluate the Gaussian predictive density for $\mathbf{y}$ at $A_j\boldsymbol{\mu}_j$.
+In this run the fitted amplitudes are small in the pipeline units, consistent with weak alignment between the measured suite vector and the predicted pattern under the jackknife covariance weighting.
+
+I additionally ran a null battery (50 random rotations each of the $\kappa$ field and the void positions).
+Using the RMS of the concatenated suite vector as a diagnostic, I find $p(\mathrm{null}\ge \mathrm{obs})=0.118$ for rotate-voids and $0.294$ for rotate-$\kappa$, indicating no statistically significant detection above noise in this pilot measurement.
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Quantity & Result & Interpretation \\
+\midrule
+$\Delta \mathrm{LPD}_{\mathrm{prism}}$ across 5 seeds & $[+0.012,+0.025]$ (mean $+0.018$) & tie vs.\ GR baseline \\
+Null-battery consistency (RMS diagnostic) & $p=0.118$ (rotate voids); $p=0.294$ (rotate $\kappa$) & noise-dominated (no detection) \\
+\bottomrule
+\end{tabular}
+\caption{Tier~1.5 void-prism predictive-scoring summary for the ACT+SDSS pilot measurement (post hoc, no refitting).
+The scoring compares the minimal embedding $(\Sigma,\mu_P)=\mu(z)/\mu(0)$ to an internal GR baseline $(\Sigma,\mu_P)=(1,1)$
+using the posterior predictive density of the measured prism suite with per-draw amplitude fitting (shape-only scoring).
+The rotation null battery indicates that the current measurement is noise-dominated and therefore cannot decisively validate or falsify the minimal embedding.}
+\label{tab:void_prism_tier15}
+\end{table}
+
+\begin{remark}[Tier 1.5 implementation caveats]
+This pilot prism implementation is intended as an end-to-end plumbing check and should not be interpreted as a calibrated $E_G$-type detection.
+In particular: (i) the $\theta$ field is a kSZ-weighted temperature proxy and its absolute normalization is not yet calibrated, (ii) the predictive scoring therefore uses per-draw amplitude fitting (Eq.~\eqref{eq:void_prism_amp_fit}), (iii) the current prediction is treated as $\ell$-independent within each redshift bin and repeated across multipole bins, and (iv) the spectrum estimator and covariance are based on a pseudo-$C_\ell$ pipeline with an $f_{\mathrm{sky}}$ correction and a jackknife covariance.
+These caveats motivate treating $\Delta\mathrm{LPD}_{\mathrm{prism}}$ as tie-level at present and deferring physical interpretation to future, calibrated analyses.
+\end{remark}
+
+
+
+\begin{remark}[Reproducibility note (Tier 1.5 void prism)]
+The end-to-end kSZX prism pipeline run reported here was executed via \path{scripts/launch_void_prism_kszx_pipeline_single_nohup.sh} and recorded under \path{outputs/void_prism_kszx_pipeline_20260130_225117UTC/} on git SHA \texttt{a490dca68e4f}.
+Paper-ready deliverables for this report were copied to \path{1-30-output/} (\path{void_prism_suite_joint.json}, \path{void_prism_results.json}, \path{nulls_rotate_voids.json}, \path{nulls_rotate_kappa.json}, and \path{delta_lpd_summary.txt}).
+Diagnostic figures can be regenerated with \path{scripts/make_void_prism_kszx_figures.py}.
+The measurement schema and design notes are recorded in \path{experiments/void_prism/README.md}.
+\end{remark}
+
+
+
+\paragraph{Interpretation (Tier 1.5).}
+The prism test is designed to be less sensitive to overall amplitude and void-profile modeling than the Tier~1
+amplitude proxy, but in its current ACT+SDSS pilot form it is dominated by measurement noise and covariance uncertainty.
+Consequently, it yields essentially no discriminating power between the minimal embedding and the GR baseline at present.
+This outcome is consistent with the broader theme of the paper: background data can structurally prefer $s<0$ under the
+assumed mapping, while current void-based perturbation probes are not yet precise enough to provide a decisive,
+out-of-sample validation of the implied $G_{\mathrm{eff}}$ scaling.
+
+
+\subsubsection{GWTC-3 dark-siren population-consistency score (36-event production; post hoc)}
+\label{sec:dark_siren_gap}
+
+\paragraph{Motivation and measurement summary.}
+I score the minimal $\alpha_M$-only propagation embedding against a suite of GWTC-3 dark sirens~\cite{GWTC3} using the incompleteness-marginalized mixture likelihood introduced above (galaxy-catalog term + ``missing host'' term).  
+The primary diagnostic is the total log predictive density (LPD) difference between the horizon-entropy (HE) propagation model and an internal GR baseline:
+\begin{equation}
+\Delta\mathrm{LPD}_{\mathrm{tot}} \equiv \sum_{i=1}^{N} \left[\ln p(d_i|\mathrm{HE})-\ln p(d_i|\mathrm{GR})\right],
+\end{equation}
+with $N=36$ events and $d_i$ denoting the data inputs for the $i$th event (distance posterior samples, sky localization, and the host-catalog mixture model).  
+I marginalize over catalog incompleteness via the mixture parameter $f_{\mathrm{miss}}$ (reference value $f_{\mathrm{ref}}=0.681$ in the production run).
+
+\paragraph{PE-prior-aware likelihood evaluation.}
+Public LIGO/Virgo/KAGRA parameter-estimation (PE) posterior samples satisfy $p(\theta\mid d)\propto \mathcal{L}(d\mid \theta)\,\pi_{\mathrm{PE}}(\theta)$, and therefore inherit an explicit PE distance prior.
+To approximate the likelihood entering $p(d_i\mid \mathrm{model})$ without importing that prior into the siren-gap score, I evaluate event likelihoods by re-weighting the released PE samples and dividing out an analytic approximation to the PE distance prior (``\texttt{pe\_analytic}'' mode).
+This provides a PE-prior-aware Monte Carlo estimate of the event-level likelihood ratio used throughout the mixture-model scoring.
+
+  
+
+\paragraph{Headline result and control (run ID: 2-1-c-m).}
+The 36-event production run yields a strong positive preference for HE over GR,
+\begin{equation}
+\Delta\mathrm{LPD}_{\mathrm{tot}}\approx +3.03 \qquad \Longrightarrow \qquad \exp(\Delta\mathrm{LPD}_{\mathrm{tot}})\approx 20,
+\end{equation}
+corresponding to a Bayes factor of order $\sim 20$ under the equal-prior convention of the scoring pipeline.  
+Crucially, a sky-rotation null test---in which event sky maps are randomly rotated relative to the galaxy catalog while preserving each event's distance posterior---does \emph{not} drive the preference to zero; it remains comparably large ($\Delta\mathrm{LPD}_{\mathrm{rot}}\approx 2.99$).  
+This pivot implies that the observed preference is not dominated by unique spatial alignments with particular host galaxies, but instead reflects global population-level consistency of the GW distance distribution with the HE luminosity-distance relation $d_L^{\mathrm{HE}}(z)$.
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Run & $N$ & $\Delta\mathrm{LPD}_{\mathrm{tot}}$ & $\exp(\Delta\mathrm{LPD}_{\mathrm{tot}})$ \\
+\midrule
+Production (incompleteness-marginalized) & 36 & $\approx 3.03$ & $\approx 20$ \\
+Sky-rotation control & 36 & $\approx 2.99$ & $\approx 20$ \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the 36-event dark-siren propagation score for the HE model versus the internal GR baseline, and the corresponding sky-rotation control. The persistence of the score under sky rotation indicates that the preference is driven primarily by the population-level distance--redshift relation rather than by specific host-galaxy alignments.}
+\label{tab:darksiren_prod_rot}
+\end{table}
+
+\paragraph{Per-event concentration.}
+Figure~\ref{fig:darksiren_by_event_36_seed101} shows representative per-event contributions for one production seed.  
+The total score is concentrated in a small number of ``hero'' events (notably GW200308 and GW200220), while the majority contribute weakly and with mixed sign.  
+This concentration is consistent with the broad, heavy-tailed information content expected from heterogeneous BBH distance posteriors.
+
+\begin{figure}[h!]
+  \centering
+  \maybeincludegraphics[width=0.95\linewidth]{delta_lpd_by_event_M0_start101.png}
+  \caption{Per-event $\Delta\mathrm{LPD}$ contributions for the 36-event production run (representative seed; $f_{\mathrm{ref}}=0.681$). The score is dominated by a small subset of highly informative events (e.g. GW200308 and GW200220), with many events contributing at the $\mathcal{O}(0.1)$ level or smaller.}
+  \label{fig:darksiren_by_event_36_seed101}
+\end{figure}
+
+
+
+\paragraph{Mechanism diagnostic: PE-sky rotation and catalog-free control.}
+To separate angular host-association effects from sky-independent distance-scale effects, and to verify that the score is not an artifact of the PE distance prior, I performed a focused diagnostic on the highest-leverage event (GW200220\_061928).
+I compute the catalog-based mixture score using (i) the true PE sky localization map and (ii) a randomly rotated version of the PE sky map relative to the galaxy catalog (preserving the same distance posterior), and I also evaluate (iii) a catalog-free hierarchical ``PE-only'' likelihood by integrating the PE-prior-corrected GW likelihood over redshift with a smooth population prior.
+Table~\ref{tab:darksiren_mech_diag} summarizes the resulting $\Delta\mathrm{LPD}$ values.
+The catalog-based score is essentially unchanged under PE-sky rotation, whereas the PE-only likelihood yields a smaller but still positive preference, supporting the interpretation that the measured preference is not driven by unique spatial association with specific galaxies.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Diagnostic & $\Delta\mathrm{LPD}_{\mathrm{data}}$ & $\Delta\mathrm{LPD}_{\mathrm{sel}}$ & $\Delta\mathrm{LPD}_{\mathrm{tot}}$ \\
+\midrule
+Catalog mixture (true sky) & $+0.567$ & $+1.524$ & $+2.091$ \\
+Catalog mixture (PE-sky rotated) & $+0.479$ & $+1.577$ & $+2.056$ \\
+Hierarchical PE-only (catalog-free) & --- & --- & $\approx +0.317$ \\
+\bottomrule
+\end{tabular}
+\caption{PE-prior-aware mechanism diagnostic for GW200220\_061928.
+The catalog-based mixture likelihood decomposition is shown as a sum of a galaxy-catalog (``data'') term and a selection/incompleteness term, and compared to a catalog-free hierarchical ``PE-only'' likelihood computed from PE posterior samples with the PE distance prior divided out.
+The near-invariance under PE-sky rotation indicates that the dominant contribution is not tied to unique spatial association with specific galaxies.}
+\label{tab:darksiren_mech_diag}
+\end{table}
+
+\paragraph{Internal validation: GR $H_0$ recovery.}
+As a control for gross implementation errors, I also run the pipeline in a GR control mode with an $H_0$ grid posterior.  
+The recovered peak at $H_0\simeq 68.5~\mathrm{km/s/Mpc}$ is consistent with the assumed GR baseline and demonstrates that the end-to-end likelihood machinery is physically sound (Figure~\ref{fig:gr_h0_control}).
+
+\begin{figure}[h!]
+  \centering
+  \maybeincludegraphics[width=0.80\linewidth]{gr_h0_posterior.png}
+  \caption{GR dark-siren $H_0$ grid posterior (control mode). The posterior peaks near $H_0\simeq 68.5~\mathrm{km/s/Mpc}$, consistent with the internal GR baseline and providing an implementation sanity check.}
+  \label{fig:gr_h0_control}
+\end{figure}
+
+\paragraph{Interpretation and immediate next steps.}
+The sky-rotation control demonstrates that, in the present configuration, the dark-siren score is primarily a \emph{spectral/population consistency} test of the predicted distance--redshift relation, not a detection of unique host-galaxy associations. The per-event mechanism diagnostic in Table~\ref{tab:darksiren_mech_diag} supports this interpretation: for the highest-leverage event (GW200220\_061928) the catalog-based score is essentially unchanged under PE-sky rotation, and a catalog-free hierarchical PE-only likelihood yields a smaller but still positive preference.
+  
+This is still valuable: it provides an out-of-sample propagation-sector check using GW distances, and it quantifies (via $\Delta\mathrm{LPD}_{\mathrm{tot}}$) the degree to which the HE $d_L(z)$ relation better matches the observed GW distance distribution than the GR baseline under the adopted catalog/selection model.  
+A rigorous follow-on campaign should (i) expand the suite of nulls beyond sky rotation (e.g. redshift scrambling and injection-recovery), (ii) calibrate the selection function and incompleteness model against simulations and survey metadata, and (iii) propagate uncertainties in the reconstructed $\\mu(A)$ into the siren score.
+
+\subsubsection{Cross-validated hemispherical slope-asymmetry scan (pilot; Fold 0)}
+\label{sec:hemi_slope_asymmetry}
+Because the background preference for $s<0$ is inferred primarily from late-time distance data, it is
+important to assess whether the reconstructed tilt is consistent across the sky or instead correlated
+with survey footprints and calibration systematics.
+As a targeted isotropy/systematics diagnostic, I implemented a \emph{hemispherical slope-asymmetry scan}
+based on the Pantheon+ supernova sky distribution.
+
+\paragraph{Method.}
+For a trial axis direction $\hat{\mathbf{n}}$ on the sky, I split the SN sample into two hemispheres
+(``fore'' and ``aft'') according to the sign of $\hat{\mathbf{n}}\!\cdot\!\hat{\mathbf{r}}$ for the SN
+line-of-sight unit vector $\hat{\mathbf{r}}$ (Galactic coordinates). I then compute the slope-scar
+statistic $s$ (Section~\ref{sec:scar_stats}) for each hemisphere and form the hemisphere difference
+\begin{equation}
+\Delta s(\hat{\mathbf{n}}) \coloneqq s_{\mathrm{fore}}(\hat{\mathbf{n}})-s_{\mathrm{aft}}(\hat{\mathbf{n}}),
+\label{eq:delta_s_aniso}
+\end{equation}
+summarizing each direction by a signed $z$-score
+$z(\hat{\mathbf{n}})\coloneqq \langle \Delta s\rangle/\mathrm{sd}(\Delta s)$ computed over posterior
+draws.
+
+A key failure mode for hemispherical scans is redshift-distribution bias: one hemisphere can contain a
+deeper subset of the survey, leading to an apparent directional dependence if the signal evolves with
+$z$. To reduce this bias, I $z$-match the fore/aft samples by downsampling to enforce agreement of the
+empirical redshift distributions before fitting.
+
+To control the look-elsewhere effect from scanning many trial axes, I use a cross-validation schema.
+I split the Pantheon+ SN set into five folds, and within each fold I further split into TRAIN and
+held-out TEST subsets. The ``best'' direction is selected on TRAIN by maximizing $|z(\hat{\mathbf{n}})|$,
+and the corresponding $\Delta s$ is then evaluated on the independent TEST subset.
+
+\paragraph{Fold 0 result.}
+In Fold 0, I scanned $188$ of $192$ trial axes on a coarse HEALPix grid ($n_{\mathrm{side}}=4$; NEST
+ordering). The best TRAIN direction occurs at $(\ell,b)=(285.00^\circ,54.34^\circ)$ with
+$\Delta s_{\mathrm{train}}=-0.569\pm0.966$ ($z_{\mathrm{train}}=-0.589$).
+On the held-out TEST subset, the sign remains negative with
+$\Delta s_{\mathrm{test}}=-0.244\pm0.775$ ($z_{\mathrm{test}}=-0.315$; $P(\Delta s>0)=0.374$).
+Figure~\ref{fig:an_galaxy_map} visualizes the TRAIN signed-$z$ sky pattern and the directional strength
+$|z|$.
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.98\linewidth]{an_galaxy_map.png}
+\caption{Fold 0 TRAIN hemispherical slope-asymmetry scan in Galactic coordinates. \emph{Left:} signed
+$z$-score of the hemisphere difference $\Delta s(\hat{\mathbf{n}})$ for each scanned axis direction
+$\hat{\mathbf{n}}$ (Eq.~\eqref{eq:delta_s_aniso}). \emph{Right:} directional strength $|z|$. The star
+marks the best TRAIN direction.}
+\label{fig:an_galaxy_map}
+\end{figure}
+
+\paragraph{Interpretation and next steps.}
+The held-out Fold~0 effect is modest in magnitude (as expected when searching for a small directional
+texture on top of dominant isotropic information), but it retains sign under cross-validation and the
+TRAIN sky map exhibits large-scale coherence rather than salt-and-pepper fluctuations.
+A conservative reading is therefore that the hemispherical scan provides a pilot constraint on
+directional texture in the reconstructed entropy-slope tilt, with significance conditional on the
+training/validation split and on unmodeled footprint and calibration systematics.
+A calibrated statement requires completing the remaining folds, quantifying the global look-elsewhere
+penalty associated with scanning many candidate axes, and running survey-aware null batteries (e.g.\ sky
+rotations, footprint-weighted resampling, and contamination-template injections) to separate physical
+anisotropy from survey/cut artifacts.
+
+\subsubsection{External dipole mechanism ladder and axis-alignment control (CatWISE/Secrest)}
+\label{sec:catwise_dipole_mechanism}
+Large-angle anisotropy searches are vulnerable to selection-function systematics that imprint coherent dipolar texture through photometric calibration, dust extinction, and scanning-depth variations.
+To contextualize the hemispherical $\Delta s$ texture scan in Section~\ref{sec:hemi_slope_asymmetry}, I implemented an external dipole control analysis based on the CatWISE2020 quasar sample and the ``CatWISE/Secrest'' dipole claim \cite{Secrest2021}.
+The goal is not to adjudicate the physical origin of that dipole, but to quantify how much of the apparent signal can be reproduced and attenuated by simple, explicitly testable mechanisms that are structurally similar to survey-footprint effects.
+
+\paragraph{Dataset and estimator.}
+I work with a magnitude-limited CatWISE2020 quasar selection \cite{CatWISE2020} and compute a sky dipole using a vector-sum (equivalently, $Y_{1m}$-mode) estimator on a HEALPix binned-counts map.
+Dipole directions are reported in Galactic coordinates.
+
+\paragraph{Mechanism ladder.}
+I consider a sequence of increasingly structured models:
+(i) a raw dipole from the binned counts map,
+(ii) a template-regressed residual dipole using linear regression on standard large-scale templates (dust extinction $E(B-V)$, ecliptic latitude, and W1 coverage),
+(iii) a pure ``magnitude-shift'' model in which the selection boundary is shifted by a hemispherical offset $\delta m$ in W1 magnitude, and
+(iv) a combined magnitude-shift plus templates model.
+
+The resulting dipole amplitudes and directions evolve across this ladder as summarized in Table~\ref{tab:catwise_mechanism_ladder} and Fig.~\ref{fig:dipole_amplitude_summary}.
+The raw map shows a dipole amplitude $D\simeq 0.021$ pointing toward $(l,b)\simeq (120^\circ,27^\circ)$.
+Template regression alone reduces the amplitude modestly ($\sim 10\%$) while shifting the best-fit direction.
+A small hemispherical magnitude shift of order $\delta m\simeq 0.011$\,mag reduces the amplitude by roughly a factor of two, and the combined model (templates + magshift) further reduces the residual to $D\simeq 0.0057\pm 0.0024$, i.e.\ a $\sim 75\%$ suppression relative to the raw value.
+Because the faint-end number counts are steep near the W1 cut (Fig.~\ref{fig:w1_density_log}), sub-percent photometric calibration differences can induce percent-level dipole texture in a magnitude-limited selection.
+
+\paragraph{Interpretation and relevance to texture scans.}
+This control study demonstrates that coherent dipolar patterns can arise from small, physically plausible selection-function perturbations and that standard template regression can change both the recovered amplitude and the preferred dipole direction (Fig.~\ref{fig:template_fit_maps}).
+It does \emph{not} establish that the CatWISE dipole is uniquely explained by any one systematic mechanism.
+Rather, it motivates treating any sky-direction preference in reconstructed cosmological texture statistics (such as $\Delta s$) as a joint inference problem:
+(a) quantify look-elsewhere and overfitting risk via folds and held-out tests, and
+(b) test for correlations with survey/foreground templates and with external dipole axes.
+Figure~\ref{fig:axis_alignment_mollweide} provides a qualitative context comparison between the CatWISE dipole, the CMB dipole, and the best-axis directions emerging from the SN-based texture analyses in this paper.
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Variant & dipole amplitude $D$ & direction $(l,b)$ [deg] & note \\
+\midrule
+Raw dipole (vector-sum) & 0.0210 & (120.3,\,26.9) & baseline reproduction \\
+Dipole + templates & $0.0192\pm 0.0027$ & (125.0,\,15.0) & regress $E(B\!-\!V)$, ecl.\ lat., W1 cov \\
+Magshift only & 0.0100 & (120.3,\,26.9) & $\delta m=0.0113$ \\
+Magshift + templates & $0.0057\pm 0.0024$ & (144.4,\,6.6) & $\delta m=0.0115$ \\
+\bottomrule
+\end{tabular}
+\caption{Mechanism ladder summary for the CatWISE/Secrest dipole reproduction and mitigation tests (values from the internal analysis report). Uncertainties (where quoted) are derived from rotation-based Monte Carlo calibration of the estimator.}
+\label{tab:catwise_mechanism_ladder}
+\end{table}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{axis_alignment_mollweide.png}
+\caption{Dipole/axis directions in Galactic coordinates (Mollweide). Shown for context: the reproduced CatWISE/Secrest dipole direction, the CMB dipole, the best hemisphere axis from the SN $\Delta s$ texture scan, and the SN redshift-field dipole-fit direction. This is a qualitative alignment plot, not a statistical association test.}
+\label{fig:axis_alignment_mollweide}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{dipole_amplitude_summary.png}
+\caption{CatWISE/Secrest dipole amplitude under successive mechanism tests: raw vector-sum, template regression, magnitude-shift-only, and combined magnitude-shift + templates.}
+\label{fig:dipole_amplitude_summary}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{magshift_fit.png}
+\caption{Magnitude-shift mechanism scan: predicted dipole amplitude and axis projection versus a hemispherical W1 magnitude shift $\delta m$ (magshift-only model). The steep dependence reflects the strong slope of the magnitude counts near the selection boundary.}
+\label{fig:magshift_fit}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{magshift_with_templates.png}
+\caption{Magnitude-shift scan with template regression included (magshift + templates model). The combined model admits substantially smaller residual dipole amplitudes at $\delta m\simeq 0.011$\,mag.}
+\label{fig:magshift_with_templates}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.96\linewidth]{template_fit_maps.png}
+\caption{Template-regression control for the CatWISE/Secrest dipole analysis: the binned-counts dipole map (left) and the residual map after regressing standard large-scale templates (right). The residual retains coherent structure but with reduced dipole amplitude.}
+\label{fig:template_fit_maps}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.80\linewidth]{w1_density_log.png}
+\caption{CatWISE quick-mode magnitude density estimate: the steep $dN/dm$ slope near the faint end implies that a small hemispherical magnitude shift $\delta m$ can produce a percent-level modulation in a magnitude-limited sample.}
+\label{fig:w1_density_log}
+\end{figure}
+\paragraph{Multi-cut intrinsic+selection scaling fit (fixed axis).}
+A single-cut cancellation can be dismissed as tuning. To isolate the selection-driven contribution,
+I fit a two-component scaling model across a sweep of faint-end magnitude cuts
+$W1_{\max}\in[15.0,16.4]$.
+In a magnitude-limited sample, a dipolar magnitude shift $\delta m$ along a fixed axis
+$\hat{\mathbf{n}}_{\mathrm{ax}}$ induces a number-count modulation proportional to the faint-edge
+slope
+$\alpha_{\mathrm{edge}}\equiv (\dd\ln N/\dd m)\big|_{m=W1_{\max}}$ (Fig.~\ref{fig:w1_density_log}).
+I therefore model the measured dipole \emph{vector} at each cut as
+\begin{equation}
+\mathbf{d}_{\mathrm{obs}}(W1_{\max})
+=
+\mathbf{d}_{\mathrm{res}}
++
+\alpha_{\mathrm{edge}}(W1_{\max})\,\delta m_{\mathrm{amp}}\,\hat{\mathbf{n}}_{\mathrm{ax}},
+\label{eq:catwise_fixedaxis_scaling}
+\end{equation}
+where $\mathbf{d}_{\mathrm{res}}$ is a cut-independent residual (capturing mask geometry and any
+cut-stable texture), and $\delta m_{\mathrm{amp}}$ is the fitted magnitude-gradient amplitude (mag)
+along the fixed axis.
+Fixing $\hat{\mathbf{n}}_{\mathrm{ax}}$ to the Secrest direction and fitting jointly over all cuts
+yields $\delta m_{\mathrm{amp}}=-0.01249\pm0.00271\,\mathrm{mag}$ (a $\sim4.6\sigma$ nonzero selection
+component in this internal calibration), from the artifact
+\texttt{fixed\_axis\_scaling\_fit.json}.
+This is consistent in magnitude with the single-cut cancellation value
+$|\delta m|\simeq 0.011$--$0.012\,\mathrm{mag}$ inferred from the scan in
+Fig.~\ref{fig:magshift_with_templates}.
+Figure~\ref{fig:fixed_axis_scaling_fit} visualizes the expected $\alpha_{\mathrm{edge}}$ scaling and
+shows that the selection term accounts for a substantial fraction of the cut dependence in the
+measured dipole amplitude.
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Quantity & Result & Comment \\
+\midrule
+Fixed axis $(l,b)$ & $(236.0^\circ,\,28.8^\circ)$ & Secrest direction (held fixed) \\
+$\delta m_{\mathrm{amp}}$ [mag] & $-0.01249\pm0.00271$ & selection-gradient component \\
+$|\mathbf{d}_{\mathrm{res}}|$ & $0.0404$ & residual vector amplitude (estimator units) \\
+\bottomrule
+\end{tabular}
+\caption{Two-component fixed-axis scaling fit across $W1_{\max}\in[15.0,16.4]$ in the CatWISE quasar
+count dipole analysis, separating a cut-independent residual dipole vector from a selection-driven
+magnitude-gradient component that scales with the faint-edge slope $\alpha_{\mathrm{edge}}$. The
+$\delta m_{\mathrm{amp}}$ value is statistically nonzero within this internal fit and is consistent
+in magnitude with the single-cut cancellation scan.}
+\label{tab:fixed_axis_scaling_fit}
+\end{table}
+
+\begin{figure}[h!]
+\centering
+\maybeincludegraphics[width=0.92\linewidth]{fixed_axis_scaling_fit.png}
+\caption{Fixed-axis multi-cut scaling fit for the CatWISE quasar dipole. The model decomposes the
+measured dipole into a cut-independent residual vector and a selection-driven component proportional
+to the faint-edge count slope $\alpha_{\mathrm{edge}}$ (Eq.~\eqref{eq:catwise_fixedaxis_scaling}).}
+\label{fig:fixed_axis_scaling_fit}
+\end{figure}
+
+\paragraph{Independent depth-template robustness (directional stability).}
+The template-regression ladder above uses the catalog-provided WISE coverage proxy (\texttt{w1cov}).
+Because such quantities are evaluated at source positions, they can be correlated with the density field itself.
+As a robustness check I repeated the template regression using an independent unWISE imaging exposure-count map $N_{\mathrm{exp}}$ (per-pixel number of exposures) in place of \texttt{w1cov}.
+Under this substitution, the preferred residual-dipole direction shifts substantially (by tens of degrees on the sky), and its separation from the Pantheon+ hemispherical-slope axis increases from $\sim 15^\circ$ (\texttt{w1cov}-based) to $\sim 76^\circ$ ($N_{\mathrm{exp}}$-based).
+This directional instability indicates that current quasar-dipole axis inferences are dominated by depth-model systematics, even though the selection-scaling amplitude $\delta m_{\mathrm{amp}}$ remains statistically nonzero.
+
+
+
+
+
+\subsection{Post hoc proximity tests (proxy and info+; approximate)}
+As a descriptive post-processing step, I compare the reconstructed $g(x)$ to simple parametric
+families \emph{after} inference (no parametric family is assumed in sampling). I use the weighted
+function-space distance in Eq.~\eqref{eq:D2} and an \emph{approximate} pseudo-evidence difference
+$\Delta\log Z$ defined in Eq.~\eqref{eq:dlogZ}.
+
+\paragraph{Weighted function-space distance.}
+For a parametric comparison family with log-deformation $g_{\mathrm{model}}(x;\vartheta)$, I define a
+weighted squared distance
+\begin{equation}
+D^2(\vartheta)\coloneqq
+\int_{x_{\min}}^{x_{\max}} w(x)\,\bigl[g(x)-g_{\mathrm{model}}(x;\vartheta)\bigr]^2\,\dd x,
+\label{eq:D2}
+\end{equation}
+where $w(x)$ is the same normalized weight used for the scar summaries in Section~\ref{sec:scar_stats}
+(uniform on the overlap domain unless otherwise noted),
+and report the best-fit $\vartheta$ (minimizing $D^2$) and the posterior mean of $D^2$ under the
+reconstructed $g(x)$ samples.
+
+\paragraph{Approximate pseudo-evidence difference.}
+Let $\log Z_{\mathrm{GP}}$ denote the log-evidence of a flexible nonparametric reference fit (GP), and
+$\log Z_{\mathrm{model}}$ the corresponding quantity for a parametric family fit computed in the same
+approximate scheme. I define
+\begin{equation}
+\Delta\log Z_{\mathrm{model}}\coloneqq \log Z_{\mathrm{model}}-\log Z_{\mathrm{GP}}.
+\label{eq:dlogZ}
+\end{equation}
+For the Monte-Carlo pseudo-evidence calculation, I use the explicit parameter priors implemented in the code: Tsallis $\delta\sim\mathrm{Uniform}(0,2)$ and $\log\mu_0\sim\mathrm{Uniform}(-5,5)$; Barrow $\Delta\sim\mathrm{Uniform}(-1,1)$ and $\log\mu_0\sim\mathrm{Uniform}(-5,5)$; Kaniadakis $\log\tilde\beta\sim\mathrm{Uniform}(\log 10^{-6},\log 50)$ and $\log\mu_0\sim\mathrm{Uniform}(-5,5)$ (with reference area set to the median $A$ in the comparison domain).
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Model family & best-fit parameter & $D^2$ (mean) & $\Delta\log Z$ vs GP & Note \\
+\midrule
+BH ($\mu=1$) & -- & $1.18\times 10^{-3}$ & $-0.24$ & 0-parameter baseline \\
+Tsallis & $\delta=1.480$ & $2.64\times 10^{-9}$ & $-4.28$ & power-law in $A$ \\
+Barrow & $\Delta=0.960$ & $2.64\times 10^{-9}$ & $-4.30$ & power-law in $A$ \\
+Kaniadakis & $\tilde\beta=0.752$ & $1.40\times 10^{-6}$ & $-4.90$ & non-power-law family \\
+\bottomrule
+\end{tabular}
+\caption{Proxy-stack proximity metrics for the clean M0 base run (seed 123). The GP baseline is a
+flexible nonparametric reference and generally has more effective degrees of freedom than the
+low-dimensional parametric families. Consequently, $\Delta\log Z$ values include an Occam penalty and
+should be interpreted only as an exploratory diagnostic (not as production-grade model selection).}
+\label{tab:prox}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Family & fitted parameter (mean$\pm$sd across seeds) & $\Delta\log Z$ vs GP (mean across seeds) \\
+\midrule
+Tsallis & $\delta=1.33\pm 0.13$ & $-3.07$ \\
+Barrow & $\Delta=0.67\pm 0.26$ & $-2.55$ \\
+Kaniadakis & $\tilde\beta=0.59\pm 0.14$ & $-3.92$ \\
+\bottomrule
+\end{tabular}
+\caption{Info+ pilot proximity metrics aggregated across five seeds (Section~\ref{sec:results_infoplus}). These pseudo-evidence differences are exploratory and are not treated as production-grade model selection, particularly given the pilot-quality convergence diagnostics in Table~\ref{tab:infoplus_scars}.}
+\label{tab:prox_infoplus}
+\end{table}
+
+
+% ============================================================
+\section{Conclusions}
+I presented a calibrated, nonparametric pipeline to reconstruct an effective horizon-entropy slope
+deformation $\mu(A)$ from late-time cosmological data under explicit mapping variants (M0/M1/M2).
+In a clean proxy-stack replacement run and associated robustness checks (Section~\ref{sec:results_proxy}),
+the weighted mean deviation statistic $m$ is consistent with zero, while the slope statistic $s$
+shows a reproducible, configuration-dependent preference for negative values across four independent
+M0 seeds. Multi-seed mapping-variant runs indicate that this slope preference is \emph{mapping-sensitive}:
+residual-closure freedom (M1) reduces the magnitude of the negative slope, while a curved-horizon area
+map (M2) yields a slope similar to M0 but requires a robust overlap-domain procedure for scalar
+summaries in all current M2 seeds. An extended-redshift single-seed check weakens the slope,
+underscoring domain sensitivity.
+
+In a pilot full-likelihood ``info+'' suite (Section~\ref{sec:results_infoplus}) that includes RSD,
+full Planck 2018 $C_\ell^{\phi\phi}$ bandpowers, and a Shapefit full-shape $P(k)$ likelihood (all
+under explicitly stated background-driven anchoring assumptions), the slope statistic
+remains negative in all five seeds but with reduced magnitude and broader uncertainty than in the
+proxy-stack configuration. The mean-deviation statistic remains mixed in sign and consistent with
+zero. Integrated-autocorrelation warnings and occasional CAMB evaluation failures imply that these
+info+ runs are pilot-quality until rerun with longer chains and validated with SBC/coverage tests.
+
+As an initial out-of-sample stress test under the minimal $\alpha_M$-only embedding, I mapped the info+ $\mu(A)$ posteriors into void-based consistency probes. The Tier~1 amplitude-only mapping (Section~\ref{sec:void_amp_tier1}; Ref.~\cite{Kovacs2022Void}) yields proxy amplitudes above unity while the published $A_\kappa$ values are below unity, suggesting a possible tension in that simplified construction. However, this amplitude proxy depends on the simulation-template normalization, profile modeling, and nonlinear selection systematics, and is therefore treated as informative but not decisive. I therefore implemented a Tier~1.5 ratio-style void-prism ($E_G$-like) predictive test using ACT+SDSS-based inputs (Section~\ref{sec:void_prism_tier15}). In its current pilot form the prism measurement is noise-dominated and the predictive scoring yields $\Delta\mathrm{LPD}$ consistent with a tie relative to the GR baseline, so the void perturbation sector is presently insufficient to provide a definitive validation or falsification of the minimal embedding.
+
+These results are interpreted as phenomenological consistency information rather than as evidence for
+a specific microphysical entropy model. In particular, the proxy-stack mapping sensitivity shows that allowing residual closure freedom (M1) can absorb part of the
+negative tilt, so $s<0$ is not yet uniquely attributable to an entropy-slope deformation. At the background level, the reconstructed tilt is also degenerate with a smoothly evolving effective dark-energy sector; breaking this ``standard model pressure'' requires mapping-preference evidence comparisons and genuinely out-of-sample perturbation-sector
+predictions (e.g.\ standard sirens and local $\dot G/G$ consistency; in the proxy-stack baseline the minimal embedding predicts $\overline{R}_{\mathrm{siren}}=1.049\pm0.018$ over $z\in[0.02,0.62]$). In an incompleteness-marginalized GWTC-3 dark-siren score production run with 36 events (Section~\ref{sec:dark_siren_gap}), I find a strong predictive preference for the horizon-entropy propagation model over the GR baseline ($\Delta\mathrm{LPD}_{\mathrm{tot}}\approx 3.03$, $\exp(\Delta\mathrm{LPD}_{\mathrm{tot}})\approx 20$). A sky-rotation control yields a comparably large score ($\Delta\mathrm{LPD}_{\mathrm{rot}}\approx 2.99$), indicating that the preference is driven predominantly by global population-level distance--redshift consistency with the HE $d_L(z)$ relation rather than by unique host-galaxy alignments. A PE-prior-aware mechanism diagnostic on the highest-leverage event (GW200220\_061928) finds that rotating the PE sky map leaves its score nearly unchanged, while a catalog-free hierarchical PE-only likelihood yields only a modest preference, reinforcing a predominantly sky-independent distance-scale origin.
+ In a GR control mode, the pipeline recovers $H_0\simeq 68.5~\mathrm{km/s/Mpc}$, providing an internal validation. The score is nevertheless concentrated in a small subset of highly informative events (e.g. GW200308 and GW200220), and I plan to expand the suite of nulls and selection-function calibration before any higher-stakes interpretation. I additionally performed a pilot hemispherical slope-asymmetry scan of the Pantheon+ sky distribution (Section~\ref{sec:hemi_slope_asymmetry}), which identifies a weak but spatially coherent candidate direction in Fold~0 (held-out $z_{\mathrm{test}}=-0.315$). Completion of the remaining folds and null-calibrated footprint tests will determine whether this texture is physical or systematic and will enable a quantitative upper bound on any large-scale anisotropy of the reconstructed tilt.
+An external dipole control study (Section~\ref{sec:catwise_dipole_mechanism}) reproduces the reported CatWISE/Secrest quasar dipole and demonstrates that a small ($\sim 0.01$\,mag) hemispherical magnitude shift, especially when combined with standard template regression, can suppress the apparent dipole amplitude by $\sim 75\%$ while shifting the preferred axis. Extending this beyond a single-cut cancellation, a fixed-axis multi-cut scaling fit that exploits the expected faint-edge slope dependence isolates a statistically nonzero selection component, $\delta m_{\mathrm{amp}}=-0.01249\pm0.00271\,\mathrm{mag}$ along the Secrest axis (Table~\ref{tab:fixed_axis_scaling_fit}; Eq.~\eqref{eq:catwise_fixedaxis_scaling}). This underscores that coherent dipolar texture can be driven by selection-function systematics at the percent level and motivates aggressive template-correlation, magnitude-split, and rotation-null controls for future sky-direction scans. In particular, the preferred dipole direction is sensitive to the depth template (\texttt{w1cov} versus independent $N_{\mathrm{exp}}$), so I do not treat any apparent axis ``convergence'' as robust until this dependence is fully controlled.
+
+
+The immediate priorities are:
+(i) resolve the SBC under-coverage for scar summaries (Section~5) and repeat SBC for the configurations reported in Results,
+(ii) rerun the full-likelihood info+ suite on a clean commit with longer chains and stabilized CAMB failure handling, and then extend it to M1/M2,
+and (iii) expand out-of-sample cross-checks that do not enter the reconstruction likelihood and interpret them through explicit perturbation embeddings such as the minimal $\alpha_M$-only option in Section~\ref{sec:minimal_embedding}.
+
+% ============================================================
+\section*{AI assistance disclosure}
+The author used AI assistance throughout this project, including ChatGPT (OpenAI), for brainstorming, drafting and editing text, and iterating on analysis and software-development ideas.
+
+% ============================================================
+\appendix
+\section{Clausius derivation of the forward \texorpdfstring{$u(z)$}{u(z)} ODE}
+\label{app:clausius_derivation}
+I derive Eq.~\eqref{eq:forward_u} from a Cai--Kim/Clausius relation evaluated on the apparent horizon, following the conventions used in the code base.
+
+For a flat FLRW background, the apparent-horizon radius is $R_A=c/H$ and the area is $A=4\pi R_A^2$. The horizon temperature is taken to be
+\begin{equation}
+T = \frac{\hbar c}{2\pi k_B R_A}.
+\end{equation}
+Using the Bekenstein--Hawking slope $(\dd S/\dd A)_{\mathrm{BH}} = k_B c^3/(4G\hbar)$ and the definition $\mu(A)\equiv (\dd S/\dd A)_{\mathrm{BH}}/(\dd S/\dd A)$, I have
+\begin{equation}
+\dd S = \frac{k_B c^3}{4G\hbar}\,\frac{1}{\mu(A)}\,\dd A.
+\end{equation}
+Therefore,
+\begin{equation}
+T\,\dd S
+=
+\frac{\hbar c}{2\pi k_B R_A}\;
+\frac{k_B c^3}{4G\hbar}\,\frac{1}{\mu(A)}\,\dd A
+=
+\frac{c^4}{G}\,\frac{1}{\mu(A)}\,\dd R_A,
+\label{eq:TdS_appendix}
+\end{equation}
+where I used $\dd A = 8\pi R_A\,\dd R_A$.
+
+Under the Cai--Kim/Clausius assumption, the heat flow across the apparent horizon in time $\dd t$ is
+\begin{equation}
+\delta Q = A\,(\rho+p)\,H\,R_A\,\dd t.
+\label{eq:dQ_appendix}
+\end{equation}
+Imposing $\delta Q = T\,\dd S$ and combining Eqs.~\eqref{eq:TdS_appendix}--\eqref{eq:dQ_appendix} yields
+\begin{equation}
+\dot R_A = \frac{4\pi G}{c^4}\,\mu(A)\,R_A^3\,H\,(\rho+p).
+\end{equation}
+For $R_A=c/H$, $\dot R_A = -c\,\dot H/H^2$, which implies
+\begin{equation}
+\dot H = -\frac{4\pi G}{c^2}\,\mu(A)\,(\rho+p).
+\label{eq:Hdot_appendix}
+\end{equation}
+In the late-time mapping I adopt a matter-dominance approximation $\rho+p\simeq\rho_m(z)$ with
+\begin{equation}
+\rho_m(z)=\rho_{m0}(1+z)^3,\qquad \rho_{m0}=\frac{3H_0^2\Omega_{m0}c^2}{8\pi G}.
+\end{equation}
+Substituting into Eq.~\eqref{eq:Hdot_appendix} gives
+\begin{equation}
+\dot H = -\frac{3}{2}\,H_0^2\Omega_{m0}(1+z)^3\,\mu(A).
+\end{equation}
+Finally, with $u\equiv H^2$ and $\dd z/\dd t=-(1+z)H$, I obtain
+\begin{equation}
+\frac{\dd u}{\dd z}
+=
+\frac{\dd(H^2)/\dd t}{\dd z/\dd t}
+=
+\frac{2H\dot H}{-(1+z)H}
+=
+3H_0^2\Omega_{m0}(1+z)^2\,\mu\!\bigl(A(z)\bigr),
+\end{equation}
+which is Eq.~\eqref{eq:forward_u}.
+
+% ============================================================
+
+
+\clearpage
+\section{Supplementary dark-siren per-event score plots}
+\label{app:darksiren_score_plots}
+
+For completeness, Figures~\ref{fig:darksiren_by_event_36_seed202}--\ref{fig:darksiren_by_event_36_seed505} show the per-event $\Delta\mathrm{LPD}$ contributions for the remaining production seeds.  
+
+\begin{figure}[h!]
+  \centering
+  \maybeincludegraphics[width=0.95\linewidth]{delta_lpd_by_event_M0_start202.png}
+  \caption{Per-event $\Delta\mathrm{LPD}$ contributions for the 36-event production run (seed M0\_start202; $f_{\mathrm{ref}}=0.681$).}
+  \label{fig:darksiren_by_event_36_seed202}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \maybeincludegraphics[width=0.95\linewidth]{delta_lpd_by_event_M0_start303.png}
+  \caption{Per-event $\Delta\mathrm{LPD}$ contributions for the 36-event production run (seed M0\_start303; $f_{\mathrm{ref}}=0.681$).}
+  \label{fig:darksiren_by_event_36_seed303}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \maybeincludegraphics[width=0.95\linewidth]{delta_lpd_by_event_M0_start404.png}
+  \caption{Per-event $\Delta\mathrm{LPD}$ contributions for the 36-event production run (seed M0\_start404; $f_{\mathrm{ref}}=0.681$).}
+  \label{fig:darksiren_by_event_36_seed404}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \maybeincludegraphics[width=0.95\linewidth]{delta_lpd_by_event_M0_start505.png}
+  \caption{Per-event $\Delta\mathrm{LPD}$ contributions for the 36-event production run (seed M0\_start505; $f_{\mathrm{ref}}=0.681$).}
+  \label{fig:darksiren_by_event_36_seed505}
+\end{figure}
+
+\begin{thebibliography}{99}
+
+\bibitem{SBC}
+D.\ Talts et al., ``Validating Bayesian inference algorithms with simulation-based calibration,''
+\emph{arXiv:1804.06788}.
+
+\bibitem{PTEMCEE}
+M.\ Vousden, W.\ M.\ Farr, and I.\ Mandel, ``Dynamic temperature selection for parallel tempering in
+Markov chain Monte Carlo simulations,''
+\emph{Mon.\ Not.\ R.\ Astron.\ Soc.} \textbf{455} (2016) 1919--1937.
+
+\bibitem{CAMB}
+A.\ Lewis, A.\ Challinor, and A.\ Lasenby, ``Efficient computation of CMB anisotropies in closed FRW
+models,'' \emph{Astrophys.\ J.} \textbf{538} (2000) 473--476.
+
+\bibitem{Kovacs2022Void}
+A.\ Kov\'acs et al., ``DES Y3 superstructures $\times$ Planck 2018 CMB lensing: stacked void and
+supercluster convergence profiles,'' \emph{Mon.\ Not.\ R.\ Astron.\ Soc.} (2022).
+arXiv:2203.11306, doi:10.1093/mnras/stac2011.
+
+
+
+\bibitem{GWTC3}
+R.\ Abbott et al.\ (LIGO Scientific Collaboration, Virgo Collaboration, and KAGRA Collaboration),
+``GWTC-3: Compact Binary Coalescences Observed by LIGO and Virgo During the Second Part of the Third Observing Run,''
+\emph{Phys.\ Rev.\ X} \textbf{13} (2023) 041039.
+arXiv:2111.03606.
+
+\bibitem{GLADEplus}
+G.\ D\'alya et al., ``GLADE+: A Galaxy Catalogue for Multimessenger Astronomy,''
+\emph{Mon.\ Not.\ R.\ Astron.\ Soc.} \textbf{514} (2022) 1403--1411.
+
+
+
+\bibitem{Secrest2021}
+N.\ J.\ Secrest et al., ``A Test of the Cosmological Principle with Quasars,''
+\emph{Astrophys.\ J.\ Lett.} \textbf{908} (2021) L51.
+arXiv:2009.14826.
+
+\bibitem{CatWISE2020}
+J.\ Marocco et al., ``The CatWISE2020 Catalog: A Comprehensive Catalog of WISE and NEOWISE Sources,''
+\emph{Astrophys.\ J.\ Suppl.} \textbf{253} (2021) 8.
+arXiv:2012.13084, doi:10.3847/1538-4365/abe2a8.
+
+\end{thebibliography}
+
+\end{document}

@@ -198,6 +198,33 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
   --dust-template none \
   --depth-mode depth_map_covariate \
   --depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+
+## New: EntropyPaper tie-in (fast dark-siren hemisphere proxy)
+
+`EntropyPaper.tex` discusses a GWTC-3 dark-siren scoring run (bundle ID: `2-1-c-m`) and motivates simple
+directional/systematics diagnostics.
+
+This repo includes a lightweight **hemisphere proxy** that asks whether the *per-event* score (ΔLPD = HE − GR)
+is concentrated in one hemisphere about a chosen axis (e.g., the CMB dipole axis):
+
+- Script: `scripts/run_darksiren_axis_split_proxy.py`
+- Report bundle: `entropy_quasar_bridge_report/`
+
+Inputs included in this repo:
+- Per-event score table: `data/dark_sirens/2-1-c-m/production_36events/event_scores_M0_start101.json`
+- Public GWTC-3 multi-order sky maps (36 FITS; ~24 MB): `data/external/zenodo_5546663/skymaps/`
+
+Run:
+
+```bash
+.venv/bin/python scripts/run_darksiren_axis_split_proxy.py \
+  --axis cmb \
+  --n-perm 5000 \
+  --seed 1 \
+  --make-plot \
+  --outdir outputs/darksiren_axis_proxy_cmb
+```
+
   --depth-map-name unwise_lognexp_nside64 \
   --make-plot \
   --w1-grid 15.5,16.6,0.05 \
