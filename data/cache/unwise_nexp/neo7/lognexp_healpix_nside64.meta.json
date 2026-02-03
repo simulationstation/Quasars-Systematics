@@ -5,7 +5,7 @@
   "ordering": "RING",
   "coord": "galactic",
   "value_mode": "log_nexp",
-  "fill_value": 5.356586274672012,
-  "missing_frac": 0.4924723307291667,
+  "fill_value": 5.3706380281276624,
+  "missing_frac": 0.0,
   "npix": 49152
 }

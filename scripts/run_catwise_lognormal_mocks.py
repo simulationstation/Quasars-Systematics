@@ -32,6 +32,8 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
+import warnings
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -296,6 +298,82 @@ def gaussian_to_lognormal_factor(g: np.ndarray, *, seen: np.ndarray) -> tuple[np
     return fac, var
 
 
+def _auto_nproc(nproc: int) -> int:
+    if int(nproc) > 0:
+        return int(nproc)
+    return int(os.cpu_count() or 1)
+
+
+def _seed_for_mock(base_seed: int, i: int) -> int:
+    # Keep within 32-bit range for legacy RNGs used by healpy.synfast.
+    return int((int(base_seed) + 1_000_003 * int(i)) % 2_147_483_647)
+
+
+_LN_STATE: dict[str, Any] | None = None
+
+
+def _init_lognormal_worker(state: dict[str, Any]) -> None:
+    global _LN_STATE
+    _LN_STATE = state
+    # Keep worker logs clean (spawn/forkserver do not inherit parent's warning filters).
+    warnings.filterwarnings("ignore", message=r".*verbose.*deprecated.*", category=Warning)
+
+
+def _run_one_mock(i: int) -> tuple[int, np.ndarray, float, float]:
+    """
+    Worker entrypoint for multiprocessing.
+    Uses global `_LN_STATE` (populated in the parent before pool creation).
+    """
+    global _LN_STATE
+    if _LN_STATE is None:
+        raise RuntimeError("internal error: _LN_STATE is not initialized")
+
+    import healpy as hp
+
+    i = int(i)
+    seed_i = _seed_for_mock(int(_LN_STATE["base_seed"]), i)
+    np.random.seed(seed_i)  # noqa: NPY002
+
+    cl_signal = _LN_STATE["cl_signal"]
+    nside = int(_LN_STATE["nside"])
+    lmax = int(_LN_STATE["lmax"])
+    seen = _LN_STATE["seen"]
+    mu_hat = _LN_STATE["mu_hat"]
+    X = _LN_STATE["X"]
+    offset = _LN_STATE["offset"]
+    beta_hat = _LN_STATE["beta_hat"]
+    max_iter = int(_LN_STATE["max_iter"])
+    inject_D = float(_LN_STATE["inject_D"])
+    b_inj = _LN_STATE["b_inj"]
+    n_seen = _LN_STATE["n_seen"]
+    mock_depth_alpha = float(_LN_STATE.get("mock_depth_alpha", 0.0))
+    mock_depth_z_seen = _LN_STATE.get("mock_depth_z_seen")
+
+    g = hp.synfast(cl_signal, nside=nside, lmax=lmax, new=True, verbose=False)
+    fac, _ = gaussian_to_lognormal_factor(g, seen=seen)
+    mu_i = mu_hat * fac[seen]
+    if mock_depth_alpha != 0.0:
+        if mock_depth_z_seen is None:
+            raise RuntimeError("internal error: missing mock_depth_z_seen for mock_depth_alpha != 0")
+        mu_i = mu_i * np.exp(mock_depth_alpha * mock_depth_z_seen)
+    if inject_D != 0.0:
+        mu_i = mu_i * np.exp(n_seen @ b_inj)
+    rng_i = np.random.default_rng(seed_i)
+    y_i = rng_i.poisson(mu_i)
+    beta_i, _ = fit_poisson_glm(
+        X,
+        y_i,
+        offset=offset,
+        max_iter=max_iter,
+        beta_init=beta_hat,
+        compute_cov=False,
+    )
+    bvec = np.asarray(beta_i[1:4], dtype=float)
+    D = float(np.linalg.norm(bvec))
+    ang = float(axis_angle_deg(bvec, b_inj)) if inject_D != 0.0 else float("nan")
+    return i, bvec, D, ang
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -329,9 +407,32 @@ def main() -> int:
     ap.add_argument("--lmax", type=int, default=None, help="Max multipole for clustering C_ell (default: 3*nside-1).")
     ap.add_argument("--n-mocks", type=int, default=200)
     ap.add_argument("--seed", type=int, default=123)
+    ap.add_argument("--n-proc", type=int, default=0, help="Number of processes (0=auto).")
+    ap.add_argument(
+        "--mp-start",
+        choices=["spawn", "fork", "forkserver"],
+        default="spawn",
+        help="Multiprocessing start method (spawn is most robust with healpy/OpenMP).",
+    )
+    ap.add_argument("--save-every", type=int, default=50, help="Flush partial outputs every N mocks.")
+    ap.add_argument("--resume", action="store_true", help="Resume from existing *.npy artifacts in outdir.")
+    ap.add_argument("--overwrite", action="store_true", help="Overwrite existing *.npy artifacts in outdir.")
 
     ap.add_argument("--inject-dipole-amp", type=float, default=0.0, help="Optional injected dipole amplitude D≈|b|.")
     ap.add_argument("--inject-axis", default="cmb", help="'cmb' or 'l,b' in degrees for injection axis.")
+
+    ap.add_argument(
+        "--mock-depth-map-fits",
+        default=None,
+        help="Optional HEALPix depth map used only to inject a selection systematic in mocks.",
+    )
+    ap.add_argument("--mock-depth-map-ordering", choices=["ring", "nest"], default="ring")
+    ap.add_argument(
+        "--mock-depth-alpha",
+        type=float,
+        default=0.0,
+        help="If non-zero, mocks are generated with mu -> mu * exp(alpha * depth_z) on seen pixels.",
+    )
 
     ap.add_argument("--write-mock-betas", action="store_true", help="Store per-mock beta vectors in the output JSON.")
     args = ap.parse_args()
@@ -344,6 +445,9 @@ def main() -> int:
 
     outdir = Path(args.outdir or f"outputs/catwise_lognormal_mocks_{utc_tag()}")
     outdir.mkdir(parents=True, exist_ok=True)
+
+    # Silence known healpy deprecations to keep run logs clean.
+    warnings.filterwarnings("ignore", message=r".*verbose.*deprecated.*", category=Warning)
 
     # Load catalog columns.
     with fits.open(args.catalog, memmap=True) as hdul:
@@ -515,42 +619,145 @@ def main() -> int:
     n_axis = lb_to_unitvec(np.array([axis_l]), np.array([axis_b]))[0]
     b_inj = inject_D * n_axis
 
-    rng = np.random.default_rng(int(args.seed))
-    b_est = np.empty((int(args.n_mocks), 3), dtype=float)
-    D_est = np.empty(int(args.n_mocks), dtype=float)
-    ang_to_inj = np.empty(int(args.n_mocks), dtype=float)
+    # Optional injected depth systematic used only in mock generation.
+    mock_depth_alpha = float(args.mock_depth_alpha)
+    mock_depth_z_seen = None
+    if mock_depth_alpha != 0.0:
+        if args.mock_depth_map_fits is None:
+            raise SystemExit("--mock-depth-alpha != 0 requires --mock-depth-map-fits")
+        mock_depth_map = hp.read_map(str(args.mock_depth_map_fits), verbose=False)
+        nside_in = int(hp.get_nside(mock_depth_map))
+        order_in = "NEST" if str(args.mock_depth_map_ordering).lower() == "nest" else "RING"
+        if nside_in != int(args.nside):
+            mock_depth_map = hp.ud_grade(
+                mock_depth_map,
+                nside_out=int(args.nside),
+                order_in=order_in,
+                order_out="RING",
+                power=0,
+            )
+        mock_depth_map = np.asarray(mock_depth_map, dtype=float)
+        unseen = ~np.isfinite(mock_depth_map) | (mock_depth_map == hp.UNSEEN)
+        ok = seen & (~unseen)
+        fill = float(np.median(mock_depth_map[ok])) if np.any(ok) else 0.0
+        mock_depth_map[unseen] = fill
+        mock_depth_z_seen = zscore(mock_depth_map, seen)[seen].astype(float)
 
-    for i in range(int(args.n_mocks)):
-        # Gaussian field -> lognormal factor
-        g = hp.synfast(cl_signal, nside=int(args.nside), lmax=int(lmax), new=True, verbose=False)
-        fac, var_g = gaussian_to_lognormal_factor(g, seen=seen)
-        mu_i = mu_hat * fac[seen]
-        if inject_D != 0.0:
-            mu_i = mu_i * np.exp(n_seen @ b_inj)
-        y_i = rng.poisson(mu_i)
-        beta_i, _ = fit_poisson_glm(X, y_i, offset=offset, max_iter=int(args.max_iter), beta_init=beta_hat, compute_cov=False)
-        bvec = np.asarray(beta_i[1:4], dtype=float)
-        b_est[i] = bvec
-        D_est[i] = float(np.linalg.norm(bvec))
-        ang_to_inj[i] = float(axis_angle_deg(bvec, b_inj)) if inject_D != 0.0 else float("nan")
+    n_mocks = int(args.n_mocks)
+    if n_mocks < 1:
+        raise SystemExit("--n-mocks must be >= 1")
+    save_every = int(max(1, int(args.save_every)))
 
-        if (i + 1) % max(1, int(args.n_mocks) // 10) == 0:
-            (outdir / "progress.txt").write_text(f"{i+1}/{int(args.n_mocks)}\\n")
+    # Persist partial results as .npy memmaps (resumability and low overhead).
+    b_est_path = outdir / "b_est.npy"
+    D_est_path = outdir / "D_est.npy"
+    ang_path = outdir / "axis_angle_to_inj_deg.npy"
+    if args.resume and args.overwrite:
+        raise SystemExit("--resume and --overwrite are mutually exclusive.")
 
-    cov_b = np.cov(b_est.T, ddof=1)
+    def open_or_create(path: Path, *, shape: tuple[int, ...]) -> np.memmap:
+        if path.exists():
+            if args.resume:
+                arr = np.load(path, mmap_mode="r+")
+                if tuple(arr.shape) != tuple(shape):
+                    raise SystemExit(f"Existing {path} has shape {arr.shape} but expected {shape}.")
+                if arr.dtype != np.dtype("f4"):
+                    raise SystemExit(f"Existing {path} has dtype {arr.dtype} but expected float32.")
+                return arr
+            if not args.overwrite:
+                raise SystemExit(f"Refusing to overwrite existing {path}; pass --overwrite or --resume.")
+        arr = np.lib.format.open_memmap(path, mode="w+", dtype="f4", shape=shape)
+        arr[:] = np.nan
+        arr.flush()
+        return arr
+
+    b_est = open_or_create(b_est_path, shape=(n_mocks, 3))
+    D_est = open_or_create(D_est_path, shape=(n_mocks,))
+    ang_to_inj = open_or_create(ang_path, shape=(n_mocks,))
+
+    nproc = _auto_nproc(int(args.n_proc))
+
+    # Initialize worker state for both sequential and multiprocessing execution.
+    global _LN_STATE
+    _LN_STATE = {
+        "base_seed": int(args.seed),
+        "cl_signal": cl_signal,
+        "nside": int(args.nside),
+        "lmax": int(lmax),
+        "seen": seen,
+        "mu_hat": mu_hat,
+        "X": X,
+        "offset": offset,
+        "beta_hat": beta_hat,
+        "max_iter": int(args.max_iter),
+        "inject_D": float(inject_D),
+        "b_inj": b_inj,
+        "n_seen": n_seen,
+        "mock_depth_alpha": float(mock_depth_alpha),
+        "mock_depth_z_seen": mock_depth_z_seen,
+    }
+
+    ok0 = np.isfinite(D_est)
+    done = int(np.sum(ok0))
+    todo = np.flatnonzero(~ok0)
+    if todo.size and done:
+        print(f"Resuming: {done}/{n_mocks} completed, {todo.size} remaining.")
+    if nproc <= 1:
+        for i in todo.tolist():
+            j, bvec, D, ang = _run_one_mock(int(i))
+            b_est[j] = bvec.astype(np.float32)
+            D_est[j] = np.float32(D)
+            ang_to_inj[j] = np.float32(ang)
+            done += 1
+            if (done % save_every) == 0 or done == n_mocks:
+                b_est.flush()
+                D_est.flush()
+                ang_to_inj.flush()
+                (outdir / "progress.txt").write_text(f"{done}/{n_mocks}\\n")
+                print(f"[{done}/{n_mocks}] saved")
+    else:
+        import multiprocessing as mp
+
+        ctx = mp.get_context(str(args.mp_start))
+        if str(args.mp_start) == "fork":
+            pool_kwargs = {"processes": int(nproc)}
+        else:
+            pool_kwargs = {"processes": int(nproc), "initializer": _init_lognormal_worker, "initargs": (_LN_STATE,)}
+        with ctx.Pool(**pool_kwargs) as pool:
+            for j, bvec, D, ang in pool.imap_unordered(_run_one_mock, todo.tolist(), chunksize=1):
+                b_est[j] = bvec.astype(np.float32)
+                D_est[j] = np.float32(D)
+                ang_to_inj[j] = np.float32(ang)
+                done += 1
+                if (done % save_every) == 0 or done == n_mocks:
+                    b_est.flush()
+                    D_est.flush()
+                    ang_to_inj.flush()
+                    (outdir / "progress.txt").write_text(f"{done}/{n_mocks}\\n")
+                    print(f"[{done}/{n_mocks}] saved")
+
+    # Compute covariance on finite entries only.
+    ok = np.isfinite(D_est)
+    if int(np.sum(ok)) < 3:
+        raise RuntimeError("Too few completed mocks to estimate covariance.")
+    b_use = np.asarray(b_est[ok], dtype=float)
+    D_use = np.asarray(D_est[ok], dtype=float)
+    ang_use = np.asarray(ang_to_inj[ok], dtype=float)
+    cov_b = np.cov(b_use.T, ddof=1)
 
     def pct(a: np.ndarray, q: float) -> float:
         return float(np.nanpercentile(a, q))
 
     summary = {
-        "D_p16": pct(D_est, 16),
-        "D_p50": pct(D_est, 50),
-        "D_p84": pct(D_est, 84),
+        "n_completed": int(np.sum(ok)),
+        "D_p16": pct(D_use, 16),
+        "D_p50": pct(D_use, 50),
+        "D_p84": pct(D_use, 84),
     }
     if inject_D != 0.0:
-        summary["axis_angle_to_inj_p16_deg"] = pct(ang_to_inj, 16)
-        summary["axis_angle_to_inj_p50_deg"] = pct(ang_to_inj, 50)
-        summary["axis_angle_to_inj_p84_deg"] = pct(ang_to_inj, 84)
+        summary["axis_angle_to_inj_p16_deg"] = pct(ang_use, 16)
+        summary["axis_angle_to_inj_p50_deg"] = pct(ang_use, 50)
+        summary["axis_angle_to_inj_p84_deg"] = pct(ang_use, 84)
 
     payload: dict[str, Any] = {
         "meta": {
@@ -569,8 +776,16 @@ def main() -> int:
             "offset_name": offset_name,
             "n_mocks": int(args.n_mocks),
             "seed": int(args.seed),
+            "n_proc": int(args.n_proc),
+            "mp_start": str(args.mp_start),
+            "save_every": int(save_every),
+            "resume": bool(args.resume),
+            "overwrite": bool(args.overwrite),
             "inject_dipole_amp": float(inject_D),
             "inject_axis_lb": [axis_l, axis_b],
+            "mock_depth_alpha": float(mock_depth_alpha),
+            "mock_depth_map_fits": None if args.mock_depth_map_fits is None else str(args.mock_depth_map_fits),
+            "mock_depth_map_ordering": str(args.mock_depth_map_ordering),
         },
         "fit": {
             "beta_hat": [float(x) for x in beta_hat],
@@ -591,9 +806,14 @@ def main() -> int:
         },
     }
     if args.write_mock_betas:
-        payload["mocks"]["b_est"] = [[float(x) for x in row] for row in b_est.tolist()]
-        payload["mocks"]["D_est"] = [float(x) for x in D_est.tolist()]
-        payload["mocks"]["axis_angle_to_inj_deg"] = [float(x) for x in ang_to_inj.tolist()]
+        payload["mocks"]["b_est"] = [[float(x) for x in row] for row in b_use.tolist()]
+        payload["mocks"]["D_est"] = [float(x) for x in D_use.tolist()]
+        payload["mocks"]["axis_angle_to_inj_deg"] = [float(x) for x in ang_use.tolist()]
+    payload["mocks"]["artifacts"] = {
+        "b_est_npy": str(b_est_path),
+        "D_est_npy": str(D_est_path),
+        "axis_angle_to_inj_deg_npy": str(ang_path),
+    }
 
     out_json = outdir / "lognormal_mocks_cov.json"
     out_json.write_text(json.dumps(payload, indent=2))

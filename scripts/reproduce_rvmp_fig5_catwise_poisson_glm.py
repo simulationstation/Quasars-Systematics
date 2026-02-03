@@ -618,25 +618,26 @@ def main() -> int:
         bg = np.deg2rad(g.b.deg)
         cosb = np.cos(bg)
         tile_vec = np.column_stack([cosb * np.cos(lg), cosb * np.sin(lg), np.sin(bg)])
-        tree = cKDTree(tile_vec)
+        # Only use tiles present in the stats JSON (otherwise nearest-neighbour mapping
+        # can land on a missing tile and force large-area fill values).
+        valid_tile = np.fromiter((str(cid) in tile_stats for cid in coadd_id), dtype=bool, count=coadd_id.size)
+        if not np.any(valid_tile):
+            raise SystemExit("nexp-tile-stats-json contains no keys matching tiles.fits coadd_id values.")
+        tree = cKDTree(tile_vec[valid_tile])
 
         # Map each HEALPix pixel to nearest tile.
         _, nn_idx = tree.query(pix_unit, k=1)
-        pix_coadd = coadd_id[nn_idx]
+        pix_coadd = coadd_id[valid_tile][np.asarray(nn_idx, dtype=int)]
+        nexp_pix = np.array([float(tile_stats[str(cid)]) for cid in pix_coadd], dtype=float)
 
-        nexp_pix = np.full(npix, np.nan, dtype=float)
-        v_idx = np.flatnonzero(seen)
-        for p in v_idx:
-            nexp_pix[p] = float(tile_stats.get(str(pix_coadd[p]), float("nan")))
-
-        missing = seen & (~np.isfinite(nexp_pix) | (nexp_pix <= 0.0))
-        nexp_missing_frac = float(missing.sum() / max(1, int(seen.sum())))
-        # Keep footprint fixed: fill missing with the median of available values on seen pixels.
-        ok = seen & np.isfinite(nexp_pix) & (nexp_pix > 0.0)
-        if not np.any(ok):
-            raise SystemExit("No valid Nexp values found for seen pixels; cannot use unwise_nexp depth-mode.")
-        fill = float(np.median(nexp_pix[ok]))
-        nexp_pix[missing] = fill
+        bad = ~np.isfinite(nexp_pix) | (nexp_pix <= 0.0)
+        nexp_missing_frac = float(np.mean(seen & bad))
+        if np.any(bad):
+            ok = seen & (~bad)
+            if not np.any(ok):
+                raise SystemExit("No valid Nexp values found on seen pixels; cannot use unwise_nexp depth-mode.")
+            fill = float(np.median(nexp_pix[ok]))
+            nexp_pix[bad] = fill
 
     # Optional: generic map-level depth proxy provided as a HEALPix map.
     depth_map = None

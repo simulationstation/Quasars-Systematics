@@ -216,9 +216,12 @@ Poisson-only errors are optimistic because they neglect large-scale structure (s
 This script generates quick clustered mocks and returns a dipole covariance that includes LSS+shot noise:
 
 ```bash
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
 python3 scripts/run_catwise_lognormal_mocks.py \
   --w1-max 16.6 \
   --n-mocks 500 \
+  --n-proc 0 \
+  --mp-start spawn \
   --eclip-template abs_elat \
   --dust-template none \
   --depth-mode none \
@@ -229,6 +232,36 @@ The covariance is written to `outputs/lognormal_mocks_cov/lognormal_mocks_cov.js
 - an estimated clustering `C_ell` from data residuals (with a crude f_sky correction),
 - the recovered dipole-vector covariance across mocks (`cov_b`),
 - optional injection recovery diagnostics (`--inject-dipole-amp ...`).
+
+### End-to-end completeness validation (recommended)
+
+Generate mocks with both (i) an injected dipole and (ii) a depth-tied selection systematic, then compare fits
+with and without a depth template:
+
+```bash
+python3 scripts/run_catwise_lognormal_mocks.py \
+  --w1-max 16.6 \
+  --n-mocks 500 \
+  --n-proc 0 \
+  --inject-dipole-amp 0.005 \
+  --inject-axis cmb \
+  --mock-depth-alpha 0.6 \
+  --mock-depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+  --depth-mode none \
+  --outdir outputs/lognormal_mocks_inj_depth_misspecified
+
+python3 scripts/run_catwise_lognormal_mocks.py \
+  --w1-max 16.6 \
+  --n-mocks 500 \
+  --n-proc 0 \
+  --inject-dipole-amp 0.005 \
+  --inject-axis cmb \
+  --mock-depth-alpha 0.6 \
+  --mock-depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+  --depth-mode depth_map_covariate \
+  --depth-map-fits data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits \
+  --outdir outputs/lognormal_mocks_inj_depth_modeled
+```
 
 ### C) Mechanism-killing injection test (dipolar faint-limit modulation)
 

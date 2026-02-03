@@ -91,17 +91,18 @@ def main() -> int:
     sc = SkyCoord(ra=ra * u.deg, dec=dec * u.deg, frame="icrs").galactic
 
     tile_vec = lb_to_unitvec(sc.l.deg, sc.b.deg)
-    tree = cKDTree(tile_vec)
+    # Only build the tree on tiles that actually exist in the stats JSON.
+    valid_tile = np.fromiter((str(cid) in tile_stats for cid in coadd_id), dtype=bool, count=coadd_id.size)
+    if not np.any(valid_tile):
+        raise SystemExit("tile-stats-json contains no keys matching tiles.fits coadd_id values.")
+    tree = cKDTree(tile_vec[valid_tile])
 
     # Pixel centers in Galactic l,b.
     lon_pix, lat_pix = hp.pix2ang(nside, np.arange(npix), lonlat=True, nest=bool(args.nest))
     pix_vec = lb_to_unitvec(lon_pix, lat_pix)
     _, nn_idx = tree.query(pix_vec, k=1)
-    pix_coadd = coadd_id[np.asarray(nn_idx, dtype=int)]
-
-    nexp = np.full(npix, np.nan, dtype=float)
-    for i in range(npix):
-        nexp[i] = float(tile_stats.get(str(pix_coadd[i]), float("nan")))
+    pix_coadd = coadd_id[valid_tile][np.asarray(nn_idx, dtype=int)]
+    nexp = np.array([float(tile_stats[str(cid)]) for cid in pix_coadd], dtype=float)
 
     bad = ~np.isfinite(nexp) | (nexp <= 0.0)
     missing_frac = float(np.mean(bad))
@@ -139,4 +140,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
