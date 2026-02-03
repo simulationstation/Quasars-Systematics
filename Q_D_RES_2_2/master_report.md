@@ -121,6 +121,16 @@ Important caveat for the paper: **partial-sky wedge fits inflate D and are not d
 the key diagnostic is the strong *directional* dependence on ecliptic longitude and the sensitivity of the full-sky
 fit to adding simple ecliptic-longitude templates.
 
+### Prior literature sanity check (re: longitude systematics)
+
+Closest precedent (not the same test): **Secrest et al. (2022; arXiv:2206.05624)** note narrow “stripes of reduced
+sensitivity” at several ecliptic-longitude ranges (citing Singal 2021) and test an additional mask on those stripes,
+quoting an amplitude change.
+
+I did not find a previous instance (in Secrest 2020/2009.14826; Dam 2022/2212.07733; Abghari 2024/2405.09762; or
+von Hausegger 2025/2510.23769) of this specific **longitude-wedge direction** proxy or a full-sky **`sinλ/cosλ`**
+nuisance-template absorption test.
+
 ## Suggested paper edits (minimal, referee-proof)
 
 1) **Upgrade the error model language**:

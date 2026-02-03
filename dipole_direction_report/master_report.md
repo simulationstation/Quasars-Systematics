@@ -75,6 +75,23 @@ That pattern is consistent with the idea that the dipole direction is being infl
 survey/scan systematics** (which can originate from time/season observing conditions) rather than representing one
 stable physical sky axis.
 
+## Prior literature sanity check (is this already in “their” papers?)
+
+I checked several of the main CatWISE dipole papers for an analysis that matches this specific proxy test
+(longitude wedges + `sinλ/cosλ` nuisance terms).
+
+- **Closest precedent (but not the same test):**
+  - **Secrest et al. (2022; arXiv:2206.05624)** explicitly discuss narrow stripes of reduced sensitivity at specific
+    **ecliptic longitudes** (citing Singal 2021) and test a **masking** of four short λ ranges, reporting an amplitude
+    change. This is a longitude-related systematics check, but it is *not* a longitude-binned direction-drift study
+    and it is *not* a `sinλ/cosλ` nuisance-template fit.
+- **No clear match found:**
+  - **Secrest et al. (2020; arXiv:2009.14826)**: emphasizes ecliptic-*latitude* scan structure; I did not find
+    longitude wedge/template tests.
+  - **Dam et al. (2022; arXiv:2212.07733)**, **Abghari et al. (2024; arXiv:2405.09762)**, and
+    **von Hausegger et al. (2025; arXiv:2510.23769)**: discuss ecliptic-latitude trends / depth systematics, but I
+    did not find this specific longitude-proxy analysis.
+
 ## How to reproduce
 
 Run from the repo root:
@@ -91,4 +108,3 @@ python3 scripts/run_ecliptic_lon_proxy.py \
   --make-plot \
   --outdir outputs/ecllon_proxy_run
 ```
-
