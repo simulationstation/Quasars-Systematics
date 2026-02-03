@@ -45,6 +45,20 @@ Then it splits the **per-event** score `ΔLPD_i` (HE − GR) into:
 To quantify “is this bigger than chance?”, it uses a **permutation test**:
 - shuffle `ΔLPD_i` across events (holding `P_head,i` fixed) and recompute `ΔLPD_head − ΔLPD_tail`
 
+## Additional directionality check: “dipole in the per-event score”
+
+The hemisphere test is a step-function split about a chosen axis. To also test for a smoother, dipole-like pattern
+in the *per-event preference*, we run a second proxy:
+
+- Script: `scripts/run_darksiren_score_dipole_proxy.py`
+
+For each event, this computes the sky-posterior mean direction (ICRS Cartesian)
+`m_i = ∫ n p_i(n) dΩ / ∫ p_i(n) dΩ` from the public GWTC-3 sky maps, then fits:
+
+`ΔLPD_i ≈ a + d·m_i`
+
+and estimates the dipole amplitude `|d|` significance via a permutation test (shuffle ΔLPD across events).
+
 ## Results (this proxy run)
 
 Figures:
@@ -65,6 +79,18 @@ Headline (two-sided permutation p-values for directionality of the per-event sco
 Interpretation (plain):
 - Under this fast proxy, the dark-siren preference is **not strongly concentrated** in a single hemisphere about
   these axes. The score looks **consistent with sky-independent behavior**.
+
+Dipole-regression proxy result:
+- Outputs:
+  - `entropy_quasar_bridge_report/data/score_dipole_proxy.json`
+  - `entropy_quasar_bridge_report/figures/score_dipole_proxy.png`
+- Best-fit dipole axis (Galactic): `(l,b) ≈ (277.9°, 16.9°)` **but** with **no significance**:
+  - permutation (one-sided) p-value for large `|d|`: **p ≈ 0.77** (i.e., no evidence for a dipole in ΔLPD).
+
+Extra note (not directionality, but useful context):
+- The per-event ΔLPD shows a moderate correlation with localization / catalog complexity proxies
+  (`corr(ΔLPD, log10 sky area) ≈ 0.32`, `corr(ΔLPD, log10 n_gal) ≈ 0.31`), suggesting the per-event preference is
+  more about event informativeness / mixture-model details than sky direction.
 
 ## Critical caveat (why ΔLPD_tot here ≠ paper ΔLPD_tot)
 
@@ -110,4 +136,3 @@ CMB/quasar axes. That leans toward:
 If you still want a stronger, “directly tied” test, the next step would be to extend the siren model with an
 explicit dipole parameter (e.g., `d_L^GW(z,n)=d_L^GW(z)[1+g cosθ]`) and fit `g` along a fixed axis (CMB or a
 depth-controlled quasar residual axis). That would be a new model/fit, not just a proxy.
-
