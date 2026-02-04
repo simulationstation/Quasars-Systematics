@@ -315,7 +315,7 @@ def main() -> int:
         plt.plot(w, Dobs, "k-", lw=2, label="Observed (GLM)")
         plt.plot(w, Dsel, "C0--", lw=2, label="Predicted selection (invvar δm × α_edge)")
         plt.plot(w, Dres, "C3-", lw=2, label="Residual (obs − sel)")
-        plt.xlabel(r"$W1_{\\max}$")
+        plt.xlabel(r"$W1_{\max}$")
         plt.ylabel("Dipole amplitude")
         plt.title("Amplitude closure diagnostic (invvar-derived δm dipole)")
         plt.grid(True, alpha=0.3)
