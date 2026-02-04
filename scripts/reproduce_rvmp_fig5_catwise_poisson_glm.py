@@ -752,9 +752,33 @@ def main() -> int:
                 "'depth_plus_ecliptic'"
             )
 
-        depth_map_path = Path(str(ext_meta["depth_map_fits"]))
+        def _resolve_meta_path(val: str) -> Path:
+            pth = Path(str(val))
+            if pth.is_absolute():
+                return pth
+            # Try repo-relative (current working directory) first.
+            if pth.exists():
+                return pth
+            # Fall back to being relative to the meta JSON folder.
+            return ext_meta_path.parent / pth
+
+        depth_map_key = None
+        if "depth_map_fits" in ext_meta:
+            depth_map_key = "depth_map_fits"
+            depth_map_path = _resolve_meta_path(ext_meta["depth_map_fits"])
+        elif "unwise_lognexp_map" in ext_meta:
+            depth_map_key = "unwise_lognexp_map"
+            depth_map_path = _resolve_meta_path(ext_meta["unwise_lognexp_map"])
+        elif "unwise_log_nexp_map" in ext_meta:
+            depth_map_key = "unwise_log_nexp_map"
+            depth_map_path = _resolve_meta_path(ext_meta["unwise_log_nexp_map"])
+        else:
+            raise SystemExit(
+                f"--external-logreg-meta missing depth map path (expected 'depth_map_fits' or 'unwise_lognexp_map'): {ext_meta_path}"
+            )
+
         if not depth_map_path.exists():
-            raise SystemExit(f"external completeness depth_map_fits missing: {depth_map_path}")
+            raise SystemExit(f"external completeness depth map missing ({depth_map_key}): {depth_map_path}")
 
         ext_depth = hp.read_map(str(depth_map_path), verbose=False)
         nside_in = int(hp.get_nside(ext_depth))

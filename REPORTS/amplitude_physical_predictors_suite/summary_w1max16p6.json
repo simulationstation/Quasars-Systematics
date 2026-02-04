@@ -1,0 +1,271 @@
+{
+  "rows": [
+    {
+      "run": "bcut25_baseline",
+      "D_hat": 0.01685172199408373,
+      "l_hat_deg": 229.91243337140682,
+      "b_hat_deg": 21.110529025143602,
+      "D_p16": 0.01570557957784444,
+      "D_p84": 0.01829084290541014,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut25_sdss_depthonly_offset",
+      "D_hat": 0.01853204813388786,
+      "l_hat_deg": 239.19448517077262,
+      "b_hat_deg": 14.410508112603301,
+      "D_p16": 0.01734772705476999,
+      "D_p84": 0.019999083029869205,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": "external_logreg_integrated_offset",
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut25_sdss_offset_plus_lon",
+      "D_hat": 0.013824526165193597,
+      "l_hat_deg": 248.93891059313262,
+      "b_hat_deg": -27.995574945973225,
+      "D_p16": 0.012687485386051493,
+      "D_p84": 0.017532819974224425,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": "external_logreg_integrated_offset",
+      "template_names": [
+        "abs_elat_z",
+        "sin_elon_z",
+        "cos_elon_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut25_unwise_invvar_cov",
+      "D_hat": 0.017041987800122498,
+      "l_hat_deg": 230.9023769160697,
+      "b_hat_deg": 20.382335093316847,
+      "D_p16": 0.015672596788363285,
+      "D_p84": 0.01852676470857108,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "depth_map_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut25_unwise_nexp_cov",
+      "D_hat": 0.01667353767103792,
+      "l_hat_deg": 228.55367158198612,
+      "b_hat_deg": 22.031717320773396,
+      "D_p16": 0.015393244072922738,
+      "D_p84": 0.01817544961177997,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "log_unwise_nexp_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut25_w1cov_cov",
+      "D_hat": 0.01660982170877087,
+      "l_hat_deg": 228.0831521720321,
+      "b_hat_deg": 22.321816312496868,
+      "D_p16": 0.01526993075935386,
+      "D_p84": 0.018088171770389943,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "log_w1cov_mean_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut30_baseline",
+      "D_hat": 0.016778520598772835,
+      "l_hat_deg": 236.5768885465019,
+      "b_hat_deg": 21.805941893933664,
+      "D_p16": 0.015515779333361153,
+      "D_p84": 0.01845041902907845,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut30_sdss_depthonly_offset",
+      "D_hat": 0.01852508148435507,
+      "l_hat_deg": 244.4069852447216,
+      "b_hat_deg": 15.002675110435703,
+      "D_p16": 0.017248799953795795,
+      "D_p84": 0.020182556191227,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": "external_logreg_integrated_offset",
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut30_sdss_offset_plus_lon",
+      "D_hat": 0.017686449770396656,
+      "l_hat_deg": 292.32990730611573,
+      "b_hat_deg": -50.54350668791887,
+      "D_p16": 0.014999249324469935,
+      "D_p84": 0.023639850536475434,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": "external_logreg_integrated_offset",
+      "template_names": [
+        "abs_elat_z",
+        "sin_elon_z",
+        "cos_elon_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut30_unwise_invvar_cov",
+      "D_hat": 0.016457191881984502,
+      "l_hat_deg": 235.01731358025134,
+      "b_hat_deg": 23.33105083920399,
+      "D_p16": 0.014979325306021987,
+      "D_p84": 0.018096281668133336,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "depth_map_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut30_unwise_nexp_cov",
+      "D_hat": 0.015805777028127115,
+      "l_hat_deg": 229.2003688859469,
+      "b_hat_deg": 27.533837227953413,
+      "D_p16": 0.014589453595016604,
+      "D_p84": 0.017275900061215616,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "log_unwise_nexp_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut30_w1cov_cov",
+      "D_hat": 0.015863974120166054,
+      "l_hat_deg": 230.1625593688072,
+      "b_hat_deg": 26.696773960266018,
+      "D_p16": 0.014389463600903263,
+      "D_p84": 0.017455629502682247,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "log_w1cov_mean_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut35_baseline",
+      "D_hat": 0.015502005084399754,
+      "l_hat_deg": 240.27544346894905,
+      "b_hat_deg": 21.378043069816936,
+      "D_p16": 0.014072846978504491,
+      "D_p84": 0.017419098058567277,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut35_sdss_depthonly_offset",
+      "D_hat": 0.017280953038557513,
+      "l_hat_deg": 247.28330527683332,
+      "b_hat_deg": 14.069441828564646,
+      "D_p16": 0.015804580113934555,
+      "D_p84": 0.019226772751262375,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": "external_logreg_integrated_offset",
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut35_sdss_offset_plus_lon",
+      "D_hat": 0.0243674671404073,
+      "l_hat_deg": 254.07656136972832,
+      "b_hat_deg": -63.08540333474885,
+      "D_p16": 0.01975240772940723,
+      "D_p84": 0.03236078162824269,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": "external_logreg_integrated_offset",
+      "template_names": [
+        "abs_elat_z",
+        "sin_elon_z",
+        "cos_elon_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut35_unwise_invvar_cov",
+      "D_hat": 0.014552989988201384,
+      "l_hat_deg": 235.391950368288,
+      "b_hat_deg": 27.412065834518838,
+      "D_p16": 0.01303036353664723,
+      "D_p84": 0.016421179710935357,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "depth_map_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut35_unwise_nexp_cov",
+      "D_hat": 0.01422129596027573,
+      "l_hat_deg": 230.93453093191545,
+      "b_hat_deg": 29.92729962547841,
+      "D_p16": 0.012751297295044959,
+      "D_p84": 0.016090569995536284,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "log_unwise_nexp_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    },
+    {
+      "run": "bcut35_w1cov_cov",
+      "D_hat": 0.014296009893502467,
+      "l_hat_deg": 232.30698148699867,
+      "b_hat_deg": 28.71002350193768,
+      "D_p16": 0.012809340684133363,
+      "D_p84": 0.0160817650078912,
+      "angle_to_cmb_deg": NaN,
+      "offset_name": null,
+      "template_names": [
+        "abs_elat_z",
+        "log_w1cov_mean_z"
+      ],
+      "pearson_chi2_over_dof": NaN
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+  "meta": {
+    "catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "mask_catalog": null,
+    "exclude_mask_fits": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+    "nside": 64,
+    "w1cov_min": 80.0,
+    "b_cut": 30.0,
+    "w1_min": null,
+    "w1_grid": "16.6,16.6,0.05",
+    "eclip_template": "abs_elat_sincos_elon",
+    "dust_template": "none",
+    "depth_mode": "w1cov_covariate",
+    "harmonic_lmax": 1,
+    "harmonic_prior": "none",
+    "harmonic_prior_cl_json": null,
+    "harmonic_prior_scale": null,
+    "harmonic_prior_min_cl": null,
+    "unwise_tiles_fits": "data/external/unwise/tiles.fits",
+    "nexp_tile_stats_json": null,
+    "nexp_missing_frac_seen": null,
+    "depth_map": null,
+    "extra_offset_map": null,
+    "extra_template_map": {
+      "path": "data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits",
+      "ordering_in": "ring",
+      "nside_in": 64,
+      "nside_used": 64,
+      "fill_value": 5.356586456298828,
+      "missing_frac_seen": 0.0,
+      "name": null
+    },
+    "external_logreg_meta": null,
+    "external_logreg_mrange": null,
+    "external_logreg_dm": null,
+    "mc_draws": 400,
+    "seed": 123,
+    "w1_mode": "cumulative",
+    "jackknife_nside": 0,
+    "jackknife_stride": 1,
+    "jackknife_max_iter": 120,
+    "jackknife_max_regions": null,
+    "inject_delta_m_mag": 0.0,
+    "inject_axis_lb": [
+      264.021,
+      48.253
+    ],
+    "footprint_mask": "Secrest-style mask_zeros (data-derived) + exclusion discs + |b| cut (pixel-center)."
+  },
+  "rows": [
+    {
+      "w1_cut": 16.6,
+      "w1_lo": null,
+      "w1_hi": 16.6,
+      "alpha_edge": 1.5351674420233152,
+      "N_total": 4142887,
+      "N_seen": 1917142,
+      "N_cum_total": null,
+      "N_cum_seen": null,
+      "w1_mode": "cumulative",
+      "dipole": {
+        "D_hat": 0.010286922512695688,
+        "l_hat_deg": 274.4251026050497,
+        "b_hat_deg": -55.511578376426044,
+        "D_p16": 0.009117026659111632,
+        "D_p50": 0.01252652414529433,
+        "D_p84": 0.01744055648013145,
+        "l_p16": 230.75483274217058,
+        "l_p50": 276.22151415391306,
+        "l_p84": 324.6018607417946,
+        "b_p16": -71.99835241865387,
+        "b_p50": -45.84446081984826,
+        "b_p84": -8.109614557643926
+      },
+      "dipole_quasi": {
+        "dispersion_phi": 1.3723183436429889,
+        "dispersion_phi_eff": 1.3723183436429889,
+        "D_p16": 0.009559308702830857,
+        "D_p50": 0.013559431986108315,
+        "D_p84": 0.01851452080119584,
+        "l_p16": 220.55503642655057,
+        "l_p50": 271.75400992793635,
+        "l_p84": 323.361804487226,
+        "b_p16": -69.0673161993242,
+        "b_p50": -49.122187292747306,
+        "b_p84": -7.812536494368702
+      },
+      "beta_hat": [
+        4.378127023852488,
+        0.00044942233016591186,
+        -0.005807500104496702,
+        -0.008478899509230217,
+        -0.018250397908628382,
+        0.004852508757955287,
+        -0.012363501694026759,
+        -0.009266282304235762,
+        0.0009472876067073378
+      ],
+      "fit_diag": {
+        "n_obs": 24051.0,
+        "n_params": 9.0,
+        "dof": 24042.0,
+        "deviance": 33010.0099486549,
+        "pearson_chi2": 32993.27761786474,
+        "deviance_over_dof": 1.3730143061581774,
+        "pearson_over_dof": 1.3723183436429889,
+        "dispersion_phi": 1.3723183436429889,
+        "dispersion_phi_eff": 1.3723183436429889
+      },
+      "corr_b_templates": [
+        [
+          -0.06754439073044871,
+          0.9575120170661793,
+          0.014738687317637465,
+          0.009132482382283175,
+          0.005990219055899291
+        ],
+        [
+          0.1326920359136237,
+          0.27551009667071613,
+          -0.6606563356266673,
+          -0.1078720291843529,
+          0.061922392117692446
+        ],
+        [
+          0.06808386832374919,
+          -0.01663722039091623,
+          0.990180482482924,
+          0.013445461364996055,
+          -0.026669702306717426
+        ]
+      ],
+      "corr_b_templates_names": [
+        "abs_elat_z",
+        "sin_elon_z",
+        "cos_elon_z",
+        "extra_template_map_z",
+        "log_w1cov_mean_z"
+      ],
+      "template_names": [
+        "abs_elat_z",
+        "sin_elon_z",
+        "cos_elon_z",
+        "extra_template_map_z",
+        "log_w1cov_mean_z"
+      ],
+      "offset_name": null,
+      "template_dipoles": [
+        {
+          "name": "abs_elat_z",
+          "vec": [
+            -0.030548875504002676,
+            0.07188034291239627,
+            0.026609603366026333
+          ],
+          "l_deg": 113.02530955985132,
+          "b_deg": 18.814005943322538,
+          "amp": 0.08251114156924488,
+          "angle_to_fit_deg": 39.303188719569995
+        },
+        {
+          "name": "sin_elon_z",
+          "vec": [
+            -2.072917524991561,
+            -0.25469227093664243,
+            -0.00678891852616654
+          ],
+          "l_deg": 187.0046290716499,
+          "b_deg": -0.1862456235877515,
+          "amp": 2.088516532782721,
+          "angle_to_fit_deg": 88.38614650520039
+        },
+        {
+          "name": "cos_elon_z",
+          "vec": [
+            -0.032365230878194276,
+            0.2871863131757427,
+            -1.2807492309395223
+          ],
+          "l_deg": 96.42997109028144,
+          "b_deg": -77.28403588636176,
+          "amp": 1.312951666740803,
+          "angle_to_fit_deg": 47.198427954782915
+        },
+        {
+          "name": "extra_template_map_z",
+          "vec": [
+            -0.09400528314032647,
+            0.34710939002403285,
+            0.14919230713062767
+          ],
+          "l_deg": 105.1535282641317,
+          "b_deg": 22.532017350997627,
+          "amp": 0.38933310469071164,
+          "angle_to_fit_deg": 33.92972915688974
+        },
+        {
+          "name": "log_w1cov_mean_z",
+          "vec": [
+            -0.09021168220984921,
+            0.3384266279552194,
+            0.1379002496834391
+          ],
+          "l_deg": 104.92581875114163,
+          "b_deg": 21.490871212037444,
+          "amp": 0.37641361423177316,
+          "angle_to_fit_deg": 34.914035597540874
+        }
+      ],
+      "jackknife": null
+    }
+  ]
+}

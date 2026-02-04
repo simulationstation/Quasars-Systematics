@@ -77,6 +77,11 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/seasonal_selection_injection_check/master_report.md` (injection test: how ecliptic-longitude selection can bias dipole amplitude)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md` (harmonic-prior dipole injection check under low-ell contamination)
+- `REPORTS/arxiv_amplitude_multipole_mode_coupling_prior/master_report.md` (harmonic-prior amplitude sweep vs prior scale)
+- `REPORTS/amplitude_physical_predictors_suite/master_report.md` (physical scan/depth predictor control sweep)
+- `REPORTS/ecllon_proxy_with_depth/master_report.md` (ecliptic-longitude proxy + physical depth/coverage covariates)
+- `REPORTS/selection_sim_depthmap/master_report.md` (end-to-end selection simulation driven by a real depth/completeness map)
+- `REPORTS/selection_sim_depthmap_plus_lon/master_report.md` (selection simulation: depth map + ecliptic-longitude pattern)
 
 Other folders under `REPORTS/` are legacy/exploratory and are not required for the CatWISE dipole audit.
 
