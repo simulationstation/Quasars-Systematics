@@ -14,6 +14,12 @@ Key artifacts for reviewers are in `Q_D_RES/`:
 - `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + fit diagnostics/templates/jackknife)
 - `Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
 
+Additional paper-ready validation bundles:
+
+- `2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
+- `2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
+- `completeness_validation.md` (end-to-end completeness validation checklist/plan)
+
 ## References / DOIs used by this repository
 
 - Secrest et al. 2022, ApJL 937 L31, DOI: `10.3847/2041-8213/ac88c0`
