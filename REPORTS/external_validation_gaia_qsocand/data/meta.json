@@ -1,0 +1,68 @@
+{
+  "analysis": {
+    "min_gaia_per_pix": 20,
+    "n_pix_used": 23710
+  },
+  "catwise": {
+    "b_cut_deg": 30.0,
+    "catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "exclude_mask_fits": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+    "n_catwise_in_tree": 1917142,
+    "w1cov_min": 80.0
+  },
+  "gaia_qsocand": {
+    "lines_kept_pqso": 3251854,
+    "lines_read": 6649162,
+    "path": "data/external/gaia_dr3_extragal/qsocand.dat.gz",
+    "pqso_min": 0.8
+  },
+  "maps": {
+    "nside": 64,
+    "sdss_delta_m_map": "REPORTS/external_completeness_sdss_dr16q/data/delta_m_map_nside64.fits",
+    "sdss_dr16q_fits_for_footprint": "data/external/sdss_dr16q/DR16Q_v4.fits",
+    "unwise_lognexp_map": "data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits"
+  },
+  "match": {
+    "radius_arcsec": 2.0,
+    "workers": 128
+  },
+  "outputs": {
+    "gaia_qso_accept_frac_map": "gaia_qso_accept_frac_nside64.fits",
+    "gaia_qso_match_map": "gaia_qso_match_nside64.fits",
+    "gaia_qso_total_map": "gaia_qso_total_nside64.fits"
+  },
+  "spearman": {
+    "all": {
+      "accept_frac_vs_delta_m": {
+        "p_value": 1.7866947435560164e-27,
+        "rho": -0.07044475499483413
+      },
+      "accept_frac_vs_lognexp": {
+        "p_value": 1.7866947435560164e-27,
+        "rho": -0.07044475499483413
+      }
+    },
+    "in_sdss": {
+      "accept_frac_vs_delta_m": {
+        "p_value": 1.756916319814766e-191,
+        "rho": -0.2650315218218278
+      },
+      "accept_frac_vs_lognexp": {
+        "p_value": 1.756916319814766e-191,
+        "rho": -0.2650315218218278
+      },
+      "n_pix": 11965
+    },
+    "out_sdss": {
+      "accept_frac_vs_delta_m": {
+        "p_value": 8.52189366442264e-34,
+        "rho": 0.11147565403925658
+      },
+      "accept_frac_vs_lognexp": {
+        "p_value": 8.52189366442264e-34,
+        "rho": 0.11147565403925658
+      },
+      "n_pix": 11745
+    }
+  }
+}

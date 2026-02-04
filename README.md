@@ -65,6 +65,7 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
 - `REPORTS/external_completeness_sdss_dr16q/master_report.md` (externally validated, map-level completeness model using SDSS DR16Q + unWISE logNexp)
+- `REPORTS/external_validation_gaia_qsocand/master_report.md` (all-sky external validation using Gaia DR3 QSO candidates)
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 
@@ -153,6 +154,22 @@ python3 scripts/build_unwise_nexp_tile_stats.py --help
 
 Warning: regenerating from raw `w1-n-m` maps requires downloading a very large volume of FITS files
 (multi-TB scale depending on the tile set and caching).
+
+### 3) Gaia DR3 QSO candidates (optional; all-sky external validation)
+
+For the all-sky external validation report in `REPORTS/external_validation_gaia_qsocand/`, download:
+- CDS catalog: `I/356` (Gaia DR3 Part 2: Extra-galactic)
+- file: `qsocand.dat.gz`
+
+Place it at:
+- `data/external/gaia_dr3_extragal/qsocand.dat.gz`
+
+Example (resumable):
+```bash
+mkdir -p data/external/gaia_dr3_extragal
+wget -c -O data/external/gaia_dr3_extragal/qsocand.dat.gz.part https://cdsarc.cds.unistra.fr/ftp/I/356/qsocand.dat.gz
+mv data/external/gaia_dr3_extragal/qsocand.dat.gz.part data/external/gaia_dr3_extragal/qsocand.dat.gz
+```
 
 ## Reproducing the headline results
 
