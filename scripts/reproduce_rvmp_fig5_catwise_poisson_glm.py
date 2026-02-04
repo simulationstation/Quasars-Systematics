@@ -415,8 +415,34 @@ def main() -> int:
             "depth_map_offset",
             "delta_m_map_offset_alpha_edge",
             "delta_m_map_covariate_alpha_edge",
+            "external_logreg_integrated_offset",
         ],
         default="none",
+    )
+    ap.add_argument(
+        "--external-logreg-meta",
+        default=None,
+        help=(
+            "Meta JSON produced by scripts/run_sdss_dr16q_completeness_model.py (or similar). "
+            "Required for --depth-mode external_logreg_integrated_offset."
+        ),
+    )
+    ap.add_argument(
+        "--external-logreg-mrange",
+        type=float,
+        default=3.0,
+        help=(
+            "Magnitude range (mag) below W1_max used to approximate the cumulative completeness integral when "
+            "--depth-mode external_logreg_integrated_offset."
+        ),
+    )
+    ap.add_argument(
+        "--external-logreg-dm",
+        type=float,
+        default=0.01,
+        help=(
+            "Magnitude step (mag) for the completeness integral when --depth-mode external_logreg_integrated_offset."
+        ),
     )
     ap.add_argument(
         "--depth-map-fits",
@@ -653,6 +679,117 @@ def main() -> int:
     abs_sin_elat = np.abs(np.sin(np.deg2rad(elat_deg)))
     sin_elon = np.sin(np.deg2rad(elon_deg))
     cos_elon = np.cos(np.deg2rad(elon_deg))
+
+    # Optional: externally trained logistic-regression completeness model.
+    ext_logreg = None
+    if args.depth_mode == "external_logreg_integrated_offset":
+        if args.external_logreg_meta is None:
+            raise SystemExit("--depth-mode external_logreg_integrated_offset requires --external-logreg-meta")
+        ext_meta_path = Path(str(args.external_logreg_meta))
+        if not ext_meta_path.exists():
+            raise SystemExit(f"Missing --external-logreg-meta: {ext_meta_path}")
+        ext_meta = json.loads(ext_meta_path.read_text())
+
+        if "logreg" not in ext_meta or "coef" not in ext_meta["logreg"] or "intercept" not in ext_meta["logreg"]:
+            raise SystemExit(f"--external-logreg-meta missing logreg coef/intercept: {ext_meta_path}")
+        feature_set = str(ext_meta.get("feature_set", ""))
+        if feature_set not in ("depth_only", "depth_plus_ecliptic"):
+            raise SystemExit(
+                f"--external-logreg-meta feature_set={feature_set!r} not supported; expected 'depth_only' or "
+                "'depth_plus_ecliptic'"
+            )
+
+        depth_map_path = Path(str(ext_meta["depth_map_fits"]))
+        if not depth_map_path.exists():
+            raise SystemExit(f"external completeness depth_map_fits missing: {depth_map_path}")
+
+        ext_depth = hp.read_map(str(depth_map_path), verbose=False)
+        nside_in = int(hp.get_nside(ext_depth))
+        if nside_in != int(args.nside):
+            ext_depth = hp.ud_grade(ext_depth, nside_out=int(args.nside), order_in="RING", order_out="RING", power=0)
+        ext_depth = np.asarray(ext_depth, dtype=float)
+        trans = str(ext_meta.get("depth_map_transform", "none"))
+        if trans == "log":
+            ext_depth = np.log(np.clip(ext_depth, 1e-12, np.inf))
+        elif trans == "log10":
+            ext_depth = np.log10(np.clip(ext_depth, 1e-12, np.inf))
+        elif trans not in ("none", "identity", ""):
+            raise SystemExit(f"Unsupported external completeness depth_map_transform={trans!r} in {ext_meta_path}")
+
+        unseen = ~np.isfinite(ext_depth) | (ext_depth == hp.UNSEEN)
+        ok = seen & (~unseen)
+        if not np.any(ok):
+            raise SystemExit("External completeness depth map has no finite values on seen pixels.")
+        fill = float(np.median(ext_depth[ok]))
+        ext_depth[unseen] = fill
+
+        coef = np.asarray(ext_meta["logreg"]["coef"], dtype=float)
+        intercept = float(ext_meta["logreg"]["intercept"])
+        if feature_set == "depth_plus_ecliptic":
+            if coef.size != 6:
+                raise SystemExit(
+                    f"Unsupported external completeness coef length {coef.size} (expected 6) in {ext_meta_path}"
+                )
+            b_w1, b_x, b_w1x, b_abs, b_sin, b_cos = [float(x) for x in coef]
+
+            # Pixel-center ecliptic lon/lat consistent with scripts/run_sdss_dr16q_completeness_model.py
+            # (J2000 obliquity formulae on ICRS RA/Dec).
+            def ecl_from_radec_deg(ra_deg: np.ndarray, dec_deg: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+                ra = np.deg2rad(np.asarray(ra_deg, dtype=float) % 360.0)
+                dec = np.deg2rad(np.asarray(dec_deg, dtype=float))
+                sin_dec = np.sin(dec)
+                cos_dec = np.cos(dec)
+                sin_ra = np.sin(ra)
+                cos_ra = np.cos(ra)
+
+                eps = math.radians(23.4392911)  # J2000 obliquity
+                sin_eps = math.sin(eps)
+                cos_eps = math.cos(eps)
+
+                sin_beta = sin_dec * cos_eps - cos_dec * sin_eps * sin_ra
+                beta = np.arcsin(np.clip(sin_beta, -1.0, 1.0))
+
+                y = sin_ra * cos_eps + np.tan(dec) * sin_eps
+                x = cos_ra
+                lam = np.arctan2(y, x) % (2.0 * math.pi)
+
+                return np.rad2deg(lam), np.rad2deg(beta)
+
+            sc_icrs = sc_pix.icrs
+            elon_lr, elat_lr = ecl_from_radec_deg(sc_icrs.ra.deg, sc_icrs.dec.deg)
+            abs_elat_lr = np.abs(elat_lr).astype(float)
+            sin_elon_lr = np.sin(np.deg2rad(elon_lr)).astype(float)
+            cos_elon_lr = np.cos(np.deg2rad(elon_lr)).astype(float)
+        else:
+            if coef.size != 3:
+                raise SystemExit(
+                    f"Unsupported external completeness coef length {coef.size} (expected 3) in {ext_meta_path}"
+                )
+            b_w1, b_x, b_w1x = [float(x) for x in coef]
+            b_abs = b_sin = b_cos = 0.0
+            abs_elat_lr = sin_elon_lr = cos_elon_lr = 0.0
+
+        denom = b_w1 + b_w1x * ext_depth
+        denom_safe = np.where(np.abs(denom) < 1e-6, np.sign(denom) * 1e-6 + 1e-6, denom).astype(float)
+        num = intercept + b_x * ext_depth
+        if feature_set == "depth_plus_ecliptic":
+            num = num + b_abs * abs_elat_lr + b_sin * sin_elon_lr + b_cos * cos_elon_lr
+        m50 = (-num / denom_safe).astype(float)
+
+        ext_logreg = {
+            "meta_path": str(ext_meta_path),
+            "feature_set": feature_set,
+            "depth_map_path": str(depth_map_path),
+            "depth_map_transform": trans,
+            "depth_map_nside_in": nside_in,
+            "depth_map_fill_value": float(fill),
+            "coef": [b_w1, b_x, b_w1x, b_abs, b_sin, b_cos],
+            "intercept": float(intercept),
+            "m50": m50,  # per pixel (nside used)
+            "denom": denom_safe,  # per pixel (nside used)
+            "mrange": float(args.external_logreg_mrange),
+            "dm": float(args.external_logreg_dm),
+        }
 
     # Optional: independent unWISE depth-of-coverage proxy (Nexp), mapped per HEALPix pixel
     # via nearest unWISE tile center (as in experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py).
@@ -932,6 +1069,58 @@ def main() -> int:
             t = (depth_map - ref) * float(a_edge)
             templates.append(zscore(t, seen)[seen])
             template_names.append("delta_m_alpha_edge_z")
+        elif args.depth_mode == "external_logreg_integrated_offset":
+            assert ext_logreg is not None
+
+            # Approximate cumulative completeness in each pixel by integrating a logistic selection curve p(m|pix)
+            # against an exponential number-count slope exp(alpha_edge * m).
+            a_edge = float(alpha_edge_from_cumcounts(w1_eff, float(w1_hi), delta=float(w1_step)))
+            dm = float(ext_logreg["dm"])
+            mrange = float(ext_logreg["mrange"])
+
+            if args.w1_mode == "cumulative":
+                m_lo = float(w1_hi) - mrange
+            else:
+                if w1_lo is None:
+                    raise RuntimeError("internal error: w1_lo is None in differential mode")
+                m_lo = float(w1_lo)
+
+            m_hi = float(w1_hi)
+            if not (np.isfinite(m_lo) and np.isfinite(m_hi) and m_hi > m_lo):
+                raise RuntimeError(f"invalid completeness integration bounds: [{m_lo}, {m_hi}]")
+
+            n_steps = int(max(3.0, math.ceil((m_hi - m_lo) / dm) + 1.0))
+            mgrid = np.linspace(m_lo, m_hi, n_steps, dtype=float)
+
+            # Normalize weights to avoid huge exp ranges; normalization cancels in the ratio.
+            w = np.exp(a_edge * (mgrid - m_hi)).astype(float)
+            w_den = float(np.trapezoid(w, mgrid))
+            if not np.isfinite(w_den) or w_den <= 0.0:
+                raise RuntimeError("invalid completeness weight normalization")
+
+            m50_seen = np.asarray(ext_logreg["m50"], dtype=float)[seen]
+            denom_seen = np.asarray(ext_logreg["denom"], dtype=float)[seen]
+
+            n_pix = int(m50_seen.size)
+            comp = np.empty(n_pix, dtype=float)
+            chunk = 6000
+            mcol = mgrid[:, None]
+            wcol = w[:, None]
+            for start in range(0, n_pix, chunk):
+                end = min(n_pix, start + chunk)
+                m50_c = m50_seen[start:end][None, :]
+                den_c = denom_seen[start:end][None, :]
+                arg = den_c * (mcol - m50_c)
+                arg = np.clip(arg, -50.0, 50.0)
+                p = 1.0 / (1.0 + np.exp(-arg))
+                num = np.trapezoid(wcol * p, mgrid, axis=0)
+                comp[start:end] = num / w_den
+
+            comp = np.clip(comp, 1e-6, 1.0)
+            logc = np.log(comp)
+            logc = logc - float(np.median(logc))
+            offset = logc
+            offset_name = "external_logreg_integrated_offset"
 
         if extra_offset_map is not None:
             ref = float(np.median(extra_offset_map[seen]))
@@ -1124,6 +1313,9 @@ def main() -> int:
             "depth_map": depth_map_meta,
             "extra_offset_map": extra_offset_map_meta,
             "extra_template_map": extra_template_map_meta,
+            "external_logreg_meta": None if ext_logreg is None else str(ext_logreg["meta_path"]),
+            "external_logreg_mrange": None if ext_logreg is None else float(ext_logreg["mrange"]),
+            "external_logreg_dm": None if ext_logreg is None else float(ext_logreg["dm"]),
             "mc_draws": int(args.mc_draws),
             "seed": int(args.seed),
             "w1_mode": str(args.w1_mode),
