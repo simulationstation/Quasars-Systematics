@@ -25,6 +25,10 @@ data/cache/unwise_nexp/*/*.fits
 data/cache/unwise_nexp/*/*.fits.gz
 data/cache/gaia_dr3_extragal/
 
+# unWISE invvar-derived depth (downloads are large; keep derived maps/stats only)
+data/cache/unwise_invvar/*/w1-invvar-m/
+data/cache/unwise_invvar/*/*.fits.gz
+
 # Exception: small GWTC-3 skymap subset used by `scripts/run_darksiren_axis_split_proxy.py`
 !data/external/zenodo_5546663/
 !data/external/zenodo_5546663/skymaps/
