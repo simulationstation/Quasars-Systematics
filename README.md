@@ -68,11 +68,15 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/external_validation_gaia_qsocand/master_report.md` (all-sky external validation using Gaia DR3 QSO candidates)
 - `REPORTS/external_completeness_gaia_qsocand_externalonly/master_report.md` (all-sky externally trained spatial completeness proxy from Gaia qsocand + map predictors)
 - `REPORTS/end_to_end_completeness_correction/master_report.md` (end-to-end correction attempt: impact of Gaia external completeness template on CMB-perp drift)
+  - figures: `REPORTS/end_to_end_completeness_correction/figures/cmb_projection_compare_baseline_vs_gaia_extonly.png`,
+    `REPORTS/end_to_end_completeness_correction/figures/gaia_extonly_cov_rvmp_fig5_poisson_glm.png`
+  - table: `REPORTS/end_to_end_completeness_correction/data/cmb_projection_compare_baseline_vs_gaia_extonly.csv`
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 
 ## References / DOIs used by this repository
 
+- This repository’s analysis archive (Zenodo), DOI: `10.5281/zenodo.18476711`
 - Secrest et al. 2022, ApJL 937 L31, DOI: `10.3847/2041-8213/ac88c0`
 - Secrest+22 accepted CatWISE AGN catalog (Zenodo record), DOI: `10.5281/zenodo.6784602`
 - CatWISE2020 (Marocco et al. 2021, ApJS 253, 8), DOI: `10.3847/1538-4365/abd805`
