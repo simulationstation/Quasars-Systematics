@@ -76,6 +76,7 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_selection_injection_check/master_report.md` (injection test: how ecliptic-longitude selection can bias dipole amplitude)
 - `REPORTS/seasonal_drift_mc/master_report.md` (correlated-cut drift Monte Carlo + correlated seasonal injection)
+- `REPORTS/unwise_time_domain_epoch_amplitude/master_report.md` (true epoch-resolved amplitude stability test using the unWISE time-domain catalog)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md` (harmonic-prior dipole injection check under low-ell contamination)
 - `REPORTS/arxiv_amplitude_multipole_mode_coupling_prior/master_report.md` (harmonic-prior amplitude sweep vs prior scale)
@@ -92,6 +93,7 @@ Other folders under `REPORTS/` are legacy/exploratory and are not required for t
 - Secrest et al. 2022, ApJL 937 L31, DOI: `10.3847/2041-8213/ac88c0`
 - Secrest+22 accepted CatWISE AGN catalog (Zenodo record), DOI: `10.5281/zenodo.6784602`
 - CatWISE2020 (Marocco et al. 2021, ApJS 253, 8), DOI: `10.3847/1538-4365/abd805`
+- unWISE Time-Domain Catalog (IRSA580), DOI: `10.26131/IRSA580`
 - unWISE coadds:
   - Lang 2014, AJ 147, 108, DOI: `10.1088/0004-6256/147/5/108`
   - Meisner et al. 2017, AJ 153, 38, DOI: `10.3847/1538-3881/153/1/38`
