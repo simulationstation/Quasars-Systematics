@@ -157,7 +157,7 @@ def main() -> int:
     ap.add_argument("--axis-from", choices=["secrest_json", "custom"], default="secrest_json")
     ap.add_argument(
         "--secrest-json",
-        default="Q_D_RES/secrest_reproduction_dipole.json",
+        default="REPORTS/Q_D_RES/secrest_reproduction_dipole.json",
         help="Dipole JSON containing axis (used when --axis-from=secrest_json).",
     )
     ap.add_argument("--axis-l", type=float, default=None)

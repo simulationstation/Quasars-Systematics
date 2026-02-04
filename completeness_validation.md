@@ -46,7 +46,7 @@ This repo already contains a map-level unWISE exposure proxy (`data/cache/unwise
 - A reproducible “completeness model build” script that produces:
   - `completeness_map.fits` (or a small set of maps),
   - a `meta.json` capturing inputs, smoothing, normalization, and model form.
-- An injection/recovery report bundle (like `Q_D_RES_2_2/`) containing:
+- An injection/recovery report bundle (like `REPORTS/Q_D_RES_2_2/`) containing:
   - mock configs,
   - recovered dipole distributions,
   - bias metrics.
@@ -203,4 +203,3 @@ If any fail, the correct paper-level statement remains:
 
 - The **gold standard** is imaging-level injection/recovery. If that is not feasible, the next best is an external-truth cross-match plus the mock-based known-truth validation already implemented here.
 - A completeness model that is “good enough” for amplitude significance is often **not** good enough for **direction** (because direction is what gets rotated by unmodeled dipole-like systematics).
-

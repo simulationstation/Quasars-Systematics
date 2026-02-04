@@ -10,9 +10,9 @@ This addresses the “axis vs direction” ambiguity: a kinematic dipole is a *d
 
 ## Inputs
 All inputs are JSON scan products already tracked in the repo:
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`
-- `Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json`
-- `Q_D_RES/rvmp_fig5_poisson_glm_w1cov_offset.json` *(included only as a cautionary variant; see note below)*
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json`
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_offset.json` *(included only as a cautionary variant; see note below)*
 
 ## Method
 For each magnitude cut, we take the recovered dipole amplitude and direction `(D, \hat d)` and compute:
@@ -25,14 +25,14 @@ So, if the recovered dipole were purely kinematic **and** correctly estimated, w
 
 ## Outputs
 Main, interpretable bundle (excludes the offset variant so the plot scale is readable):
-- `2-3-DDD/artifacts_main/cmb_projection_plot.png`
-- `2-3-DDD/artifacts_main/cmb_projection_summary.csv`
-- `2-3-DDD/artifacts_main/cmb_projection_summary.json`
+- `REPORTS/2-3-DDD/artifacts_main/cmb_projection_plot.png`
+- `REPORTS/2-3-DDD/artifacts_main/cmb_projection_summary.csv`
+- `REPORTS/2-3-DDD/artifacts_main/cmb_projection_summary.json`
 
 Supplementary bundle including the `w1cov_offset` variant:
-- `2-3-DDD/artifacts/cmb_projection_plot.png`
-- `2-3-DDD/artifacts/cmb_projection_summary.csv`
-- `2-3-DDD/artifacts/cmb_projection_summary.json`
+- `REPORTS/2-3-DDD/artifacts/cmb_projection_plot.png`
+- `REPORTS/2-3-DDD/artifacts/cmb_projection_summary.csv`
+- `REPORTS/2-3-DDD/artifacts/cmb_projection_summary.json`
 
 ## Key numbers (cumulative scan)
 
@@ -56,19 +56,19 @@ Main bundle:
 ```bash
 ./.venv/bin/python scripts/analyze_cmb_projection_from_glm_scan.py \
   --inputs \
-    Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json \
-    Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json \
+    REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json \
+    REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json \
   --labels ecliponly w1cov_covariate \
-  --outdir 2-3-DDD/artifacts_main
+  --outdir outputs/cmb_projection_artifacts_main
 ```
 
 Supplementary (includes `w1cov_offset`):
 ```bash
 ./.venv/bin/python scripts/analyze_cmb_projection_from_glm_scan.py \
   --inputs \
-    Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json \
-    Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json \
-    Q_D_RES/rvmp_fig5_poisson_glm_w1cov_offset.json \
+    REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json \
+    REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json \
+    REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_offset.json \
   --labels ecliponly w1cov_covariate w1cov_offset \
-  --outdir 2-3-DDD/artifacts
+  --outdir outputs/cmb_projection_artifacts
 ```

@@ -24,13 +24,13 @@ This is the kind of diagnostic Secrest et al. use to argue “systematics are un
 **Implementation:**  
 This is exactly what the Secrest-accepted validation suite does:
 - Script: `scripts/run_secrest_systematics_audit.py`
-- Paper-ready bundle: `2-3-EEE/master_report.md`
+- Paper-ready bundle: `REPORTS/2-3-EEE/master_report.md`
 
 **Paper-ready figures (copied into this folder):**
 - `systematics_grid_full_w1max16p4.png`
 - `systematics_grid_no_nvss_w1max16p5.png`
 
-**Headline results (numbers are in `2-3-EEE/data/*.json`):**
+**Headline results (numbers are in `REPORTS/2-3-EEE/data/*.json`):**
 
 Secrest-style dipole reproductions (weighted-counts estimator):
 - Baseline (WISE-only; `W1_max=16.4`): `D≈0.01610`, `(ℓ,b)≈(238.77°, +28.35°)`
@@ -64,7 +64,7 @@ This is a **proxy** (it does not prove time dependence), but strong sensitivity 
 
 **Implementation:**  
 - Script: `scripts/run_ecliptic_lon_proxy.py`
-- Paper-ready bundle: `dipole_direction_report/master_report.md`
+- Paper-ready bundle: `REPORTS/dipole_direction_report/master_report.md`
 - Figure (copied into this folder): `ecllon_proxy.png`
 
 **Exact cut and model (as run):**
@@ -120,4 +120,3 @@ If you want to include both tests without expanding the main narrative:
   - 1 sentence noting the no-NVSS variant is similar; optionally point to the second grid.
 
 This keeps the main text focused while pre-empting “did you check ecliptic longitude / seasonal effects?” questions.
-

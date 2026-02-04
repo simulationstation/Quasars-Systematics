@@ -55,7 +55,7 @@ def axis_spec_from_args(args: argparse.Namespace) -> AxisSpec:
             return AxisSpec(name="cmb", frame="galactic", lon_deg=264.021, lat_deg=48.253)
         if preset == "secrest":
             # Secrest+22 CatWISE dipole direction often quoted around (l,b)~(238.2, 28.8).
-            # Use the repo's baseline reproduction axis from Q_D_RES/dipole_master_tests.md.
+            # Use the repo's baseline reproduction axis from REPORTS/Q_D_RES/dipole_master_tests.md.
             return AxisSpec(name="secrest", frame="galactic", lon_deg=236.01, lat_deg=28.77)
         if preset in {"ecliptic_north", "ecl_north"}:
             return AxisSpec(name="ecliptic_north", frame="barycentricmeanecliptic", lon_deg=0.0, lat_deg=90.0)

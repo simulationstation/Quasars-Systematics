@@ -32,5 +32,5 @@ data/cache/unwise_nexp/*/*.fits.gz
 .idea/
 .vscode/
 
-# Local paper bundles (intentionally not tracked)
-REPORTS/
+# Local backups (not tracked)
+REPORTS_local_backup_*/

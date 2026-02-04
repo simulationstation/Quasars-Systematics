@@ -39,13 +39,13 @@ Implementation:
 ## Outputs in this folder
 
 - Figure:
-  - `dipole_direction_report/figures/ecllon_proxy.png`
+  - `REPORTS/dipole_direction_report/figures/ecllon_proxy.png`
 - Data:
-  - `dipole_direction_report/data/ecllon_proxy.json`
+  - `REPORTS/dipole_direction_report/data/ecllon_proxy.json`
 
 ## Headline results (W1_max=16.6)
 
-From `dipole_direction_report/data/ecllon_proxy.json`:
+From `REPORTS/dipole_direction_report/data/ecllon_proxy.json`:
 
 Full-sky fits:
 - Baseline (abs_elat template only):

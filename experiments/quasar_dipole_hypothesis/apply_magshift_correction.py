@@ -72,7 +72,7 @@ def main() -> int:
     ap.add_argument("--axis-b", type=float, default=None, help="Axis latitude (deg) if --axis-from=custom")
     ap.add_argument(
         "--secrest-json",
-        default="Q_D_RES/secrest_reproduction_dipole.json",
+        default="REPORTS/Q_D_RES/secrest_reproduction_dipole.json",
         help="If --axis-from=secrest, read axis from this JSON (dipole.json-style artifact).",
     )
     ap.add_argument(

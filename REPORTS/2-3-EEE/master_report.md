@@ -36,28 +36,28 @@ In this repo these checks are implemented in:
 ## Outputs in this folder
 
 ### Dipole reproductions (single-cut, Secrest-style)
-- `2-3-EEE/data/secrest_style_single_w1max16p4_rvmp_fig5_repro.json`
+- `REPORTS/2-3-EEE/data/secrest_style_single_w1max16p4_rvmp_fig5_repro.json`
   - Baseline (“WISE-only”) at `W1_max=16.4`.
-- `2-3-EEE/data/secrest_style_no_nvss_single_w1max16p5_rvmp_fig5_repro.json`
+- `REPORTS/2-3-EEE/data/secrest_style_no_nvss_single_w1max16p5_rvmp_fig5_repro.json`
   - Secrest+22-style independence control: NVSS-matched sources removed + homogenization, at `W1_max=16.5`.
 
 ### Residual systematics audits (Secrest-style `χ²/ν`)
-- `2-3-EEE/data/systematics_full_w1max16p4.json`
-- `2-3-EEE/figures/systematics_grid_full_w1max16p4.png`
-- `2-3-EEE/data/systematics_no_nvss_w1max16p5.json`
-- `2-3-EEE/figures/systematics_grid_no_nvss_w1max16p5.png`
+- `REPORTS/2-3-EEE/data/systematics_full_w1max16p4.json`
+- `REPORTS/2-3-EEE/figures/systematics_grid_full_w1max16p4.png`
+- `REPORTS/2-3-EEE/data/systematics_no_nvss_w1max16p5.json`
+- `REPORTS/2-3-EEE/figures/systematics_grid_no_nvss_w1max16p5.png`
 
 ## Headline results (copy-ready)
 
 ### A) Baseline, Secrest-style estimator (WISE-only; `W1_max=16.4`)
-From `2-3-EEE/data/systematics_full_w1max16p4.json`:
+From `REPORTS/2-3-EEE/data/systematics_full_w1max16p4.json`:
 - `D ≈ 0.01610`, `(l,b) ≈ (238.8°, +28.3°)`
 
 This is close to the published Secrest quasar dipole direction at the fiducial cut (the exact amplitude depends on implementation details like
 the precise trend-correction fit, mask revision, and whether NVSS-removal is applied).
 
 ### B) NVSS-removed + homogenized (Secrest+22 independence control; `W1_max=16.5`)
-From `2-3-EEE/data/systematics_no_nvss_w1max16p5.json`:
+From `REPORTS/2-3-EEE/data/systematics_no_nvss_w1max16p5.json`:
 - `D ≈ 0.01531`, `(l,b) ≈ (239.5°, +30.1°)`
 
 This is consistent with the Secrest+22 WISE dipole numbers reported for the NVSS-independent WISE sample (order `~1.5×10^-2` and similar direction).
@@ -115,4 +115,3 @@ No-NVSS variant:
   --outdir outputs/secrest_systematics_no_nvss_w1max16p5 \
   --make-plots
 ```
-

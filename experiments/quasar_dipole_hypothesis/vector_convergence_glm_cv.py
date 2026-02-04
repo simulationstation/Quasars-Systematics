@@ -229,7 +229,7 @@ def main() -> int:
         help="If set, keep the catalog-derived w1cov template even when --nexp-tile-stats-json is provided.",
     )
     ap.add_argument("--sn-scan-json", default="outputs/horizon_anisotropy_fullscan_null100_dipoleT_field_axispar_nside4_surveyz_20260131_225012UTC/scan_summary.json")
-    ap.add_argument("--secrest-json", default="Q_D_RES/secrest_reproduction_dipole.json")
+    ap.add_argument("--secrest-json", default="REPORTS/Q_D_RES/secrest_reproduction_dipole.json")
     ap.add_argument("--make-plots", action="store_true")
     args = ap.parse_args()
 

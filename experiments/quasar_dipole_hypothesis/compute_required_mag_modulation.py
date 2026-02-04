@@ -116,7 +116,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--secrest-json",
-        default="Q_D_RES/secrest_reproduction_dipole.json",
+        default="REPORTS/Q_D_RES/secrest_reproduction_dipole.json",
         help="Secrest/CatWISE dipole reproduction JSON (for D_obs and direction).",
     )
     ap.add_argument(

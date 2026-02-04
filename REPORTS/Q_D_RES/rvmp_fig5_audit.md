@@ -33,10 +33,10 @@ The Poisson-GLM scan script now records:
 - A **differential-bin** mode (`--w1-mode differential`) to avoid the “cumulative cuts make smoothness inevitable” failure mode.
 
 Included small artifacts from a full real-data run (all < 0.2 MB each):
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png` (main Poisson scan figure)
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + diagnostics)
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_differential.json` (differential-bin diagnostic)
-- `Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json` and `Q_D_RES/rvmp_fig5_poisson_glm_w1cov_offset.json` (depth-proxy modeling sensitivity)
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png` (main Poisson scan figure)
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + diagnostics)
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_differential.json` (differential-bin diagnostic)
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_covariate.json` and `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_w1cov_offset.json` (depth-proxy modeling sensitivity)
 
 Numerically (ecliptic-template-only Poisson GLM; cumulative mode), the recovered axis remains close to the CMB dipole at the bright end but drifts strongly with depth:
 - angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6` (see the JSON above).

@@ -13,29 +13,29 @@ The most important robustness point we now have is that swapping a catalog-deriv
 
 ### Narrative report + key plots
 
-- `Q_D_RES/dipole_master_tests.md`
-- `Q_D_RES/axis_alignment_mollweide.png`
-- `Q_D_RES/dipole_vs_w1max.png`
-- `Q_D_RES/fixed_axis_scaling_fit.png`
-- `Q_D_RES/glm_cv_axes_nexp_offset.png`
-- `Q_D_RES/glm_cv_angles_to_sn_nexp_offset.png`
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png`
+- `REPORTS/Q_D_RES/dipole_master_tests.md`
+- `REPORTS/Q_D_RES/axis_alignment_mollweide.png`
+- `REPORTS/Q_D_RES/dipole_vs_w1max.png`
+- `REPORTS/Q_D_RES/fixed_axis_scaling_fit.png`
+- `REPORTS/Q_D_RES/glm_cv_axes_nexp_offset.png`
+- `REPORTS/Q_D_RES/glm_cv_angles_to_sn_nexp_offset.png`
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png`
 
 ### Key small JSON artifacts (easy to cite)
 
-- `Q_D_RES/secrest_reproduction_dipole.json`  
+- `REPORTS/Q_D_RES/secrest_reproduction_dipole.json`  
   Local reproduction of Secrest-style dipole on the CatWISE AGN catalog.
 
-- `Q_D_RES/fixed_axis_scaling_fit.json`  
+- `REPORTS/Q_D_RES/fixed_axis_scaling_fit.json`  
   Scaling fit across W1 magnitude cuts (the “derivative” style evidence).
 
-- `Q_D_RES/glm_cv_summary_w1cov_glm_dipole_NVSS.json`  
+- `REPORTS/Q_D_RES/glm_cv_summary_w1cov_glm_dipole_NVSS.json`  
   Earlier GLM+CV result (scan templates; catalog-derived w1cov).
 
-- `Q_D_RES/glm_cv_summary_nexp_offset_nodipole.json`  
+- `REPORTS/Q_D_RES/glm_cv_summary_nexp_offset_nodipole.json`  
   GLM+CV with **independent unWISE Nexp offset** + Secrest exclude mask (primary robustness upgrade).
 
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`  
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`  
   Poisson GLM faint-cut scan with overdispersion diagnostics + sky jackknife and explicit template-degeneracy outputs.
 
 ## Where the heavy stuff lives (not copied here)

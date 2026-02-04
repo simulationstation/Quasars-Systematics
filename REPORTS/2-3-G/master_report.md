@@ -31,10 +31,10 @@ This is the **“ghost”** behavior the project is designed to isolate: *model 
 
 Figures referenced below are copied into this report folder so they are visible in git:
 
-- Isolator totals (by scramble mode): `2-3-G/figures/isolator_totals.png`
-- Per-event ΔLPD\_data (mode=none): `2-3-G/figures/delta_lpd_data_by_event_none.png`
-- Per-event ΔLPD\_total vs ΔLPD\_data (mode=none): `2-3-G/figures/delta_lpd_total_by_event_none.png`
-- Selection alpha log-ratio histogram: `2-3-G/figures/log_alpha_mu_minus_gr_hist.png`
+- Isolator totals (by scramble mode): `REPORTS/2-3-G/figures/isolator_totals.png`
+- Per-event ΔLPD\_data (mode=none): `REPORTS/2-3-G/figures/delta_lpd_data_by_event_none.png`
+- Per-event ΔLPD\_total vs ΔLPD\_data (mode=none): `REPORTS/2-3-G/figures/delta_lpd_total_by_event_none.png`
+- Selection alpha log-ratio histogram: `REPORTS/2-3-G/figures/log_alpha_mu_minus_gr_hist.png`
 
 ### Full raw outputs (gitignored but present locally)
 
@@ -340,4 +340,3 @@ So the ghost persists: the selection normalization is still the lever that can f
 1. The ghost mechanism is not an artifact of a simplistic 1D selection curve; it persists under a 2D selection proxy.
 2. For this event set and these population assumptions, **GR is strongly preferred by the data term**, while **μ is preferred mainly through selection normalization**.
 3. This strengthens (not weakens) the audit narrative: we must treat total “μ wins” as selection behavior until controls and nulls confirm the data term also prefers μ.
-

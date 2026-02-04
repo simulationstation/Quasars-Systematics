@@ -12,7 +12,7 @@ This script does NOT claim physical causation. It computes:
   - an optional Mollweide sky plot (Galactic coordinates)
 
 Defaults are wired to paths already present in this repo:
-  - Q_D_RES/secrest_reproduction_dipole.json
+  - REPORTS/Q_D_RES/secrest_reproduction_dipole.json
   - outputs/horizon_anisotropy_fullscan_null100_dipoleT_field_axispar_nside4_surveyz_20260131_225012UTC/scan_summary.json
 """
 
@@ -105,7 +105,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--secrest-json",
-        default="Q_D_RES/secrest_reproduction_dipole.json",
+        default="REPORTS/Q_D_RES/secrest_reproduction_dipole.json",
         help="Path to Secrest/CatWISE dipole reproduction JSON.",
     )
     ap.add_argument(

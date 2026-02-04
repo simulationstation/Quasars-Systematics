@@ -1,7 +1,7 @@
 # ApJL Letter Draft: Resolution of the CatWISE/Secrest Quasar Dipole as a Selection Effect
 
 This file contains a **ready-to-paste ApJL (AAS) letter draft** in AASTeX, based on the analysis
-artifacts in `Q_D_RES/`.
+artifacts in `REPORTS/Q_D_RES/`.
 
 You said you will place figures in the **Overleaf project root**. The figures referenced by the
 draft below are already present in this folder and can be copied directly:

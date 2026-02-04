@@ -4,24 +4,24 @@ This repository contains a reproducible analysis and an ApJL letter draft arguin
 CatWISE/Secrest quasar number-count dipole is **dominated by survey selection/systematics** tied to
 the faint $W1$ magnitude boundary (rather than requiring a large intrinsic/cosmological dipole).
 
-Key artifacts for reviewers are in `Q_D_RES/`:
+Key artifacts for reviewers are in `REPORTS/Q_D_RES/`:
 
-- `Q_D_RES/Resolution.md` (ApJL letter draft in AASTeX; paste into Overleaf)
-- `Q_D_RES/fixed_axis_scaling_fit.png` (main result figure used in the letter)
-- `Q_D_RES/dipole_master_tests.md` (detailed run log + additional diagnostics and figures)
-- `Q_D_RES/rvmp_fig5_audit.md` (RvMP Fig. 5 / ecliptic-trend + estimator audit; includes injection test)
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png` (Poisson GLM scan + conservative jackknife)
-- `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + fit diagnostics/templates/jackknife)
-- `Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
+- `REPORTS/Q_D_RES/Resolution.md` (ApJL letter draft in AASTeX; paste into Overleaf)
+- `REPORTS/Q_D_RES/fixed_axis_scaling_fit.png` (main result figure used in the letter)
+- `REPORTS/Q_D_RES/dipole_master_tests.md` (detailed run log + additional diagnostics and figures)
+- `REPORTS/Q_D_RES/rvmp_fig5_audit.md` (RvMP Fig. 5 / ecliptic-trend + estimator audit; includes injection test)
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png` (Poisson GLM scan + conservative jackknife)
+- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + fit diagnostics/templates/jackknife)
+- `REPORTS/Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
 
 Additional paper-ready validation bundles:
 
-- `2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
-- `2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
+- `REPORTS/2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
+- `REPORTS/2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
-- `dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
-- `seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
-- `2-3-G/master_report.md` (optional GW analogue: selection-normalization “isolator” re-run bundle)
+- `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
+- `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
+- `REPORTS/2-3-G/master_report.md` (optional GW analogue: selection-normalization “isolator” re-run bundle)
 
 ## References / DOIs used by this repository
 
@@ -83,7 +83,7 @@ To keep this repository lightweight, we **include a derived per-tile statistic**
 - `data/cache/unwise_nexp/neo7/w1_n_m_tile_stats_median.json`
 - `data/external/unwise/tiles.fits` (used to map sky positions to unWISE tile IDs)
 
-This file is sufficient to reproduce the `Nexp`-offset GLM results shown in `Q_D_RES/`.
+This file is sufficient to reproduce the `Nexp`-offset GLM results shown in `REPORTS/Q_D_RES/`.
 
 #### Map-level depth (recommended for identifiability)
 
@@ -162,10 +162,10 @@ The output JSON now includes:
 - `corr_b_templates` / `template_dipoles`: explicit dipole–template degeneracy summaries,
 - `jackknife` (if enabled): leave-one-region-out sky jackknife of the fitted dipole vector.
 
-Latest cached real-data run (included in `Q_D_RES/`):
+Latest cached real-data run (included in `REPORTS/Q_D_RES/`):
 - `D ≃ 1.6×10^{-2}` across the scan, but the best-fit axis drifts strongly with depth:
   angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6`
-  (see `Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`).
+  (see `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`).
 
 #### Differential-bin diagnostic (recommended add-on)
 
@@ -222,7 +222,7 @@ This repo includes a lightweight **hemisphere proxy** that asks whether the *per
 is concentrated in one hemisphere about a chosen axis (e.g., the CMB dipole axis):
 
 - Script: `scripts/run_darksiren_axis_split_proxy.py`
-- Report bundle: `entropy_quasar_bridge_report/`
+- Report bundle: `REPORTS/entropy_quasar_bridge_report/`
 
 Inputs included in this repo:
 - Per-event score table: `data/dark_sirens/2-1-c-m/production_36events/event_scores_M0_start101.json`
@@ -247,9 +247,9 @@ This is a full-likelihood fixed-axis scan for a 1-parameter anisotropy `g`:
 
 Run bundle and results (3 axes: `cmb`, `secrest`, `ecliptic_north`) are archived here:
 
-- `2-3-F/master_summary.md` (human-readable results table + interpretation)
-- `2-3-F/artifacts/` (per-axis JSON + PNG plots)
-- `2-3-F/summary_metrics.json` (machine-readable extracted metrics)
+- `REPORTS/2-3-F/master_summary.md` (human-readable results table + interpretation)
+- `REPORTS/2-3-F/artifacts/` (per-axis JSON + PNG plots)
+- `REPORTS/2-3-F/summary_metrics.json` (machine-readable extracted metrics)
 
 Re-run (example axis):
 
@@ -392,7 +392,7 @@ python3 scripts/run_secrest_systematics_audit.py \
   --make-plots
 ```
 
-Paper-ready archived outputs from this audit live in `2-3-EEE/`.
+Paper-ready archived outputs from this audit live in `REPORTS/2-3-EEE/`.
 
 ### B) Figure 1: faint-limit scaling diagnostic (main ApJL figure)
 
@@ -402,7 +402,7 @@ This produces `fixed_axis_scaling_fit.png` and `fixed_axis_scaling_fit.json`.
 python3 experiments/quasar_dipole_hypothesis/fit_intrinsic_plus_selection_fixed_axis.py \
   --catalog data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits \
   --axis-from secrest \
-  --secrest-json Q_D_RES/secrest_reproduction_dipole.json \
+  --secrest-json REPORTS/Q_D_RES/secrest_reproduction_dipole.json \
   --w1cov-min 80 --b-cut 30 \
   --w1max-grid 15.6,16.6,0.05 \
   --alpha-dm 0.05 \
@@ -417,7 +417,7 @@ This produces `dipole_vs_w1max.png`, `dipole_vs_w1covmin.png`, and hemisphere co
 ```bash
 python3 experiments/quasar_dipole_hypothesis/magshift_mechanism_diagnostics.py \
   --catalog data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits \
-  --secrest-json Q_D_RES/secrest_reproduction_dipole.json \
+  --secrest-json REPORTS/Q_D_RES/secrest_reproduction_dipole.json \
   --w1-max 16.4 --w1-max-for-cdf 17.0 \
   --make-plots \
   --outdir outputs/magshift_mechanisms
@@ -442,6 +442,6 @@ python3 experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py \
 
 ## ApJL draft + figures
 
-The ApJL draft is in `Q_D_RES/Resolution.md` and references the PNGs by filename.
-If you copy the figures in `Q_D_RES/` into your Overleaf project root, the TeX block in that file
+The ApJL draft is in `REPORTS/Q_D_RES/Resolution.md` and references the PNGs by filename.
+If you copy the figures in `REPORTS/Q_D_RES/` into your Overleaf project root, the TeX block in that file
 should compile without modification.
