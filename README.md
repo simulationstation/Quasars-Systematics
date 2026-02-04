@@ -19,6 +19,8 @@ Additional paper-ready validation bundles:
 - `2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
 - `2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
+- `dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
+- `seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 
 ## References / DOIs used by this repository
 
