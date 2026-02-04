@@ -10,8 +10,9 @@ and audit reports.
 
 This repo is designed to support the following (core, referee-facing) claims:
 - The CatWISE ``accepted'' number-count dipole **amplitude** is robustly non-zero at the few×10⁻² level.
+- Low-ell harmonic nuisance + C_ell priors provide a conservative amplitude robustness check under the survey mask.
 - The inferred dipole **axis/direction is not stable** under plausible magnitude-limit and depth/completeness modeling choices.
-- Selection/completeness systematics can generate smooth magnitude-limit scans and bias both amplitude and direction in known-truth injections.
+- Selection/completeness systematics can generate smooth magnitude-limit scans and bias both amplitude and direction in injection tests.
 
 What this repo does **not** currently claim or provide:
 - A fully closed, image-level injection/recovery **end-to-end completeness pipeline** that “solves” the full amplitude all-sky.
@@ -74,6 +75,7 @@ Additional PRD appendices / validation bundles:
   - table: `REPORTS/end_to_end_completeness_correction/data/cmb_projection_compare_baseline_vs_gaia_extonly.csv`
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
+- `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md` (harmonic-prior dipole injection check under low-ell contamination)
 
 Other folders under `REPORTS/` are legacy/exploratory and are not required for the CatWISE dipole audit.
 
@@ -252,6 +254,44 @@ Paper-ready cached real-data runs:
 Key numbers at `W1_max=16.6` in the ecliptic-template-only scan:
 - `D ≃ 1.6×10^{-2}` across the scan, but the best-fit axis drifts strongly with depth:
   angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6`.
+
+#### Low-ell harmonic nuisance + C_ell prior (amplitude robustness)
+
+Enable real spherical-harmonic nuisance templates for `ell>=2` via `--harmonic-lmax`.
+Optionally regularize those coefficients with a Gaussian prior using `C_ell` estimated from the clustered (lognormal) mocks.
+
+```bash
+python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
+  --eclip-template abs_elat \
+  --dust-template none \
+  --depth-mode none \
+  --harmonic-lmax 5 \
+  --harmonic-prior lognormal_cl \
+  --harmonic-prior-cl-json REPORTS/Q_D_RES_2_2/data/lognormal_cov_w1max16p6_n500/lognormal_mocks_cov.json \
+  --harmonic-prior-scale 1 \
+  --w1-mode cumulative \
+  --w1-grid 15.5,16.6,0.05 \
+  --outdir outputs/rvmp_fig5_poisson_glm_harmprior_lmax5
+```
+
+#### Dipole injection check for the harmonic-prior fit
+
+This reproduces the injection check bundled at `REPORTS/arxiv_amplitude_multipole_prior_injection/`.
+
+```bash
+python3 scripts/harmonic_prior_injection_check.py \
+  --w1-max 16.6 \
+  --harmonic-lmax 5 \
+  --n-mocks 200 \
+  --true-cl-scale 10 \
+  --fit-prior-scale 1 \
+  --seed 123
+```
+
+Outputs:
+- `REPORTS/arxiv_amplitude_multipole_prior_injection/data/lowell_injection_validation.json`
+- `REPORTS/arxiv_amplitude_multipole_prior_injection/figures/lowell_injection_validation.png`
+- `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md`
 
 #### Differential-bin diagnostic (recommended add-on)
 
