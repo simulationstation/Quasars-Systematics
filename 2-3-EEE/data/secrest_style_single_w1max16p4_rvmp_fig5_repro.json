@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "exclude_mask_fits": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+    "nside": 64,
+    "w1cov_min": 80.0,
+    "b_cut": 30.0,
+    "w1_grid": "16.4,16.4,0.1",
+    "xyfit_binsize": 200,
+    "nsim": 400,
+    "seed": 12345,
+    "inject_delta_m_mag": 0.0,
+    "inject_axis_lb": [
+      264.021,
+      48.253
+    ]
+  },
+  "rows": [
+    {
+      "w1_cut": 16.4,
+      "N_total": 3082131,
+      "N_seen": 1359698,
+      "p0_count_per_pix_per_deg": -0.04176336343153921,
+      "p0_sigma": 0.002725086472432721,
+      "dipole": {
+        "D_hat": 0.016099682303361184,
+        "l_hat_deg": 238.7716471311511,
+        "b_hat_deg": 28.3468120264396,
+        "D_p16": 0.01471132679057192,
+        "D_p50": 0.016164262951689993,
+        "D_p84": 0.017977155435174794,
+        "l_p16": 230.93628590842394,
+        "l_p50": 239.23484790594762,
+        "l_p84": 247.040751785663,
+        "b_p16": 23.123924712897676,
+        "b_p50": 28.04568260627393,
+        "b_p84": 32.96389744156162
+      }
+    }
+  ]
+}
