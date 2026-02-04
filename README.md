@@ -1,10 +1,55 @@
 # Quasars-Systematics
 
-This repository contains a reproducible analysis and an ApJL letter draft arguing that the
-CatWISE/Secrest quasar number-count dipole is **dominated by survey selection/systematics** tied to
-the faint $W1$ magnitude boundary (rather than requiring a large intrinsic/cosmological dipole).
+This repository contains a reproducible CatWISE dipole audit and paper-ready bundles supporting:
+- a PRD-style manuscript (CatWISE dipole sensitivity to magnitude cuts, depth templates, and LSS covariance), and
+- an ApJL letter draft focused on faint-limit selection/scale diagnostics.
 
-Key artifacts for reviewers are in `REPORTS/Q_D_RES/`:
+## PRD paper figure pack
+
+The PRD manuscript expects the following PNGs in your Overleaf project root:
+
+- `rvmp_fig5_repro_baseline.png`
+- `rvmp_fig5_poisson_glm_ecliponly.png`
+- `rvmp_fig5_repro_inject_dm0125cmb.png`
+- `glm_cv_axes_nexp_offset.png`
+- `lss_cov_D_hist_w1max16p6.png`
+- `validate_depth_systematic_recovery.png`
+- `systematics_grid_full_w1max16p4.png`
+- `systematics_grid_no_nvss_w1max16p5.png`
+- `cmb_projection_plot.png`
+
+They are tracked in this repo at:
+- `REPORTS/Q_D_RES_2_2/figures/` (first 6 files above)
+- `REPORTS/2-3-EEE/figures/` (the `systematics_grid_*.png` pair)
+- `REPORTS/2-3-DDD/artifacts_main/` (`cmb_projection_plot.png`)
+
+Convenience staging command (creates a folder you can upload to Overleaf):
+
+```bash
+mkdir -p outputs/overleaf_prd_figs
+cp REPORTS/Q_D_RES_2_2/figures/rvmp_fig5_repro_baseline.png outputs/overleaf_prd_figs/
+cp REPORTS/Q_D_RES_2_2/figures/rvmp_fig5_poisson_glm_ecliponly.png outputs/overleaf_prd_figs/
+cp REPORTS/Q_D_RES_2_2/figures/rvmp_fig5_repro_inject_dm0125cmb.png outputs/overleaf_prd_figs/
+cp REPORTS/Q_D_RES_2_2/figures/glm_cv_axes_nexp_offset.png outputs/overleaf_prd_figs/
+cp REPORTS/Q_D_RES_2_2/figures/lss_cov_D_hist_w1max16p6.png outputs/overleaf_prd_figs/
+cp REPORTS/Q_D_RES_2_2/figures/validate_depth_systematic_recovery.png outputs/overleaf_prd_figs/
+cp REPORTS/2-3-EEE/figures/systematics_grid_full_w1max16p4.png outputs/overleaf_prd_figs/
+cp REPORTS/2-3-EEE/figures/systematics_grid_no_nvss_w1max16p5.png outputs/overleaf_prd_figs/
+cp REPORTS/2-3-DDD/artifacts_main/cmb_projection_plot.png outputs/overleaf_prd_figs/
+```
+
+## Key results bundles
+
+### PRD audit bundle (main)
+
+Key artifacts for the PRD audit are in `REPORTS/Q_D_RES_2_2/`:
+
+- `REPORTS/Q_D_RES_2_2/master_report.md` (paper update bundle; figures + data + key numbers)
+- `REPORTS/Q_D_RES_2_2/figures/` (exact PRD PNG filenames)
+
+### ApJL letter bundle (optional)
+
+ApJL letter draft + earlier diagnostics are in `REPORTS/Q_D_RES/`:
 
 - `REPORTS/Q_D_RES/Resolution.md` (ApJL letter draft in AASTeX; paste into Overleaf)
 - `REPORTS/Q_D_RES/fixed_axis_scaling_fit.png` (main result figure used in the letter)
@@ -14,7 +59,7 @@ Key artifacts for reviewers are in `REPORTS/Q_D_RES/`:
 - `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + fit diagnostics/templates/jackknife)
 - `REPORTS/Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
 
-Additional paper-ready validation bundles:
+Additional PRD appendices / validation bundles:
 
 - `REPORTS/2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
 - `REPORTS/2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
@@ -162,10 +207,15 @@ The output JSON now includes:
 - `corr_b_templates` / `template_dipoles`: explicit dipole–template degeneracy summaries,
 - `jackknife` (if enabled): leave-one-region-out sky jackknife of the fitted dipole vector.
 
-Latest cached real-data run (included in `REPORTS/Q_D_RES/`):
+Paper-ready cached real-data runs:
+- PRD figure version: `REPORTS/Q_D_RES_2_2/figures/rvmp_fig5_poisson_glm_ecliponly.png`
+  (scan JSON: `REPORTS/Q_D_RES_2_2/data/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`)
+- Conservative jackknife-annotated version: `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png`
+  (scan JSON: `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`)
+
+Key numbers at `W1_max=16.6` in the ecliptic-template-only scan:
 - `D ≃ 1.6×10^{-2}` across the scan, but the best-fit axis drifts strongly with depth:
-  angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6`
-  (see `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json`).
+  angle-to-CMB ≈ 1.5° at `W1_max=15.5`, ≈ 28.2° at `16.5`, and ≈ 34.3° at `16.6`.
 
 #### Differential-bin diagnostic (recommended add-on)
 
