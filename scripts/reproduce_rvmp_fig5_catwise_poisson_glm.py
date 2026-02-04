@@ -396,6 +396,16 @@ def main() -> int:
     ap.add_argument("--w1-min", type=float, default=None, help="Optional bright cut (keep only W1 > w1_min).")
     ap.add_argument("--w1-grid", default="15.5,16.6,0.05", help="start,stop,step (inclusive end).")
     ap.add_argument("--max-iter", type=int, default=300)
+    ap.add_argument(
+        "--harmonic-lmax",
+        type=int,
+        default=1,
+        help=(
+            "If >1, include real spherical-harmonic nuisance templates Y_lm for 2<=l<=harmonic_lmax "
+            "(z-scored on seen pixels). This is an amplitude-robustness diagnostic motivated by critiques "
+            "that low-order multipoles beyond the dipole can be comparable in size and leak through the mask."
+        ),
+    )
 
     ap.add_argument(
         "--eclip-template",
@@ -791,6 +801,40 @@ def main() -> int:
             "dm": float(args.external_logreg_dm),
         }
 
+    # Optional: real spherical-harmonic nuisance templates (computed once; reused for all cuts).
+    harmonic_templates_seen: list[np.ndarray] = []
+    harmonic_template_names: list[str] = []
+    if int(args.harmonic_lmax) > 1:
+        try:
+            # SciPy <1.17
+            from scipy.special import sph_harm as _sph_harm  # type: ignore
+
+            def sph_harm(l: int, m: int, th: np.ndarray, ph: np.ndarray) -> np.ndarray:
+                # Legacy SciPy signature: sph_harm(m, l, phi, theta)
+                return _sph_harm(m, l, ph, th)
+
+        except Exception:
+            # SciPy >=1.17
+            from scipy.special import sph_harm_y as _sph_harm_y  # type: ignore
+
+            def sph_harm(l: int, m: int, th: np.ndarray, ph: np.ndarray) -> np.ndarray:
+                # New SciPy signature: sph_harm_y(n=l, m=m, theta, phi)
+                return _sph_harm_y(l, m, th, ph)
+
+        th = np.deg2rad(90.0 - lat_pix)  # colatitude
+        ph = np.deg2rad(lon_pix % 360.0)  # longitude
+
+        for ell in range(2, int(args.harmonic_lmax) + 1):
+            y0 = sph_harm(ell, 0, th, ph).real.astype(float)
+            harmonic_templates_seen.append(zscore(y0, seen)[seen])
+            harmonic_template_names.append(f"Y{ell}_0_re_z")
+            for m in range(1, ell + 1):
+                y = sph_harm(ell, m, th, ph)
+                harmonic_templates_seen.append(zscore((np.sqrt(2.0) * y.real).astype(float), seen)[seen])
+                harmonic_template_names.append(f"Y{ell}_{m}_re_z")
+                harmonic_templates_seen.append(zscore((np.sqrt(2.0) * y.imag).astype(float), seen)[seen])
+                harmonic_template_names.append(f"Y{ell}_{m}_im_z")
+
     # Optional: independent unWISE depth-of-coverage proxy (Nexp), mapped per HEALPix pixel
     # via nearest unWISE tile center (as in experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py).
     nexp_pix = None
@@ -1015,6 +1059,10 @@ def main() -> int:
         if args.dust_template == "ebv_mean":
             templates.append(zscore(ebv_mean, seen)[seen])
             template_names.append("ebv_mean_z")
+
+        if harmonic_templates_seen:
+            templates.extend(harmonic_templates_seen)
+            template_names.extend(harmonic_template_names)
 
         if extra_template_map is not None:
             templates.append(zscore(extra_template_map, seen)[seen])
@@ -1307,6 +1355,7 @@ def main() -> int:
             "eclip_template": args.eclip_template,
             "dust_template": args.dust_template,
             "depth_mode": args.depth_mode,
+            "harmonic_lmax": int(args.harmonic_lmax),
             "unwise_tiles_fits": None if args.unwise_tiles_fits is None else str(args.unwise_tiles_fits),
             "nexp_tile_stats_json": None if args.nexp_tile_stats_json is None else str(args.nexp_tile_stats_json),
             "nexp_missing_frac_seen": nexp_missing_frac,
