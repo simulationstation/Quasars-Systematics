@@ -86,6 +86,16 @@ def zscore(x: np.ndarray, valid: np.ndarray) -> np.ndarray:
     return out
 
 
+def alpha_edge_from_cumcounts(w1_eff: np.ndarray, cut: float, *, delta: float) -> float:
+    """Estimate alpha_edge = d ln N(<m) / dm at m=cut via finite difference."""
+    w1_eff = np.asarray(w1_eff, dtype=float)
+    n1 = int(np.sum(w1_eff <= float(cut)))
+    n0 = int(np.sum(w1_eff <= float(cut) - float(delta)))
+    if n1 <= 0 or n0 <= 0:
+        return float("nan")
+    return float((math.log(n1) - math.log(n0)) / float(delta))
+
+
 @dataclass(frozen=True)
 class SecrestMask:
     mask: np.ndarray  # True = masked
@@ -399,6 +409,8 @@ def main() -> int:
             "unwise_nexp_offset",
             "depth_map_covariate",
             "depth_map_offset",
+            "delta_m_map_offset_alpha_edge",
+            "delta_m_map_covariate_alpha_edge",
         ],
         default="none",
     )
@@ -642,9 +654,9 @@ def main() -> int:
     # Optional: generic map-level depth proxy provided as a HEALPix map.
     depth_map = None
     depth_map_meta = None
-    if args.depth_mode.startswith("depth_map_"):
+    if str(args.depth_mode).startswith("depth_map_") or str(args.depth_mode).startswith("delta_m_map_"):
         if args.depth_map_fits is None:
-            raise SystemExit("--depth-mode depth_map_* requires --depth-map-fits")
+            raise SystemExit("--depth-mode depth_map_* or delta_m_map_* requires --depth-map-fits")
         depth_map_path = Path(str(args.depth_map_fits))
         if not depth_map_path.exists():
             raise SystemExit(f"Missing --depth-map-fits: {depth_map_path}")
@@ -670,6 +682,10 @@ def main() -> int:
             "nside_used": int(args.nside),
             "fill_value": float(fill),
             "missing_frac_seen": float(np.mean(seen & unseen)),
+            "interpretation": (
+                "delta_m_mag (effective faint-limit shift) if depth_mode=delta_m_map_offset_alpha_edge, "
+                "else a generic depth/offset map"
+            ),
             "name": None if args.depth_map_name is None else str(args.depth_map_name),
         }
 
@@ -773,6 +789,23 @@ def main() -> int:
             ref = float(np.median(depth_map[seen]))
             offset = (depth_map - ref)[seen]
             offset_name = "depth_map_offset"
+        elif args.depth_mode == "delta_m_map_offset_alpha_edge":
+            assert depth_map is not None
+            # Interpret depth_map as δm(pix) [mag] from an externally calibrated completeness model.
+            # The induced log-count modulation at W1_max is approximately:
+            #   log N(pix) -> log N(pix) + alpha_edge(W1_max) * δm(pix),
+            # where alpha_edge = d ln N(<m)/dm evaluated at the cut (global, not spatial).
+            a_edge = alpha_edge_from_cumcounts(w1_eff, float(w1_hi), delta=float(w1_step))
+            ref = float(np.median(depth_map[seen]))
+            offset = (depth_map - ref)[seen] * float(a_edge)
+            offset_name = "delta_m_offset_alpha_edge"
+        elif args.depth_mode == "delta_m_map_covariate_alpha_edge":
+            assert depth_map is not None
+            a_edge = alpha_edge_from_cumcounts(w1_eff, float(w1_hi), delta=float(w1_step))
+            ref = float(np.median(depth_map[seen]))
+            t = (depth_map - ref) * float(a_edge)
+            templates.append(zscore(t, seen)[seen])
+            template_names.append("delta_m_alpha_edge_z")
 
         cols = [np.ones_like(y), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2]]
         cols.extend(templates)
@@ -893,6 +926,7 @@ def main() -> int:
                 "w1_cut": w1_hi,
                 "w1_lo": w1_lo,
                 "w1_hi": w1_hi,
+                "alpha_edge": float(alpha_edge_from_cumcounts(w1_eff, float(w1_hi), delta=float(w1_step))),
                 "N_total": int(N_total),
                 "N_seen": int(N_seen),
                 "N_cum_total": N_cum_total,

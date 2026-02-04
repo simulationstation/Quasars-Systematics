@@ -17,6 +17,7 @@ pid_*.txt
 data/external/zenodo_*/
 data/external/secrest*/
 data/external/catwise*/
+data/external/sdss_dr16q/
 data/cache/unwise_nexp/*/w1-n-m/
 data/cache/unwise_nexp/*/*.fits
 !data/cache/unwise_nexp/*/*healpix*.fits

@@ -3,3 +3,4 @@ scipy>=1.10
 matplotlib>=3.7
 astropy>=5.0
 healpy>=1.16
+scikit-learn>=1.3

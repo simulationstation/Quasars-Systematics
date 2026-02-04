@@ -64,6 +64,7 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
 - `REPORTS/2-3-DDD/master_report.md` (CMB-parallel/perpendicular decomposition of the GLM scan dipole vectors)
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
+- `REPORTS/external_completeness_sdss_dr16q/master_report.md` (externally validated, map-level completeness model using SDSS DR16Q + unWISE logNexp)
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 

@@ -1,0 +1,44 @@
+{
+  "alpha_edge_reference": {
+    "alpha_edge": 1.7789152698537691,
+    "cut": 16.6,
+    "delta": 0.05,
+    "source": "Estimated from CatWISE W1 histogram in the seen footprint (global slope)."
+  },
+  "b_cut_deg": 30.0,
+  "catwise_catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+  "cv": {
+    "brier": 0.105580541395198,
+    "n_splits": 5,
+    "roc_auc": 0.9331064832908709,
+    "scheme": "GroupKFold on ecliptic longitude wedges (15 deg bins)"
+  },
+  "dr16q_fits": "data/external/sdss_dr16q/DR16Q_v4.fits",
+  "exclude_mask_fits": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+  "feature_set": "depth_only",
+  "features": [
+    "w1",
+    "lognexp",
+    "w1_x_lognexp"
+  ],
+  "logreg": {
+    "coef": [
+      -0.10215451407817684,
+      6.562471996491497,
+      -0.3993783420510338
+    ],
+    "intercept": 1.1959723904576731
+  },
+  "maps": {
+    "delta_m_map_fits": "delta_m_map_nside64.fits",
+    "m50_map_fits": "m50_map_nside64.fits",
+    "p_edge_map_fits": "p_edge_map_w116p6.fits",
+    "p_edge_w1_ref": 16.6
+  },
+  "match_radius_arcsec": 2.0,
+  "nside": 64,
+  "truth_n_used": 671134,
+  "truth_positive_rate": 0.34797968810997504,
+  "unwise_lognexp_map": "data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits",
+  "w1cov_min": 80.0
+}
