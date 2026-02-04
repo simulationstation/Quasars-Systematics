@@ -74,6 +74,7 @@ Additional PRD appendices / validation bundles:
     `REPORTS/end_to_end_completeness_correction/figures/gaia_extonly_cov_rvmp_fig5_poisson_glm.png`
   - table: `REPORTS/end_to_end_completeness_correction/data/cmb_projection_compare_baseline_vs_gaia_extonly.csv`
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
+- `REPORTS/seasonal_selection_injection_check/master_report.md` (injection test: how ecliptic-longitude selection can bias dipole amplitude)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md` (harmonic-prior dipole injection check under low-ell contamination)
 
@@ -292,6 +293,22 @@ Outputs:
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/data/lowell_injection_validation.json`
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/figures/lowell_injection_validation.png`
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md`
+
+#### Seasonal selection/completeness injection check (ecliptic longitude)
+
+This runs controlled Poisson-map injections of `sinλ/cosλ` patterns to quantify how a scan-linked selection term can bias dipole amplitude when omitted.
+
+```bash
+python3 scripts/seasonal_selection_injection_check.py \
+  --w1-max 16.6 \
+  --n-mocks 200 \
+  --lon-amps 0,0.01,0.02,0.03,0.04 \
+  --lon-phase-deg 0 \
+  --dipole-amp 0 \
+  --outdir REPORTS/seasonal_selection_injection_check/dipole0
+```
+
+See: `REPORTS/seasonal_selection_injection_check/master_report.md`
 
 #### Differential-bin diagnostic (recommended add-on)
 
