@@ -160,6 +160,8 @@ def fit_poisson_glm(
     max_iter: int = 300,
     beta_init: np.ndarray | None = None,
     compute_cov: bool = True,
+    prior_prec_diag: np.ndarray | None = None,
+    prior_mean: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray | None]:
     """
     Poisson GLM (log link) via L-BFGS.
@@ -178,12 +180,20 @@ def fit_poisson_glm(
     else:
         beta0 = np.asarray(beta_init, dtype=float).reshape(X.shape[1])
 
+    prec = None if prior_prec_diag is None else np.asarray(prior_prec_diag, dtype=float).reshape(X.shape[1])
+    mu_prior = None if prior_mean is None else np.asarray(prior_mean, dtype=float).reshape(X.shape[1])
+
     def fun_and_grad(beta: np.ndarray) -> tuple[float, np.ndarray]:
         eta = off + X @ beta
         eta = np.clip(eta, -25.0, 25.0)
         mu = np.exp(eta)
         nll = float(np.sum(mu - y * eta))
         grad = X.T @ (mu - y)
+        if prec is not None:
+            dp = beta if mu_prior is None else (beta - mu_prior)
+            # Gaussian prior: 0.5 * Σ prec * (beta-mean)^2
+            nll = float(nll + 0.5 * np.sum(prec * dp * dp))
+            grad = grad + prec * dp
         return nll, np.asarray(grad, dtype=float)
 
     res = minimize(
@@ -202,6 +212,8 @@ def fit_poisson_glm(
         eta = np.clip(off + X @ beta, -25.0, 25.0)
         mu = np.exp(eta)
         fisher = X.T @ (mu[:, None] * X)
+        if prec is not None:
+            fisher = fisher + np.diag(prec)
         cov = np.linalg.inv(fisher)
     except Exception:  # noqa: BLE001
         cov = None
@@ -405,6 +417,37 @@ def main() -> int:
             "(z-scored on seen pixels). This is an amplitude-robustness diagnostic motivated by critiques "
             "that low-order multipoles beyond the dipole can be comparable in size and leak through the mask."
         ),
+    )
+    ap.add_argument(
+        "--harmonic-prior",
+        choices=["none", "lognormal_cl"],
+        default="none",
+        help=(
+            "Optional Gaussian prior on the harmonic nuisance coefficients (ℓ>=2). "
+            "'lognormal_cl' uses C_ell estimated from clustered (lognormal) mocks as a prior variance "
+            "for the underlying log-intensity field. This stabilizes the fit and approximates "
+            "marginalization over higher multipoles (Laplace approximation)."
+        ),
+    )
+    ap.add_argument(
+        "--harmonic-prior-cl-json",
+        default="REPORTS/Q_D_RES_2_2/data/lognormal_cov_w1max16p6_n500/lognormal_mocks_cov.json",
+        help=(
+            "Path to a lognormal mock covariance JSON containing cl_estimate.cl_signal. "
+            "Used when --harmonic-prior=lognormal_cl."
+        ),
+    )
+    ap.add_argument(
+        "--harmonic-prior-scale",
+        type=float,
+        default=1.0,
+        help="Multiply C_ell by this factor (1=as estimated; >1 weaker prior; <1 stronger prior).",
+    )
+    ap.add_argument(
+        "--harmonic-prior-min-cl",
+        type=float,
+        default=1e-12,
+        help="Floor for C_ell when forming 1/C_ell priors (avoids singular priors).",
     )
 
     ap.add_argument(
@@ -804,6 +847,8 @@ def main() -> int:
     # Optional: real spherical-harmonic nuisance templates (computed once; reused for all cuts).
     harmonic_templates_seen: list[np.ndarray] = []
     harmonic_template_names: list[str] = []
+    harmonic_template_ell: list[int] = []
+    harmonic_template_raw_std: list[float] = []
     if int(args.harmonic_lmax) > 1:
         try:
             # SciPy <1.17
@@ -824,16 +869,56 @@ def main() -> int:
         th = np.deg2rad(90.0 - lat_pix)  # colatitude
         ph = np.deg2rad(lon_pix % 360.0)  # longitude
 
+        def _harm_col(raw_full: np.ndarray) -> tuple[np.ndarray, float] | None:
+            raw_full = np.asarray(raw_full, dtype=float)
+            raw0 = raw_full - float(np.mean(raw_full[seen]))
+            std = float(np.std(raw0[seen]))
+            if not np.isfinite(std) or std <= 0.0:
+                return None
+            return (raw0 / std)[seen], std
+
         for ell in range(2, int(args.harmonic_lmax) + 1):
             y0 = sph_harm(ell, 0, th, ph).real.astype(float)
-            harmonic_templates_seen.append(zscore(y0, seen)[seen])
-            harmonic_template_names.append(f"Y{ell}_0_re_z")
+            col = _harm_col(y0)
+            if col is not None:
+                harmonic_templates_seen.append(col[0])
+                harmonic_template_names.append(f"Y{ell}_0_re_z")
+                harmonic_template_ell.append(int(ell))
+                harmonic_template_raw_std.append(float(col[1]))
             for m in range(1, ell + 1):
                 y = sph_harm(ell, m, th, ph)
-                harmonic_templates_seen.append(zscore((np.sqrt(2.0) * y.real).astype(float), seen)[seen])
-                harmonic_template_names.append(f"Y{ell}_{m}_re_z")
-                harmonic_templates_seen.append(zscore((np.sqrt(2.0) * y.imag).astype(float), seen)[seen])
-                harmonic_template_names.append(f"Y{ell}_{m}_im_z")
+                yr = (np.sqrt(2.0) * y.real).astype(float)
+                yi = (np.sqrt(2.0) * y.imag).astype(float)
+                colr = _harm_col(yr)
+                if colr is not None:
+                    harmonic_templates_seen.append(colr[0])
+                    harmonic_template_names.append(f"Y{ell}_{m}_re_z")
+                    harmonic_template_ell.append(int(ell))
+                    harmonic_template_raw_std.append(float(colr[1]))
+                coli = _harm_col(yi)
+                if coli is not None:
+                    harmonic_templates_seen.append(coli[0])
+                    harmonic_template_names.append(f"Y{ell}_{m}_im_z")
+                    harmonic_template_ell.append(int(ell))
+                    harmonic_template_raw_std.append(float(coli[1]))
+
+    harmonic_prior_mode = str(args.harmonic_prior)
+    harmonic_prior_cl: np.ndarray | None = None
+    if harmonic_prior_mode != "none":
+        if not harmonic_templates_seen:
+            raise SystemExit("--harmonic-prior requires --harmonic-lmax > 1 (no harmonic templates were built).")
+        if harmonic_prior_mode == "lognormal_cl":
+            cl_path = Path(str(args.harmonic_prior_cl_json))
+            if not cl_path.exists():
+                raise SystemExit(f"Missing --harmonic-prior-cl-json: {cl_path}")
+            cl_obj = json.loads(cl_path.read_text())
+            try:
+                cl = cl_obj["cl_estimate"]["cl_signal"]
+            except Exception as e:  # noqa: BLE001
+                raise SystemExit(f"{cl_path}: expected cl_estimate.cl_signal") from e
+            harmonic_prior_cl = np.asarray(cl, dtype=float)
+        else:
+            raise SystemExit(f"Unknown --harmonic-prior: {harmonic_prior_mode}")
 
     # Optional: independent unWISE depth-of-coverage proxy (Nexp), mapped per HEALPix pixel
     # via nearest unWISE tile center (as in experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py).
@@ -1042,12 +1127,15 @@ def main() -> int:
         # Templates.
         templates: list[np.ndarray] = []
         template_names: list[str] = []
+        template_prior: list[dict[str, float] | None] = []
         if args.eclip_template == "abs_elat":
             templates.append(zscore(abs_elat, seen)[seen])
             template_names.append("abs_elat_z")
+            template_prior.append(None)
         elif args.eclip_template == "abs_sin_elat":
             templates.append(zscore(abs_sin_elat, seen)[seen])
             template_names.append("abs_sin_elat_z")
+            template_prior.append(None)
         elif args.eclip_template == "abs_elat_sincos_elon":
             templates.append(zscore(abs_elat, seen)[seen])
             template_names.append("abs_elat_z")
@@ -1055,24 +1143,36 @@ def main() -> int:
             template_names.append("sin_elon_z")
             templates.append(zscore(cos_elon, seen)[seen])
             template_names.append("cos_elon_z")
+            template_prior.extend([None, None, None])
 
         if args.dust_template == "ebv_mean":
             templates.append(zscore(ebv_mean, seen)[seen])
             template_names.append("ebv_mean_z")
+            template_prior.append(None)
 
         if harmonic_templates_seen:
-            templates.extend(harmonic_templates_seen)
-            template_names.extend(harmonic_template_names)
+            for col, name, ell, raw_std in zip(
+                harmonic_templates_seen,
+                harmonic_template_names,
+                harmonic_template_ell,
+                harmonic_template_raw_std,
+                strict=True,
+            ):
+                templates.append(col)
+                template_names.append(name)
+                template_prior.append({"ell": float(ell), "raw_std": float(raw_std)})
 
         if extra_template_map is not None:
             templates.append(zscore(extra_template_map, seen)[seen])
             template_names.append("extra_template_map_z")
+            template_prior.append(None)
 
         offset = None
         offset_name = None
         if args.depth_mode == "w1cov_covariate":
             templates.append(zscore(np.log(np.clip(w1cov_mean, 1.0, np.inf)), seen)[seen])
             template_names.append("log_w1cov_mean_z")
+            template_prior.append(None)
         elif args.depth_mode == "w1cov_offset":
             # An offset has an implicit fixed coefficient of +1, so *do not z-score* it.
             # Instead normalize by a typical value so the offset is O(1) and centered.
@@ -1085,6 +1185,7 @@ def main() -> int:
             logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
             templates.append(zscore(logn, seen)[seen])
             template_names.append("log_unwise_nexp_z")
+            template_prior.append(None)
         elif args.depth_mode == "unwise_nexp_offset":
             assert nexp_pix is not None
             logn = np.log(np.clip(nexp_pix, 1.0, np.inf))
@@ -1095,6 +1196,7 @@ def main() -> int:
             assert depth_map is not None
             templates.append(zscore(depth_map, seen)[seen])
             template_names.append("depth_map_z")
+            template_prior.append(None)
         elif args.depth_mode == "depth_map_offset":
             assert depth_map is not None
             ref = float(np.median(depth_map[seen]))
@@ -1117,6 +1219,7 @@ def main() -> int:
             t = (depth_map - ref) * float(a_edge)
             templates.append(zscore(t, seen)[seen])
             template_names.append("delta_m_alpha_edge_z")
+            template_prior.append(None)
         elif args.depth_mode == "external_logreg_integrated_offset":
             assert ext_logreg is not None
 
@@ -1183,7 +1286,39 @@ def main() -> int:
         cols.extend(templates)
         X = np.column_stack(cols)
 
-        beta, cov = fit_poisson_glm(X, y, offset=offset, max_iter=int(args.max_iter))
+        prior_prec = None
+        if harmonic_prior_mode != "none":
+            assert harmonic_prior_cl is not None
+            prior_prec = np.zeros(X.shape[1], dtype=float)
+            scale = float(args.harmonic_prior_scale)
+            cl_floor = float(args.harmonic_prior_min_cl)
+            if not np.isfinite(scale) or scale <= 0.0:
+                raise SystemExit("--harmonic-prior-scale must be finite and > 0")
+            if not np.isfinite(cl_floor) or cl_floor <= 0.0:
+                raise SystemExit("--harmonic-prior-min-cl must be finite and > 0")
+
+            # Harmonic template coefficients live after [1, nx, ny, nz] in beta.
+            for j, info in enumerate(template_prior):
+                if info is None:
+                    continue
+                ell = int(round(float(info["ell"])))
+                std_raw = float(info["raw_std"])
+                if ell < 2:
+                    continue
+                if ell >= int(harmonic_prior_cl.size):
+                    raise SystemExit(
+                        f"Harmonic prior C_ell array too short for ell={ell} (size={harmonic_prior_cl.size}). "
+                        "Provide a cl JSON with lmax >= harmonic_lmax."
+                    )
+                cl = float(harmonic_prior_cl[ell])
+                if not np.isfinite(cl) or cl <= 0.0:
+                    cl = cl_floor
+                # Prior is on the *physical* a_{ellm} coefficient (for the mean-subtracted raw harmonic).
+                # Since the template column is standardized as raw0/std_raw, beta_template = a * std_raw.
+                var_beta = float(max(cl_floor, cl) * scale * (std_raw**2))
+                prior_prec[4 + j] = 1.0 / var_beta
+
+        beta, cov = fit_poisson_glm(X, y, offset=offset, max_iter=int(args.max_iter), prior_prec_diag=prior_prec)
         bvec = np.asarray(beta[1:4], dtype=float)
         D_hat = float(np.linalg.norm(bvec))
         l_hat, b_hat = vec_to_lb(bvec)
@@ -1356,6 +1491,10 @@ def main() -> int:
             "dust_template": args.dust_template,
             "depth_mode": args.depth_mode,
             "harmonic_lmax": int(args.harmonic_lmax),
+            "harmonic_prior": str(args.harmonic_prior),
+            "harmonic_prior_cl_json": None if str(args.harmonic_prior) == "none" else str(args.harmonic_prior_cl_json),
+            "harmonic_prior_scale": None if str(args.harmonic_prior) == "none" else float(args.harmonic_prior_scale),
+            "harmonic_prior_min_cl": None if str(args.harmonic_prior) == "none" else float(args.harmonic_prior_min_cl),
             "unwise_tiles_fits": None if args.unwise_tiles_fits is None else str(args.unwise_tiles_fits),
             "nexp_tile_stats_json": None if args.nexp_tile_stats_json is None else str(args.nexp_tile_stats_json),
             "nexp_missing_frac_seen": nexp_missing_frac,

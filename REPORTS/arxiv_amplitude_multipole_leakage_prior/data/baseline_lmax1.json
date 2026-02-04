@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "mask_catalog": null,
+    "exclude_mask_fits": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+    "nside": 64,
+    "w1cov_min": 80.0,
+    "b_cut": 30.0,
+    "w1_min": null,
+    "w1_grid": "16.6,16.6,0.1",
+    "eclip_template": "abs_elat",
+    "dust_template": "none",
+    "depth_mode": "none",
+    "harmonic_lmax": 1,
+    "harmonic_prior": "none",
+    "harmonic_prior_cl_json": null,
+    "harmonic_prior_scale": null,
+    "harmonic_prior_min_cl": null,
+    "unwise_tiles_fits": "data/external/unwise/tiles.fits",
+    "nexp_tile_stats_json": null,
+    "nexp_missing_frac_seen": null,
+    "depth_map": null,
+    "extra_offset_map": null,
+    "extra_template_map": null,
+    "external_logreg_meta": null,
+    "external_logreg_mrange": null,
+    "external_logreg_dm": null,
+    "mc_draws": 5000,
+    "seed": 123,
+    "w1_mode": "cumulative",
+    "jackknife_nside": 0,
+    "jackknife_stride": 1,
+    "jackknife_max_iter": 120,
+    "jackknife_max_regions": null,
+    "inject_delta_m_mag": 0.0,
+    "inject_axis_lb": [
+      264.021,
+      48.253
+    ],
+    "footprint_mask": "Secrest-style mask_zeros (data-derived) + exclusion discs + |b| cut (pixel-center)."
+  },
+  "rows": [
+    {
+      "w1_cut": 16.6,
+      "w1_lo": null,
+      "w1_hi": 16.6,
+      "alpha_edge": 1.5225079256532403,
+      "N_total": 4142887,
+      "N_seen": 1917142,
+      "N_cum_total": null,
+      "N_cum_seen": null,
+      "w1_mode": "cumulative",
+      "dipole": {
+        "D_hat": 0.016778520598772835,
+        "l_hat_deg": 236.5768885465019,
+        "b_hat_deg": 21.805941893933664,
+        "D_p16": 0.015360346579878753,
+        "D_p50": 0.016908472488983722,
+        "D_p84": 0.018393045990372364,
+        "l_p16": 230.960062023625,
+        "l_p50": 236.69931399411544,
+        "l_p84": 242.48044604802408,
+        "b_p16": 18.184734951173933,
+        "b_p50": 21.694263891536643,
+        "b_p84": 25.57500802718907
+      },
+      "dipole_quasi": {
+        "dispersion_phi": 1.3735402101447216,
+        "dispersion_phi_eff": 1.3735402101447216,
+        "D_p16": 0.015236481512963748,
+        "D_p50": 0.01690866014158301,
+        "D_p84": 0.018748196379866272,
+        "l_p16": 229.8055271934305,
+        "l_p50": 236.4109972654318,
+        "l_p84": 243.35883047555797,
+        "b_p16": 17.475978662253205,
+        "b_p50": 21.732051349741816,
+        "b_p84": 25.99544624241047
+      },
+      "beta_hat": [
+        4.378165308072875,
+        -0.008580618956846213,
+        -0.013001776772515222,
+        0.006232618435179508,
+        -0.025340875964198796
+      ],
+      "fit_diag": {
+        "n_obs": 24051.0,
+        "n_params": 5.0,
+        "dof": 24046.0,
+        "deviance": 33043.34293265006,
+        "pearson_chi2": 33028.147893139976,
+        "deviance_over_dof": 1.3741721256196482,
+        "pearson_over_dof": 1.3735402101447216,
+        "dispersion_phi": 1.3735402101447216,
+        "dispersion_phi_eff": 1.3735402101447216
+      },
+      "corr_b_templates": [
+        [
+          0.01280002658616178
+        ],
+        [
+          -0.03362334320760369
+        ],
+        [
+          -0.015919372935032036
+        ]
+      ],
+      "corr_b_templates_names": [
+        "abs_elat_z"
+      ],
+      "template_names": [
+        "abs_elat_z"
+      ],
+      "offset_name": null,
+      "template_dipoles": [
+        {
+          "name": "abs_elat_z",
+          "vec": [
+            -0.030548875504002676,
+            0.07188034291239627,
+            0.026609603366026333
+          ],
+          "l_deg": 113.02530955985132,
+          "b_deg": 18.814005943322538,
+          "amp": 0.08251114156924488,
+          "angle_to_fit_deg": 68.53528489984474
+        }
+      ],
+      "jackknife": null
+    }
+  ]
+}
