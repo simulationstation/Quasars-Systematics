@@ -356,14 +356,34 @@ Then re-run either scan using:
 Important: `--mask-catalog` avoids spuriously masking pixels as “zero coverage” when the analysis
 catalog is a filtered/subsampled file.
 
-### A) Baseline dipole reproduction (sanity check)
+### A) Baseline dipole reproduction (Secrest-style; recommended)
+
+This uses the **Secrest footprint + ecliptic correction + fit\_dipole linear solve** (matching the released
+Secrest pipeline logic more closely than a simple vector-sum estimator).
 
 ```bash
-python3 scripts/reproduce_secrest_dipole.py \
+python3 scripts/reproduce_rvmp_fig5_catwise.py \
   --catalog data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits \
-  --outdir outputs/secrest_reproduction \
-  --b-cut 30 --w1cov-min 80 --w1-max 16.4 --bootstrap 200
+  --exclude-mask-fits data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits \
+  --w1cov-min 80 --b-cut 30 \
+  --w1-grid 16.4,16.4,0.1 \
+  --nsim 400 \
+  --outdir outputs/secrest_style_single_w1max16p4
 ```
+
+Optional: Secrest-style residual systematics audit (what a referee will expect):
+
+```bash
+python3 scripts/run_secrest_systematics_audit.py \
+  --catalog data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits \
+  --exclude-mask-fits data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits \
+  --w1-cut 16.4 \
+  --xyfit-binsize 200 \
+  --outdir outputs/secrest_systematics_full_w1max16p4 \
+  --make-plots
+```
+
+Paper-ready archived outputs from this audit live in `2-3-EEE/`.
 
 ### B) Figure 1: faint-limit scaling diagnostic (main ApJL figure)
 
