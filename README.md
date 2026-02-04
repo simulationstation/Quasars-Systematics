@@ -77,6 +77,7 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/seasonal_selection_injection_check/master_report.md` (injection test: how ecliptic-longitude selection can bias dipole amplitude)
 - `REPORTS/seasonal_drift_mc/master_report.md` (correlated-cut drift Monte Carlo + correlated seasonal injection)
 - `REPORTS/unwise_time_domain_epoch_amplitude/master_report.md` (true epoch-resolved amplitude stability test using the unWISE time-domain catalog)
+- `REPORTS/unwise_time_domain_catwise_epoch_amplitude/master_report.md` (epoch-resolved amplitude stability test using the unWISE time-domain catalog, restricted to the published CatWISE accepted parent sample)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md` (harmonic-prior dipole injection check under low-ell contamination)
 - `REPORTS/arxiv_amplitude_multipole_mode_coupling_prior/master_report.md` (harmonic-prior amplitude sweep vs prior scale)
