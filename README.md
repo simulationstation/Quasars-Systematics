@@ -75,6 +75,7 @@ Additional PRD appendices / validation bundles:
   - table: `REPORTS/end_to_end_completeness_correction/data/cmb_projection_compare_baseline_vs_gaia_extonly.csv`
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_selection_injection_check/master_report.md` (injection test: how ecliptic-longitude selection can bias dipole amplitude)
+- `REPORTS/seasonal_drift_mc/master_report.md` (correlated-cut drift Monte Carlo + correlated seasonal injection)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 - `REPORTS/arxiv_amplitude_multipole_prior_injection/master_report.md` (harmonic-prior dipole injection check under low-ell contamination)
 - `REPORTS/arxiv_amplitude_multipole_mode_coupling_prior/master_report.md` (harmonic-prior amplitude sweep vs prior scale)
