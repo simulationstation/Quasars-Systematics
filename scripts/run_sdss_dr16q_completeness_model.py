@@ -219,9 +219,23 @@ def main() -> int:
         default="data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
     )
     ap.add_argument(
-        "--unwise-lognexp-map",
+        "--depth-map-fits",
         default="data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits",
-        help="HEALPix map in Galactic coords.",
+        help="HEALPix depth proxy map in Galactic coords (RING).",
+    )
+    ap.add_argument(
+        "--depth-map-name",
+        default="unwise_lognexp_nside64",
+        help="Short label for the depth map (stored in metadata and filenames).",
+    )
+    ap.add_argument(
+        "--depth-map-transform",
+        choices=["none", "log", "log10"],
+        default="none",
+        help=(
+            "Optional transform applied to the depth map before use as a feature. "
+            "Use 'none' for logNexp maps; use 'log10' or 'log' for positive linear-depth maps."
+        ),
     )
     ap.add_argument("--nside", type=int, default=64)
     ap.add_argument("--b-cut", type=float, default=30.0)
@@ -382,13 +396,18 @@ def main() -> int:
     )
     in_seen = seen[truth_ipix]
 
-    # External map-level depth proxy
-    lognexp = hp.read_map(str(args.unwise_lognexp_map), verbose=False)
-    if int(hp.get_nside(lognexp)) != int(args.nside):
-        lognexp = hp.ud_grade(lognexp, nside_out=int(args.nside), order_in="RING", order_out="RING", power=0)
-    lognexp = np.asarray(lognexp, dtype=float)
-    nexp_val = lognexp[truth_ipix]
-    ok_depth = np.isfinite(nexp_val) & (nexp_val != hp.UNSEEN)
+    # External map-level depth proxy (map-level; independent of CatWISE count fluctuations).
+    depth_map = hp.read_map(str(args.depth_map_fits), verbose=False)
+    if int(hp.get_nside(depth_map)) != int(args.nside):
+        depth_map = hp.ud_grade(depth_map, nside_out=int(args.nside), order_in="RING", order_out="RING", power=0)
+    depth_map = np.asarray(depth_map, dtype=float)
+    if args.depth_map_transform == "log":
+        depth_map = np.log(np.clip(depth_map, 1e-12, np.inf))
+    elif args.depth_map_transform == "log10":
+        depth_map = np.log10(np.clip(depth_map, 1e-12, np.inf))
+
+    depth_val = depth_map[truth_ipix]
+    ok_depth = np.isfinite(depth_val) & (depth_val != hp.UNSEEN)
 
     # Apply the analysis footprint (seen pixels only)
     keep = in_seen & ok_depth
@@ -399,7 +418,7 @@ def main() -> int:
     truth_l = truth_l[keep]
     truth_b = truth_b[keep]
     truth_ipix = truth_ipix[keep]
-    nexp_val = nexp_val[keep]
+    depth_val = depth_val[keep]
 
     # Ecliptic geometry proxies (computed from RA/Dec; not from CatWISE).
     elon, elat = ecl_from_radec_deg(truth_ra, truth_dec)
@@ -419,8 +438,8 @@ def main() -> int:
 
     # -------------------- Fit a completeness model --------------------
     # Core features: W1 + logNexp (+ W1*logNexp interaction).
-    cols = [truth_w1, nexp_val, truth_w1 * nexp_val]
-    feature_names = ["w1", "lognexp", "w1_x_lognexp"]
+    cols = [truth_w1, depth_val, truth_w1 * depth_val]
+    feature_names = ["w1", "depth", "w1_x_depth"]
 
     if args.feature_set == "depth_plus_ecliptic":
         cols.extend([abs_elat, sin_elon, cos_elon])
@@ -463,8 +482,8 @@ def main() -> int:
     else:
         abs_elat_p = sin_elon_p = cos_elon_p = None
 
-    nexp_pix = lognexp.copy()
-    ok_pix = seen & np.isfinite(nexp_pix) & (nexp_pix != hp.UNSEEN)
+    depth_pix = depth_map.copy()
+    ok_pix = seen & np.isfinite(depth_pix) & (depth_pix != hp.UNSEEN)
 
     # m50 map solves logit(p)=0 for W1:
     # 0 = b0 + b_w1*m + b_x*x + b_w1x*m*x + ...  =>  m = -(b0 + b_x*x + ...)/(b_w1 + b_w1x*x)
@@ -478,9 +497,9 @@ def main() -> int:
     else:
         b_abs = b_sin = b_cos = 0.0
 
-    denom = b_w1 + b_w1x * nexp_pix
+    denom = b_w1 + b_w1x * depth_pix
     denom_safe = np.where(np.abs(denom) < 1e-6, np.sign(denom) * 1e-6 + 1e-6, denom)
-    num = intercept + b_x * nexp_pix
+    num = intercept + b_x * depth_pix
     if args.feature_set == "depth_plus_ecliptic":
         num = num + b_abs * abs_elat_p + b_sin * sin_elon_p + b_cos * cos_elon_p
     m50 = -num / denom_safe
@@ -494,12 +513,7 @@ def main() -> int:
 
     # Edge completeness at a representative cut (for visualization)
     cut_ref = float(args.alpha_edge_cut)
-    lin_edge = (
-        intercept
-        + b_w1 * cut_ref
-        + b_x * nexp_pix
-        + b_w1x * cut_ref * nexp_pix
-    )
+    lin_edge = intercept + b_w1 * cut_ref + b_x * depth_pix + b_w1x * cut_ref * depth_pix
     if args.feature_set == "depth_plus_ecliptic":
         lin_edge = lin_edge + b_abs * abs_elat_p + b_sin * sin_elon_p + b_cos * cos_elon_p
     p_edge = sigmoid(lin_edge)
@@ -511,7 +525,9 @@ def main() -> int:
         "dr16q_fits": str(dr16q_path),
         "catwise_catalog": str(args.catwise_catalog),
         "exclude_mask_fits": None if args.exclude_mask_fits is None else str(args.exclude_mask_fits),
-        "unwise_lognexp_map": str(args.unwise_lognexp_map),
+        "depth_map_fits": str(args.depth_map_fits),
+        "depth_map_name": str(args.depth_map_name),
+        "depth_map_transform": str(args.depth_map_transform),
         "nside": int(args.nside),
         "b_cut_deg": float(args.b_cut),
         "w1cov_min": float(args.w1cov_min),
@@ -557,11 +573,11 @@ def main() -> int:
     samp_idx = rng.choice(len(y), size=samp_n, replace=False)
     snap = {
         "truth_sample_n": int(samp_n),
-        "columns": ["w1", "lognexp", "abs_elat_deg", "sin_elon", "cos_elon", "y", "p_cv", "sep_arcsec"],
+        "columns": ["w1", "depth", "abs_elat_deg", "sin_elon", "cos_elon", "y", "p_cv", "sep_arcsec"],
         "rows": [
             [
                 float(truth_w1[i]),
-                float(nexp_val[i]),
+                float(depth_val[i]),
                 float(abs_elat[i]),
                 float(sin_elon[i]),
                 float(cos_elon[i]),

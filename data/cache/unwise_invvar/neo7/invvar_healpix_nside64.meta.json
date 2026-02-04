@@ -1,0 +1,11 @@
+{
+  "tiles_fits": "data/external/unwise/tiles.fits",
+  "tile_stats_json": "data/cache/unwise_invvar/neo7/w1_invvar_m_tile_stats_median.json",
+  "nside": 64,
+  "ordering": "RING",
+  "coord": "galactic",
+  "value_mode": "invvar",
+  "fill_value": 0.6118375062942505,
+  "missing_frac": 0.0,
+  "npix": 49152
+}
