@@ -66,6 +66,8 @@ Additional PRD appendices / validation bundles:
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
 - `REPORTS/external_completeness_sdss_dr16q/master_report.md` (externally validated, map-level completeness model using SDSS DR16Q + unWISE logNexp)
 - `REPORTS/external_validation_gaia_qsocand/master_report.md` (all-sky external validation using Gaia DR3 QSO candidates)
+- `REPORTS/external_completeness_gaia_qsocand_externalonly/master_report.md` (all-sky externally trained spatial completeness proxy from Gaia qsocand + map predictors)
+- `REPORTS/end_to_end_completeness_correction/master_report.md` (end-to-end correction attempt: impact of Gaia external completeness template on CMB-perp drift)
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
 

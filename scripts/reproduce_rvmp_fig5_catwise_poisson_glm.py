@@ -397,7 +397,11 @@ def main() -> int:
     ap.add_argument("--w1-grid", default="15.5,16.6,0.05", help="start,stop,step (inclusive end).")
     ap.add_argument("--max-iter", type=int, default=300)
 
-    ap.add_argument("--eclip-template", choices=["none", "abs_elat", "abs_sin_elat"], default="abs_elat")
+    ap.add_argument(
+        "--eclip-template",
+        choices=["none", "abs_elat", "abs_sin_elat", "abs_elat_sincos_elon"],
+        default="abs_elat",
+    )
     ap.add_argument("--dust-template", choices=["none", "ebv_mean"], default="none")
     ap.add_argument(
         "--depth-mode",
@@ -432,6 +436,44 @@ def main() -> int:
         "--depth-map-name",
         default=None,
         help="Optional label stored in output JSON (e.g. 'unwise_lognexp_nside64').",
+    )
+    ap.add_argument(
+        "--extra-offset-map-fits",
+        default=None,
+        help=(
+            "Optional additional HEALPix map used as a fixed log-intensity offset (Galactic coords). "
+            "If provided, the map is median-centered on seen pixels and added to any depth-mode offset."
+        ),
+    )
+    ap.add_argument(
+        "--extra-offset-map-ordering",
+        choices=["ring", "nest"],
+        default="ring",
+        help="HEALPix ordering of --extra-offset-map-fits (used when resampling).",
+    )
+    ap.add_argument(
+        "--extra-offset-map-name",
+        default=None,
+        help="Optional label stored in output JSON for --extra-offset-map-fits.",
+    )
+    ap.add_argument(
+        "--extra-template-map-fits",
+        default=None,
+        help=(
+            "Optional additional HEALPix map used as a free nuisance template (Galactic coords). "
+            "The template is z-scored on seen pixels and appended after the built-in templates."
+        ),
+    )
+    ap.add_argument(
+        "--extra-template-map-ordering",
+        choices=["ring", "nest"],
+        default="ring",
+        help="HEALPix ordering of --extra-template-map-fits (used when resampling).",
+    )
+    ap.add_argument(
+        "--extra-template-map-name",
+        default=None,
+        help="Optional label stored in output JSON for --extra-template-map-fits.",
     )
     ap.add_argument(
         "--unwise-tiles-fits",
@@ -606,8 +648,11 @@ def main() -> int:
     # Pixel-center ecliptic lat (templates).
     sc_pix = SkyCoord(lon_pix * u.deg, lat_pix * u.deg, frame="galactic")
     elat_deg = sc_pix.barycentricmeanecliptic.lat.deg.astype(float)
+    elon_deg = sc_pix.barycentricmeanecliptic.lon.deg.astype(float)
     abs_elat = np.abs(elat_deg)
     abs_sin_elat = np.abs(np.sin(np.deg2rad(elat_deg)))
+    sin_elon = np.sin(np.deg2rad(elon_deg))
+    cos_elon = np.cos(np.deg2rad(elon_deg))
 
     # Optional: independent unWISE depth-of-coverage proxy (Nexp), mapped per HEALPix pixel
     # via nearest unWISE tile center (as in experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py).
@@ -689,6 +734,76 @@ def main() -> int:
             "name": None if args.depth_map_name is None else str(args.depth_map_name),
         }
 
+    extra_offset_map = None
+    extra_offset_map_meta = None
+    if args.extra_offset_map_fits is not None:
+        extra_path = Path(str(args.extra_offset_map_fits))
+        if not extra_path.exists():
+            raise SystemExit(f"Missing --extra-offset-map-fits: {extra_path}")
+        extra_offset_map = hp.read_map(str(extra_path), verbose=False)
+        nside_in = int(hp.get_nside(extra_offset_map))
+        order_in = "NEST" if str(args.extra_offset_map_ordering).lower() == "nest" else "RING"
+        if nside_in != int(args.nside):
+            extra_offset_map = hp.ud_grade(
+                extra_offset_map,
+                nside_out=int(args.nside),
+                order_in=order_in,
+                order_out="RING",
+                power=0,
+            )
+            order_in = "RING"
+        extra_offset_map = np.asarray(extra_offset_map, dtype=float)
+        unseen = ~np.isfinite(extra_offset_map) | (extra_offset_map == hp.UNSEEN)
+        ok = seen & (~unseen)
+        if not np.any(ok):
+            raise SystemExit("Extra offset map has no finite values on seen pixels.")
+        fill = float(np.median(extra_offset_map[ok]))
+        extra_offset_map[unseen] = fill
+        extra_offset_map_meta = {
+            "path": str(extra_path),
+            "ordering_in": str(args.extra_offset_map_ordering),
+            "nside_in": nside_in,
+            "nside_used": int(args.nside),
+            "fill_value": float(fill),
+            "missing_frac_seen": float(np.mean(seen & unseen)),
+            "name": None if args.extra_offset_map_name is None else str(args.extra_offset_map_name),
+        }
+
+    extra_template_map = None
+    extra_template_map_meta = None
+    if args.extra_template_map_fits is not None:
+        tmpl_path = Path(str(args.extra_template_map_fits))
+        if not tmpl_path.exists():
+            raise SystemExit(f"Missing --extra-template-map-fits: {tmpl_path}")
+        extra_template_map = hp.read_map(str(tmpl_path), verbose=False)
+        nside_in = int(hp.get_nside(extra_template_map))
+        order_in = "NEST" if str(args.extra_template_map_ordering).lower() == "nest" else "RING"
+        if nside_in != int(args.nside):
+            extra_template_map = hp.ud_grade(
+                extra_template_map,
+                nside_out=int(args.nside),
+                order_in=order_in,
+                order_out="RING",
+                power=0,
+            )
+            order_in = "RING"
+        extra_template_map = np.asarray(extra_template_map, dtype=float)
+        unseen = ~np.isfinite(extra_template_map) | (extra_template_map == hp.UNSEEN)
+        ok = seen & (~unseen)
+        if not np.any(ok):
+            raise SystemExit("Extra template map has no finite values on seen pixels.")
+        fill = float(np.median(extra_template_map[ok]))
+        extra_template_map[unseen] = fill
+        extra_template_map_meta = {
+            "path": str(tmpl_path),
+            "ordering_in": str(args.extra_template_map_ordering),
+            "nside_in": nside_in,
+            "nside_used": int(args.nside),
+            "fill_value": float(fill),
+            "missing_frac_seen": float(np.mean(seen & unseen)),
+            "name": None if args.extra_template_map_name is None else str(args.extra_template_map_name),
+        }
+
     # Base per-pixel means for EBV and W1COV.
     cnt_base = np.bincount(np.asarray(ipix_mask_base, dtype=np.int64), minlength=npix).astype(float)
     sum_w1cov = np.bincount(np.asarray(ipix_mask_base, dtype=np.int64), weights=np.asarray(w1cov_m_base, dtype=float), minlength=npix).astype(float)
@@ -752,10 +867,21 @@ def main() -> int:
         elif args.eclip_template == "abs_sin_elat":
             templates.append(zscore(abs_sin_elat, seen)[seen])
             template_names.append("abs_sin_elat_z")
+        elif args.eclip_template == "abs_elat_sincos_elon":
+            templates.append(zscore(abs_elat, seen)[seen])
+            template_names.append("abs_elat_z")
+            templates.append(zscore(sin_elon, seen)[seen])
+            template_names.append("sin_elon_z")
+            templates.append(zscore(cos_elon, seen)[seen])
+            template_names.append("cos_elon_z")
 
         if args.dust_template == "ebv_mean":
             templates.append(zscore(ebv_mean, seen)[seen])
             template_names.append("ebv_mean_z")
+
+        if extra_template_map is not None:
+            templates.append(zscore(extra_template_map, seen)[seen])
+            template_names.append("extra_template_map_z")
 
         offset = None
         offset_name = None
@@ -806,6 +932,15 @@ def main() -> int:
             t = (depth_map - ref) * float(a_edge)
             templates.append(zscore(t, seen)[seen])
             template_names.append("delta_m_alpha_edge_z")
+
+        if extra_offset_map is not None:
+            ref = float(np.median(extra_offset_map[seen]))
+            extra = (extra_offset_map - ref)[seen]
+            offset = extra if offset is None else (offset + extra)
+            if offset_name is None:
+                offset_name = "extra_offset_map"
+            else:
+                offset_name = f"{offset_name}+extra_offset_map"
 
         cols = [np.ones_like(y), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2]]
         cols.extend(templates)
@@ -987,6 +1122,8 @@ def main() -> int:
             "nexp_tile_stats_json": None if args.nexp_tile_stats_json is None else str(args.nexp_tile_stats_json),
             "nexp_missing_frac_seen": nexp_missing_frac,
             "depth_map": depth_map_meta,
+            "extra_offset_map": extra_offset_map_meta,
+            "extra_template_map": extra_template_map_meta,
             "mc_draws": int(args.mc_draws),
             "seed": int(args.seed),
             "w1_mode": str(args.w1_mode),

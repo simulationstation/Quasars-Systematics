@@ -1,0 +1,56 @@
+{
+  "catwise": {
+    "b_cut_deg": 30.0,
+    "catalog": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "exclude_mask_fits": "data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+    "match_radius_arcsec": 2.0,
+    "w1cov_min": 80.0
+  },
+  "cv": {
+    "brier": 0.23632910895421982,
+    "n_splits": 5,
+    "roc_auc": 0.5566876031030247,
+    "scheme": "GroupKFold on ecliptic longitude wedges (15 deg bins)"
+  },
+  "feature_set": "external_only",
+  "features": [
+    "lognexp",
+    "abs_elat_deg",
+    "sin_elon",
+    "cos_elon"
+  ],
+  "gaia_qsocand": {
+    "path": "data/external/gaia_dr3_extragal/qsocand.dat.gz",
+    "pqso_min": 0.8
+  },
+  "logreg": {
+    "coef": [
+      -0.005912017815652216,
+      -0.028615308220274912,
+      0.13968709838377044,
+      0.162744887623999
+    ],
+    "intercept": -0.521975036087756
+  },
+  "maps": {
+    "logp_offset_map_fits": "logp_offset_map_nside64.fits",
+    "p_map_fits": "p_map_nside64.fits"
+  },
+  "n_used": 1595844,
+  "nside": 64,
+  "positive_rate": 0.39296008883073785,
+  "standardize": {
+    "median": [
+      5.370637893676758,
+      26.968456392976282,
+      -0.06801193887325752,
+      -0.5464002231649547
+    ],
+    "std": [
+      0.3282531260301003,
+      21.4368734691816,
+      0.5524231706565419,
+      0.8231159195982028
+    ]
+  }
+}
