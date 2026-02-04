@@ -66,7 +66,6 @@ Additional PRD appendices / validation bundles:
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
-- `REPORTS/2-3-G/master_report.md` (optional GW analogue: selection-normalization “isolator” re-run bundle)
 
 ## References / DOIs used by this repository
 
@@ -263,56 +262,26 @@ python3 scripts/reproduce_rvmp_fig5_catwise_poisson_glm.py \
   --outdir outputs/rvmp_fig5_poisson_glm_depthmap
 ```
 
-## New: EntropyPaper tie-in (fast dark-siren hemisphere proxy)
+## Seasonal (ecliptic-longitude) proxy (optional)
 
-`EntropyPaper.tex` discusses a GWTC-3 dark-siren scoring run (bundle ID: `2-1-c-m`) and motivates simple
-directional/systematics diagnostics.
+The PRD paper’s main story is about ecliptic-latitude scan structure (`|β|`) and depth templates.
+As an additional **fast proxy** for time/season systematics projecting into ecliptic coordinates, we also run
+an ecliptic-longitude diagnostic at `W1_max=16.6`:
 
-This repo includes a lightweight **hemisphere proxy** that asks whether the *per-event* score (ΔLPD = HE − GR)
-is concentrated in one hemisphere about a chosen axis (e.g., the CMB dipole axis):
+- Poisson-GLM fit on the full sky with/without `sinλ/cosλ` nuisance templates, and
+- longitude-wedge fits (directional sensitivity across ecliptic longitude).
 
-- Script: `scripts/run_darksiren_axis_split_proxy.py`
-- Report bundle: `REPORTS/entropy_quasar_bridge_report/`
+Report bundle:
+- `REPORTS/dipole_direction_report/master_report.md`
 
-Inputs included in this repo:
-- Per-event score table: `data/dark_sirens/2-1-c-m/production_36events/event_scores_M0_start101.json`
-- Public GWTC-3 multi-order sky maps (36 FITS; ~24 MB): `data/external/zenodo_5546663/skymaps/`
-
-Run:
+Re-run:
 
 ```bash
-.venv/bin/python scripts/run_darksiren_axis_split_proxy.py \
-  --axis cmb \
-  --n-perm 5000 \
-  --seed 1 \
+.venv/bin/python scripts/run_ecliptic_lon_proxy.py \
+  --w1-max 16.6 \
+  --lambda-edges 0,90,180,270,360 \
   --make-plot \
-  --outdir outputs/darksiren_axis_proxy_cmb
-```
-
-## New: Full dark-siren fixed-axis anisotropy scan (2-3-F)
-
-This is a full-likelihood fixed-axis scan for a 1-parameter anisotropy `g`:
-
-`dL_gw(z,n) → dL_gw(z,n) * exp(g * cosθ)`
-
-Run bundle and results (3 axes: `cmb`, `secrest`, `ecliptic_north`) are archived here:
-
-- `REPORTS/2-3-F/master_summary.md` (human-readable results table + interpretation)
-- `REPORTS/2-3-F/artifacts/` (per-axis JSON + PNG plots)
-- `REPORTS/2-3-F/summary_metrics.json` (machine-readable extracted metrics)
-
-Re-run (example axis):
-
-```bash
-OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
-python3 scripts/run_darksiren_fixed_axis_gscan_full.py \
-  --axis cmb \
-  --g-grid=-0.6,0.6,0.1 \
-  --nproc 36 \
-  --g-prior-type normal --g-prior-mu 0.0 --g-prior-sigma 0.2 \
-  --cache-outdir <CACHE_OUTDIR> \
-  --outdir outputs/darksiren_fixed_axis_full_cmb \
-  --make-plot
+  --outdir outputs/ecllon_proxy_run
 ```
 
 ### Quick smoke test (no external data)
