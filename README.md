@@ -21,6 +21,7 @@ Additional paper-ready validation bundles:
 - `completeness_validation.md` (end-to-end completeness validation checklist/plan)
 - `dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
+- `2-3-G/master_report.md` (optional GW analogue: selection-normalization “isolator” re-run bundle)
 
 ## References / DOIs used by this repository
 
