@@ -1,8 +1,21 @@
 # Quasars-Systematics
 
-This repository contains a reproducible CatWISE dipole audit and paper-ready bundles supporting:
-- a PRD-style manuscript (CatWISE dipole sensitivity to magnitude cuts, depth templates, and LSS covariance), and
-- an ApJL letter draft focused on faint-limit selection/scale diagnostics.
+This repository contains a reproducible CatWISE dipole audit and paper-ready bundles supporting a PRD-style
+manuscript (CatWISE dipole sensitivity to magnitude cuts, depth templates, and LSS covariance).
+
+Manuscript sources are intentionally **not** tracked here; the repo focuses on code + reproducible figures/tables
+and audit reports.
+
+## Scope and limitations (read first)
+
+This repo is designed to support the following (core, referee-facing) claims:
+- The CatWISE ``accepted'' number-count dipole **amplitude** is robustly non-zero at the few×10⁻² level.
+- The inferred dipole **axis/direction is not stable** under plausible magnitude-limit and depth/completeness modeling choices.
+- Selection/completeness systematics can generate smooth magnitude-limit scans and bias both amplitude and direction in known-truth injections.
+
+What this repo does **not** currently claim or provide:
+- A fully closed, image-level injection/recovery **end-to-end completeness pipeline** that “solves” the full amplitude all-sky.
+- A validated, all-sky **W1-conditioned** completeness map (the all-sky external proxy uses Gaia qsocand, which has no W1).
 
 ## PRD paper figure pack
 
@@ -47,18 +60,6 @@ Key artifacts for the PRD audit are in `REPORTS/Q_D_RES_2_2/`:
 - `REPORTS/Q_D_RES_2_2/master_report.md` (paper update bundle; figures + data + key numbers)
 - `REPORTS/Q_D_RES_2_2/figures/` (exact PRD PNG filenames)
 
-### ApJL letter bundle (optional)
-
-ApJL letter draft + earlier diagnostics are in `REPORTS/Q_D_RES/`:
-
-- `REPORTS/Q_D_RES/Resolution.md` (ApJL letter draft in AASTeX; paste into Overleaf)
-- `REPORTS/Q_D_RES/fixed_axis_scaling_fit.png` (main result figure used in the letter)
-- `REPORTS/Q_D_RES/dipole_master_tests.md` (detailed run log + additional diagnostics and figures)
-- `REPORTS/Q_D_RES/rvmp_fig5_audit.md` (RvMP Fig. 5 / ecliptic-trend + estimator audit; includes injection test)
-- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.png` (Poisson GLM scan + conservative jackknife)
-- `REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json` (scan table + fit diagnostics/templates/jackknife)
-- `REPORTS/Q_D_RES/*.json` (small machine-readable summaries used for numbers/plots)
-
 Additional PRD appendices / validation bundles:
 
 - `REPORTS/2-3-EEE/master_report.md` (Secrest-accepted validation suite: baseline reproduction + residual systematics χ²/ν)
@@ -73,6 +74,8 @@ Additional PRD appendices / validation bundles:
   - table: `REPORTS/end_to_end_completeness_correction/data/cmb_projection_compare_baseline_vs_gaia_extonly.csv`
 - `REPORTS/dipole_direction_report/master_report.md` (fast “seasonal imprint” proxy via ecliptic-longitude wedges + `sinλ/cosλ`)
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)
+
+Other folders under `REPORTS/` are legacy/exploratory and are not required for the CatWISE dipole audit.
 
 ## References / DOIs used by this repository
 
@@ -176,6 +179,16 @@ mkdir -p data/external/gaia_dr3_extragal
 wget -c -O data/external/gaia_dr3_extragal/qsocand.dat.gz.part https://cdsarc.cds.unistra.fr/ftp/I/356/qsocand.dat.gz
 mv data/external/gaia_dr3_extragal/qsocand.dat.gz.part data/external/gaia_dr3_extragal/qsocand.dat.gz
 ```
+
+### 4) SDSS DR16Q (optional; footprint-limited external completeness model)
+
+For the SDSS DR16Q external completeness model in `REPORTS/external_completeness_sdss_dr16q/`, download:
+- `DR16Q_v4.fits`
+
+Place it at:
+- `data/external/sdss_dr16q/DR16Q_v4.fits`
+
+This file is **not** tracked in git (it is multi-GB scale).
 
 ## Reproducing the headline results
 
@@ -437,7 +450,7 @@ python3 scripts/run_secrest_systematics_audit.py \
 
 Paper-ready archived outputs from this audit live in `REPORTS/2-3-EEE/`.
 
-### B) Figure 1: faint-limit scaling diagnostic (main ApJL figure)
+### B) Faint-limit scaling diagnostic (optional)
 
 This produces `fixed_axis_scaling_fit.png` and `fixed_axis_scaling_fit.json`.
 
@@ -482,9 +495,3 @@ python3 experiments/quasar_dipole_hypothesis/vector_convergence_glm_cv.py \
   --outdir outputs/glmcv_nexp_offset \
   --make-plots
 ```
-
-## ApJL draft + figures
-
-The ApJL draft is in `REPORTS/Q_D_RES/Resolution.md` and references the PNGs by filename.
-If you copy the figures in `REPORTS/Q_D_RES/` into your Overleaf project root, the TeX block in that file
-should compile without modification.

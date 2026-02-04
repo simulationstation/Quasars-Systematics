@@ -37,3 +37,6 @@ data/cache/gaia_dr3_extragal/
 
 # Local backups (not tracked)
 REPORTS_local_backup_*/
+
+# Local manuscript drafts (not tracked)
+local_papers/
