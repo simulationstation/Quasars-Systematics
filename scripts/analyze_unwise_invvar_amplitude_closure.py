@@ -344,6 +344,8 @@ def main() -> int:
 
     # Also write a short markdown summary for easy copy/paste.
     md = outdir / "master_report.md"
+    # Representative faint-cut row (usually last; but select max w1_cut explicitly).
+    rep = max(out_rows, key=lambda r: r.w1_cut)
     md.write_text(
         "\n".join(
             [
@@ -360,6 +362,8 @@ def main() -> int:
                 f"- δm dipole amplitude: `{d_amp:.6g}` mag",
                 f"- δm dipole axis (Galactic): `(l,b)=({d_l:.2f}°, {d_b:.2f}°)`",
                 "",
+                f"- At `W1_max={rep.w1_cut:.2f}`: `D_obs={rep.D_obs:.5f}`, `D_sel={rep.D_sel:.5f}`, `D_res={rep.D_res:.5f}`, `alpha_edge={rep.alpha_edge:.3f}`",
+                "",
                 "## Files",
                 "",
                 f"- JSON: `{out_json}`",
@@ -368,9 +372,9 @@ def main() -> int:
                 "",
                 "## Interpretation (one line)",
                 "",
-                "If the predicted selection curve tracks the observed GLM dipole amplitude, this supports a depth-driven",
-                "selection origin for the amplitude. If not, substantial residual amplitude remains unexplained by this",
-                "simple depth proxy.",
+                "If `D_sel(W1_max)` tracks `D_obs(W1_max)`, this supports a depth-driven selection origin for the amplitude.",
+                "If `D_sel` is far larger/smaller than `D_obs`, then the depth proxy is *not* directly equal to an effective",
+                "magnitude-cut modulation δm_eff, and a calibrated completeness roll-off model is required.",
                 "",
             ]
         )
