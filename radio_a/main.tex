@@ -1,0 +1,287 @@
+%% PRD-style note (REVTeX 4.2)
+%% Figures expected in radio_a/:
+%%   fig1_direction_compare.png
+%%   fig2_delta_ic.png
+%%   fig3_template_coefficients.png
+%%   fig4_injection_recovery.png
+
+\documentclass[aps,prd,reprint,amsmath,amssymb,nofootinbib]{revtex4-2}
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{bm}
+\usepackage[mathlines]{lineno}
+
+% Allow compilation from repo root or from radio_a/.
+\graphicspath{{./}{radio_a/}}
+
+\begin{document}
+
+\title{On the Identifiability of Negative-Binomial Counts-in-Cells Radio Dipole Fits Under Survey Systematics Templates}
+
+\author{Aiden Smith}
+\email{aidenblakesmithtravel@gmail.com}
+\affiliation{Independent Researcher}
+
+\date{\today}
+
+\begin{abstract}
+Recent work has advocated a negative-binomial (NB) counts-in-cells dipole estimator for wide-area
+radio catalogs, in which per-cell overdispersion is absorbed by a single NB parameter inferred from
+the empirical mean and variance of the observed counts.
+Because radio dipole inferences are known to be sensitive to large-scale survey selection and
+calibration structure, a key question is whether a dipole-only NB model is identifiable on real
+survey footprints.
+
+Using publicly staged NVSS, RACS-low, and LoTSS-DR2 source catalogs with geometrically defined
+footprints (including zero-count cells at HEALPix $N_{\rm side}=32$), we reproduce the paper-style
+NB dipole-only fits and then perform controlled stress tests by adding nuisance templates.
+We implement both a linear modulation model (close to the baseline form) and an exponential
+intensity modulation that preserves positivity by construction and reduces to the linear model at
+first order.
+We further include physically motivated template maps available from public products or catalog
+columns: the Haslam 408\,MHz map, NVSS flux uncertainty proxy $\langle e_{S_{1.4}}\rangle$, and LoTSS
+per-source RMS/mask proxies aggregated into per-cell means, as well as a per-cell fractional MOC
+coverage proxy for the LoTSS footprint.
+
+Two results are emphasized.
+First, injection/recovery tests show that modest structured selection templates can cause large
+axis mis-recovery under the dipole-only model.
+Second, on the real joint three-survey fit, adding nuisance freedom yields substantially higher
+likelihood solutions and large direction shifts relative to the dipole-only solution; with the
+physical-template set, the improvement is large enough to be favored even under BIC.
+These findings indicate that dipole-only NB fits are not robustly identifiable without explicit,
+physically grounded survey systematics modeling and validated template choices.
+\end{abstract}
+
+\maketitle
+\linenumbers
+
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+The kinematic dipole from our motion with respect to the cosmic rest frame is expected to imprint a
+dipolar modulation in sufficiently deep, wide-area number-count surveys.
+In practice, radio dipole measurements can be biased by large-scale survey structure (depth,
+calibration, scan/striping, masking, and heterogeneous selection), and an analysis must establish
+that the inferred dipole is stable under plausible modeling choices.
+
+This note audits the identifiability of a negative-binomial counts-in-cells dipole estimator
+advocated in Ref.~\cite{boehme2025}, by performing (i) an end-to-end reproduction using geometrical
+footprints (including zero-count cells) and (ii) controlled stress tests with nuisance templates,
+including several physically motivated proxy maps available from public products.
+
+% ============================================================
+\section{Data and footprints}
+\label{sec:data}
+
+We use three publicly staged catalogs:
+NVSS at 1.4\,GHz~\cite{condon1998}, RACS-low DR1 at 888\,MHz~\cite{racsdr1}, and LoTSS-DR2 at
+144\,MHz~\cite{lotssdr2}.
+Selections follow the staged analysis defaults: a Galactic latitude cut $|b|\ge 10^\circ$, survey
+declination bounds (NVSS $\delta\ge -39^\circ$, RACS-low $-78^\circ\le\delta\le 28^\circ$), and for
+LoTSS a public MOC footprint (best-effort proxy for the ``inner masked'' region cited in the paper).
+
+Counts are aggregated to HEALPix $N_{\rm side}=32$ cells on a nested grid.
+Crucially, \emph{all} cells inside each survey footprint are included, including zero-count cells,
+so the map support is footprint-defined rather than data-defined.
+
+% ============================================================
+\section{NB dipole model and template extensions}
+\label{sec:model}
+
+\subsection{Negative binomial with fixed $p$}
+
+For each survey map, per-cell counts $y_i$ are modeled as NB with success probability $p$ and
+cell-dependent ``shape'' $r_i$,
+\begin{equation}
+  y_i \sim \mathrm{NB}(r_i,p),
+\end{equation}
+with $p$ fixed from the empirical mean and variance of the observed counts in the footprint,
+\begin{equation}
+  p \simeq 1-\frac{\mu}{\mathrm{Var}}\quad\text{(clipped to $(0,1)$)}.
+\end{equation}
+This reproduces the core dispersion-handling idea in Ref.~\cite{boehme2025}.
+
+\subsection{Dipole-only modulation}
+
+The baseline dipole-only model takes
+\begin{equation}
+  r_i = r_0\left[1 + d\,(\hat{\bm n}_i\cdot\hat{\bm d})\right],
+  \label{eq:linear_mod}
+\end{equation}
+where $\hat{\bm n}_i$ is the unit direction of the cell center, $\hat{\bm d}$ is the dipole
+direction, and $d$ is the dipole amplitude parameter.
+Joint fits share $(d,\hat{\bm d})$ across surveys while allowing survey-specific $r_{0,s}$.
+
+\subsection{Template stress tests}
+
+To probe identifiability, we add nuisance templates $t_k(\hat{\bm n})$ and coefficients $\alpha_k$
+in two ways.
+
+\paragraph{Linear template extension.}
+We extend Eq.~\eqref{eq:linear_mod} as
+\begin{equation}
+  r_i = r_0\left[1 + d\,(\hat{\bm n}_i\cdot\hat{\bm d}) + \sum_k \alpha_k\,t_{k,i}\right],
+\end{equation}
+noting that this model requires $r_i>0$ for all cells and therefore can exhibit boundary behavior.
+
+\paragraph{Exponential (positivity-preserving) stress model.}
+We also consider
+\begin{equation}
+  r_i = r_0\,\exp\!\left[d\,(\hat{\bm n}_i\cdot\hat{\bm d}) + \sum_k \alpha_k\,t_{k,i}\right],
+  \label{eq:exp_mod}
+\end{equation}
+which guarantees $r_i>0$ and reduces to the linear model at first order in the bracketed argument.
+This is used as a stress test for coherent large-scale selection structure not captured by the
+dipole-only model.
+
+\paragraph{Template basis.}
+The minimal geometric basis includes $z$-scored templates of
+$(\delta,\delta^2,\sin\alpha,\cos\alpha)$ (declination and right ascension).
+We additionally include a set of physically motivated templates available from public products or
+catalog columns:
+the Haslam 408\,MHz map~\cite{remazeilles2015} sampled at cell centers, a NVSS flux-uncertainty proxy
+from the catalog column $\langle e_{S_{1.4}}\rangle$ aggregated per cell, and LoTSS per-source
+proxies $\langle\mathrm{Isl\_rms}\rangle$ and $\langle\mathrm{Masked\_Fraction}\rangle$ aggregated per
+cell, as well as a per-cell fractional MOC-coverage proxy for the LoTSS footprint.
+All templates are $z$-scored on the survey footprint.
+
+\subsection{Optimization and complexity bookkeeping}
+
+We maximize the NB log likelihood with bounded L-BFGS-B, using multistart initialization to reduce
+local-minimum pathologies.
+To provide a coarse model-comparison diagnostic, we report AIC and BIC,
+\begin{equation}
+  \mathrm{AIC}=2k-2\log\mathcal{L},\qquad
+  \mathrm{BIC}=k\log n-2\log\mathcal{L},
+\end{equation}
+where $k$ is the number of fitted parameters and $n$ is the total number of included cells for the
+given fit (single survey or joint).
+
+% ============================================================
+\section{Results}
+\label{sec:results}
+
+\subsection{Direction sensitivity under nuisance templates}
+
+Figure~\ref{fig:dir_compare} compares best-fit directions for joint two-survey (RACS+NVSS) and
+three-survey (LoTSS+RACS+NVSS) fits under the dipole-only model and two stress-test models.
+The baseline three-survey pure fit yields $d\simeq 0.0205$ with $(\alpha,\delta)\simeq(152.9^\circ,-6.2^\circ)$,
+about $15^\circ$ from the CMB dipole direction.
+In contrast, nuisance-template models produce substantially different directions and (under the
+chosen conservative bound) push the recovered amplitude to the upper bound $d_{\max}=0.05$.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig1_direction_compare.png}
+  \caption{Best-fit dipole directions for joint two-survey and three-survey fits under three model
+  families: pure dipole-only, exponential modulation with geometric Dec/RA templates, and
+  exponential modulation with an expanded physical-template set. The CMB dipole direction is
+  shown for reference.}
+  \label{fig:dir_compare}
+\end{figure}
+
+\subsection{Information criteria: dipole-only vs stress models}
+
+Figure~\ref{fig:ic} summarizes information-criteria differences relative to the pure model.
+For the joint three-survey fit, the physical-template exponential model achieves a large likelihood
+gain and is favored even under BIC in this configuration (despite a larger parameter count),
+indicating that the map contains coherent structure not captured by the dipole-only model.
+This directly challenges the identifiability of a dipole-only interpretation.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig2_delta_ic.png}
+  \caption{Delta information criteria relative to the pure dipole-only model for joint fits.
+  Bars show $\Delta\mathrm{BIC}$ and black ticks show $\Delta\mathrm{AIC}$.
+  Negative values indicate preference for the extended model.}
+  \label{fig:ic}
+\end{figure}
+
+\subsection{Which templates drive the improved fit?}
+
+Figure~\ref{fig:coefs} shows the per-survey nuisance-template coefficients for the joint three-survey
+exponential physical-template fit.
+Large coefficients on LoTSS RMS/mask proxies and the NVSS flux-uncertainty proxy are consistent with
+survey-selection structure contributing to the apparent large-scale anisotropy.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig3_template_coefficients.png}
+  \caption{Per-survey nuisance-template coefficients for the joint three-survey exponential
+  physical-template model.}
+  \label{fig:coefs}
+\end{figure}
+
+\subsection{Injection/recovery: axis mis-recovery under a dipole-only fit}
+
+Finally, Fig.~\ref{fig:inj} summarizes an injection/recovery diagnostic in which modest structured
+selection templates are injected (together with a CMB-direction dipole), and the resulting maps are
+fit with the pure model versus a template-augmented model.
+The pure dipole-only fit can exhibit large axis error and biased recovered amplitude under this
+controlled setup, reinforcing the point that dipole-only fits are not robust in the presence of
+structured survey selection.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig4_injection_recovery.png}
+  \caption{Injection/recovery summary (one configuration). Points show p50 with p16--p84 error bars
+  for the recovered dipole amplitude $d$ and the angular separation between recovered and injected
+  dipole directions.}
+  \label{fig:inj}
+\end{figure}
+
+% ============================================================
+\section{Conclusions}
+\label{sec:conc}
+
+The NB counts-in-cells dipole estimator can accommodate overdispersion, but this does not by itself
+ensure that a dipole-only model is identifiable on real radio survey footprints.
+Across joint two- and three-survey fits, adding simple nuisance templates (including physically
+motivated proxies tied to depth/masking and foreground structure) yields large likelihood gains and
+significant direction shifts, and injection/recovery tests show that dipole-only fits can mis-recover
+the dipole axis under modest structured systematics.
+
+These results motivate treating dipole-only NB inferences as incomplete unless the analysis includes
+explicit, physically grounded systematics templates, robustness to template choices, and end-to-end
+injection/recovery validation on the relevant footprints.
+
+\begin{acknowledgments}
+The author used AI assistance during this project for brainstorming, drafting/editing text, and
+software development.
+\end{acknowledgments}
+
+% ============================================================
+\begin{thebibliography}{99}
+
+\bibitem{boehme2025}
+L.~B{\"o}hme, D.~J.~Schwarz, P.~Tiwari, M.~Pashapour-Ahmadabadi, B.~Bahr-Kalus, M.~Bilicki,
+C.~L.~Hale, C.~S.~Heneka, and T.~M.~Siewert,
+``Overdispersed radio source counts and excess radio dipole detection,''
+\emph{arXiv:2509.16732} (2025).
+
+\bibitem{condon1998}
+J.~J.~Condon \textit{et al.},
+``The NRAO VLA Sky Survey,''
+\emph{Astron.\ J.} \textbf{115}, 1693 (1998).
+
+\bibitem{racsdr1}
+D.~McConnell \textit{et al.},
+``The Rapid ASKAP Continuum Survey I: Design and first results,''
+\emph{Publ.\ Astron.\ Soc.\ Aust.} \textbf{37}, e048 (2020).
+
+\bibitem{lotssdr2}
+T.~W.~Shimwell \textit{et al.},
+``The LOFAR Two-metre Sky Survey. V. Second data release,''
+\emph{Astron.\ Astrophys.} \textbf{659}, A1 (2022).
+
+\bibitem{remazeilles2015}
+M.~Remazeilles, C.~Dickinson, A.~J.~Banday, M.~A.~Bigot-Sazy, and T.~Ghosh,
+``An improved source-subtracted and destriped 408\,MHz all-sky map,''
+\emph{Mon.\ Not.\ R.\ Astron.\ Soc.} \textbf{451}, 4311 (2015).
+
+\end{thebibliography}
+
+\end{document}

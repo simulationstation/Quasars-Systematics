@@ -1,0 +1,61 @@
+{
+  "inputs": {
+    "pure": "outputs/radio_nb_pure_d005_ic_20260208_082028UTC/radio_nb_dipole_audit.json",
+    "decraexp": "outputs/radio_nb_decraexp_d005_ic_20260208_082433UTC/radio_nb_dipole_audit.json",
+    "phys": "outputs/radio_nb_phys_templates_exp_ic_20260208_082028UTC/radio_nb_dipole_audit.json",
+    "injection": "outputs/radio_nb_fast_disproval_20260208_072436UTC/radio_nb_dipole_audit.json"
+  },
+  "cmb": {
+    "ra_deg": 167.94,
+    "dec_deg": -6.94
+  },
+  "model_compare": [
+    {
+      "fit": "RACS+NVSS",
+      "model": "Pure",
+      "dloglike": 0.0,
+      "dAIC": 0.0,
+      "dBIC": 0.0
+    },
+    {
+      "fit": "RACS+NVSS",
+      "model": "Exp(Dec/RA)",
+      "dloglike": 23.439579846577544,
+      "dAIC": -30.87915969315509,
+      "dBIC": 30.489752593581215
+    },
+    {
+      "fit": "RACS+NVSS",
+      "model": "Exp(+phys)",
+      "dloglike": 64.59090312980697,
+      "dAIC": -93.18180625961395,
+      "dBIC": 44.89824638556456
+    },
+    {
+      "fit": "LoTSS+RACS+NVSS",
+      "model": "Pure",
+      "dloglike": 0.0,
+      "dAIC": 0.0,
+      "dBIC": 0.0
+    },
+    {
+      "fit": "LoTSS+RACS+NVSS",
+      "model": "Exp(Dec/RA)",
+      "dloglike": 52.076026728398574,
+      "dAIC": -80.15205345679715,
+      "dBIC": 12.987577682753908
+    },
+    {
+      "fit": "LoTSS+RACS+NVSS",
+      "model": "Exp(+phys)",
+      "dloglike": 185.16808787669288,
+      "dAIC": -316.33617575338576,
+      "dBIC": -106.77200568940316
+    }
+  ],
+  "injection": {
+    "nsim": 80,
+    "pure_axis_err_p50": 63.36556722957262,
+    "template_axis_err_p50": 0.0
+  }
+}

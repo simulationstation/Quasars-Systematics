@@ -3,8 +3,8 @@
 This repository contains a reproducible CatWISE dipole audit and paper-ready bundles supporting a PRD-style
 manuscript (CatWISE dipole sensitivity to magnitude cuts, depth templates, and LSS covariance).
 
-Manuscript sources are intentionally **not** tracked here; the repo focuses on code + reproducible figures/tables
-and audit reports.
+Main manuscript sources are intentionally **not** tracked here; the repo focuses on code + reproducible
+figures/tables and audit reports. (Exception: a few short note-style manuscripts live under `radio_a/`.)
 
 ## Scope and limitations (read first)
 
@@ -89,6 +89,20 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/selection_sim_depthmap_plus_lon/master_report.md` (selection simulation: depth map + ecliptic-longitude pattern)
 
 Other folders under `REPORTS/` are legacy/exploratory and are not required for the CatWISE dipole audit.
+
+### Radio NB dipole identifiability note
+
+This repo also contains a short audit note on the negative-binomial counts-in-cells radio dipole estimator
+advocated in arXiv:2509.16732:
+
+- Manuscript + figures: `radio_a/`
+- Reproduction + stress tests: `scripts/run_radio_nb_dipole_audit.py`
+
+Headline (joint LoTSS+RACS-low+NVSS, $N_{\rm side}=32$, footprint-defined cells including zeros):
+adding physically motivated survey templates yields large likelihood gains and large direction shifts relative
+to the dipole-only fit; in this configuration the extended model is preferred even under BIC, indicating the
+dipole-only interpretation is not robustly identifiable without explicit systematics modeling and
+injection/recovery validation on the relevant footprints.
 
 ## References / DOIs used by this repository
 

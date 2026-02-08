@@ -13,12 +13,31 @@ results/
 pid.txt
 pid_*.txt
 
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fls
+*.fdb_latexmk
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.pdf
+*Notes.bib
+
 # Large downloads (keep the repo small; see README for download instructions)
 data/external/zenodo_*/
 data/external/secrest*/
 data/external/catwise*/
 data/external/sdss_dr16q/
 data/external/gaia_dr3_extragal/
+data/external/radio_dipole/
+data/external/unwise_time_domain/
+data/external/wise_calib/
+data/cache/allwise_star_sample/
+data/cache/unwise_time_domain/
 data/cache/unwise_nexp/*/w1-n-m/
 data/cache/unwise_nexp/*/*.fits
 !data/cache/unwise_nexp/*/*healpix*.fits
