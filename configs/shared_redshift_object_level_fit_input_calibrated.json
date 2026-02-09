@@ -1,0 +1,573 @@
+{
+  "notes": "Scaffold for object-level shared-redshift mapping fit. Mapping priors are explicit and should be updated once direct n(z) calibration is available.",
+  "inputs": {
+    "quasar_json": "/home/primary/QS/outputs/glm_baseline_abs_elat/rvmp_fig5_poisson_glm.json",
+    "radio_json": "/home/primary/QS/outputs/radio_combined_same_logic_audit_20260208_060931UTC/radio_combined_same_logic_audit.json"
+  },
+  "points": [
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.5,
+      "label": "W1<= 15.50",
+      "value": 0.01700160554933159,
+      "sigma": 0.0038400850514845432,
+      "sigma_stat": 0.0028709797803878967,
+      "sigma_floor": 0.0025502408323997386,
+      "point_id": 0
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.55,
+      "label": "W1<= 15.55",
+      "value": 0.017369957374599395,
+      "sigma": 0.0036979929738604925,
+      "sigma_stat": 0.0026242246669873886,
+      "sigma_floor": 0.002605493606189909,
+      "point_id": 1
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.6,
+      "label": "W1<= 15.60",
+      "value": 0.017007422979119422,
+      "sigma": 0.0035975103816276418,
+      "sigma_stat": 0.002536513577162239,
+      "sigma_floor": 0.002551113446867913,
+      "point_id": 2
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.65,
+      "label": "W1<= 15.65",
+      "value": 0.017336364918602094,
+      "sigma": 0.003582662247581663,
+      "sigma_stat": 0.002464366843014814,
+      "sigma_floor": 0.002600454737790314,
+      "point_id": 3
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.7,
+      "label": "W1<= 15.70",
+      "value": 0.016369080732195892,
+      "sigma": 0.003335662669166206,
+      "sigma_stat": 0.0022578401963122222,
+      "sigma_floor": 0.002455362109829384,
+      "point_id": 4
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.75,
+      "label": "W1<= 15.75",
+      "value": 0.01629345634720367,
+      "sigma": 0.003412428985704003,
+      "sigma_stat": 0.002381479663646667,
+      "sigma_floor": 0.0024440184520805506,
+      "point_id": 5
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.8,
+      "label": "W1<= 15.80",
+      "value": 0.01651644594426033,
+      "sigma": 0.003335479579152808,
+      "sigma_stat": 0.002233289462603927,
+      "sigma_floor": 0.0024774668916390497,
+      "point_id": 6
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.85,
+      "label": "W1<= 15.85",
+      "value": 0.016767882365594428,
+      "sigma": 0.003448897094123093,
+      "sigma_stat": 0.002359819672720022,
+      "sigma_floor": 0.002515182354839164,
+      "point_id": 7
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.9,
+      "label": "W1<= 15.90",
+      "value": 0.01583052366004936,
+      "sigma": 0.0031369825803996554,
+      "sigma_stat": 0.0020498869296438696,
+      "sigma_floor": 0.0023745785490074042,
+      "point_id": 8
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 15.95,
+      "label": "W1<= 15.95",
+      "value": 0.016444368250192447,
+      "sigma": 0.0033050568566508356,
+      "sigma_stat": 0.0021997756169359886,
+      "sigma_floor": 0.002466655237528867,
+      "point_id": 9
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.0,
+      "label": "W1<= 16.00",
+      "value": 0.016619897465516013,
+      "sigma": 0.0032955097310994807,
+      "sigma_stat": 0.002155321802672491,
+      "sigma_floor": 0.002492984619827402,
+      "point_id": 10
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.05,
+      "label": "W1<= 16.05",
+      "value": 0.016891580461406024,
+      "sigma": 0.0033869301132245923,
+      "sigma_stat": 0.002247548009715052,
+      "sigma_floor": 0.0025337370692109034,
+      "point_id": 11
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.1,
+      "label": "W1<= 16.10",
+      "value": 0.017215745687731637,
+      "sigma": 0.003417089781310557,
+      "sigma_stat": 0.0022378359709510423,
+      "sigma_floor": 0.0025823618531597456,
+      "point_id": 12
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.15,
+      "label": "W1<= 16.15",
+      "value": 0.017113379159124524,
+      "sigma": 0.0033046348226634862,
+      "sigma_stat": 0.0020811263826762388,
+      "sigma_floor": 0.0025670068738686785,
+      "point_id": 13
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.2,
+      "label": "W1<= 16.20",
+      "value": 0.017292824824720703,
+      "sigma": 0.003335254241288513,
+      "sigma_stat": 0.0020965401426200486,
+      "sigma_floor": 0.0025939237237081053,
+      "point_id": 14
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.25,
+      "label": "W1<= 16.25",
+      "value": 0.01691531361475625,
+      "sigma": 0.003132652700463761,
+      "sigma_stat": 0.0018372905761740123,
+      "sigma_floor": 0.0025372970422134376,
+      "point_id": 15
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.3,
+      "label": "W1<= 16.30",
+      "value": 0.016782744782714888,
+      "sigma": 0.003132070045353628,
+      "sigma_stat": 0.001863464787448972,
+      "sigma_floor": 0.0025174117174072332,
+      "point_id": 16
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.35,
+      "label": "W1<= 16.35",
+      "value": 0.016439471033559295,
+      "sigma": 0.003049943940972886,
+      "sigma_stat": 0.0017948240488010036,
+      "sigma_floor": 0.0024659206550338942,
+      "point_id": 17
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.4,
+      "label": "W1<= 16.40",
+      "value": 0.016326581297788644,
+      "sigma": 0.002956129557938691,
+      "sigma_stat": 0.0016556460019187397,
+      "sigma_floor": 0.0024489871946682964,
+      "point_id": 18
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.45,
+      "label": "W1<= 16.45",
+      "value": 0.015980110201450428,
+      "sigma": 0.002968879712629106,
+      "sigma_stat": 0.0017517301452919156,
+      "sigma_floor": 0.002397016530217564,
+      "point_id": 19
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.5,
+      "label": "W1<= 16.50",
+      "value": 0.015572083749266925,
+      "sigma": 0.0028379352289264435,
+      "sigma_stat": 0.0016117865978356651,
+      "sigma_floor": 0.0023358125623900387,
+      "point_id": 20
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.55,
+      "label": "W1<= 16.55",
+      "value": 0.015973508811564587,
+      "sigma": 0.002790266382037953,
+      "sigma_stat": 0.001429910608494709,
+      "sigma_floor": 0.002396026321734688,
+      "point_id": 21
+    },
+    {
+      "probe_name": "quasar_catwise",
+      "family": "quasar",
+      "survey": "CatWISE",
+      "selection_kind": "w1_max",
+      "selection_value": 16.6,
+      "label": "W1<= 16.60",
+      "value": 0.016778520598772835,
+      "sigma": 0.0029132798508377847,
+      "sigma_stat": 0.0014673198478586487,
+      "sigma_floor": 0.002516778089815925,
+      "point_id": 22
+    },
+    {
+      "probe_name": "radio_LoTSS-DR2",
+      "family": "radio",
+      "survey": "LoTSS-DR2",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 5.0,
+      "label": "LoTSS-DR2 S>=5.0 mJy",
+      "value": 0.15820226922113714,
+      "sigma": 0.025179312266241215,
+      "sigma_stat": 0.008418355629203924,
+      "sigma_floor": 0.02373034038317057,
+      "point_id": 23
+    },
+    {
+      "probe_name": "radio_LoTSS-DR2",
+      "family": "radio",
+      "survey": "LoTSS-DR2",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 10.0,
+      "label": "LoTSS-DR2 S>=10.0 mJy",
+      "value": 0.1763039553091273,
+      "sigma": 0.028640831756287677,
+      "sigma_stat": 0.010996719460594363,
+      "sigma_floor": 0.026445593296369092,
+      "point_id": 24
+    },
+    {
+      "probe_name": "radio_LoTSS-DR2",
+      "family": "radio",
+      "survey": "LoTSS-DR2",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 20.0,
+      "label": "LoTSS-DR2 S>=20.0 mJy",
+      "value": 0.192769668699483,
+      "sigma": 0.03238477584883828,
+      "sigma_stat": 0.014583224624309245,
+      "sigma_floor": 0.02891545030492245,
+      "point_id": 25
+    },
+    {
+      "probe_name": "radio_NVSS",
+      "family": "radio",
+      "survey": "NVSS",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 10.0,
+      "label": "NVSS S>=10.0 mJy",
+      "value": 0.029318968696877827,
+      "sigma": 0.00520173237552988,
+      "sigma_stat": 0.002777944633005567,
+      "sigma_floor": 0.004397845304531674,
+      "point_id": 26
+    },
+    {
+      "probe_name": "radio_NVSS",
+      "family": "radio",
+      "survey": "NVSS",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 20.0,
+      "label": "NVSS S>=20.0 mJy",
+      "value": 0.02538170503232083,
+      "sigma": 0.005040970269444156,
+      "sigma_stat": 0.003303965023210101,
+      "sigma_floor": 0.0038072557548481244,
+      "point_id": 27
+    },
+    {
+      "probe_name": "radio_NVSS",
+      "family": "radio",
+      "survey": "NVSS",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 30.0,
+      "label": "NVSS S>=30.0 mJy",
+      "value": 0.025754757452597046,
+      "sigma": 0.005460343794559833,
+      "sigma_stat": 0.003858877414137531,
+      "sigma_floor": 0.0038632136178895567,
+      "point_id": 28
+    },
+    {
+      "probe_name": "radio_NVSS",
+      "family": "radio",
+      "survey": "NVSS",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 40.0,
+      "label": "NVSS S>=40.0 mJy",
+      "value": 0.021643452219388928,
+      "sigma": 0.005401401139702479,
+      "sigma_stat": 0.004316857217072089,
+      "sigma_floor": 0.003246517832908339,
+      "point_id": 29
+    },
+    {
+      "probe_name": "radio_NVSS",
+      "family": "radio",
+      "survey": "NVSS",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 50.0,
+      "label": "NVSS S>=50.0 mJy",
+      "value": 0.022621110843826682,
+      "sigma": 0.0058790094200826875,
+      "sigma_stat": 0.0048009553221963425,
+      "sigma_floor": 0.0033931666265740023,
+      "point_id": 30
+    },
+    {
+      "probe_name": "radio_RACS-low",
+      "family": "radio",
+      "survey": "RACS-low",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 10.0,
+      "label": "RACS-low S>=10.0 mJy",
+      "value": 0.04796245391813975,
+      "sigma": 0.007831531368132805,
+      "sigma_stat": 0.003094180244980942,
+      "sigma_floor": 0.007194368087720962,
+      "point_id": 31
+    },
+    {
+      "probe_name": "radio_RACS-low",
+      "family": "radio",
+      "survey": "RACS-low",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 20.0,
+      "label": "RACS-low S>=20.0 mJy",
+      "value": 0.04574388482300477,
+      "sigma": 0.007974887839426755,
+      "sigma_stat": 0.004064175018460625,
+      "sigma_floor": 0.006861582723450715,
+      "point_id": 32
+    },
+    {
+      "probe_name": "radio_RACS-low",
+      "family": "radio",
+      "survey": "RACS-low",
+      "selection_kind": "flux_min_mjy",
+      "selection_value": 30.0,
+      "label": "RACS-low S>=30.0 mJy",
+      "value": 0.041833015658647194,
+      "sigma": 0.007917255235173106,
+      "sigma_stat": 0.004827825957840856,
+      "sigma_floor": 0.006274952348797079,
+      "point_id": 33
+    }
+  ],
+  "mapping_model": {
+    "quasar": {
+      "w1_ref": 16.4
+    },
+    "radio": {
+      "surveys": {
+        "NVSS": {
+          "cut_ref_mjy": 20.0
+        },
+        "RACS-low": {
+          "cut_ref_mjy": 20.0
+        },
+        "LoTSS-DR2": {
+          "cut_ref_mjy": 5.0
+        }
+      }
+    }
+  },
+  "priors": {
+    "gamma": {
+      "mu": 0.0,
+      "sigma": 2.5,
+      "bounds": [
+        -5.0,
+        5.0
+      ]
+    },
+    "quasar": {
+      "z_ref": {
+        "mu": 1.1976119811526063,
+        "sigma": 0.00046294727526813593,
+        "bounds": [
+          1.1926119811526064,
+          1.2026119811526061
+        ]
+      },
+      "slope_per_mag": {
+        "mu": 0.2851581088553328,
+        "sigma": 0.0011136491363816664,
+        "bounds": [
+          0.2795898631734245,
+          0.29072635453724116
+        ]
+      }
+    },
+    "radio": {
+      "NVSS": {
+        "z_ref": {
+          "mu": 0.9,
+          "sigma": 0.3,
+          "bounds": [
+            0.05,
+            4.0
+          ]
+        },
+        "eta": {
+          "mu": 0.25,
+          "sigma": 0.15,
+          "bounds": [
+            0.0,
+            1.5
+          ]
+        }
+      },
+      "RACS-low": {
+        "z_ref": {
+          "mu": 0.8,
+          "sigma": 0.3,
+          "bounds": [
+            0.05,
+            4.0
+          ]
+        },
+        "eta": {
+          "mu": 0.25,
+          "sigma": 0.15,
+          "bounds": [
+            0.0,
+            1.5
+          ]
+        }
+      },
+      "LoTSS-DR2": {
+        "z_ref": {
+          "mu": 1.2,
+          "sigma": 0.35,
+          "bounds": [
+            0.05,
+            4.0
+          ]
+        },
+        "eta": {
+          "mu": 0.25,
+          "sigma": 0.15,
+          "bounds": [
+            0.0,
+            1.5
+          ]
+        }
+      }
+    }
+  },
+  "calibration_applied": {
+    "calibration_path": "/home/primary/QS/configs/shared_redshift_calibration_from_dr16q.json",
+    "quasar_w1_ref": 16.4,
+    "quasar_z_ref": {
+      "mu": 1.1976119811526063,
+      "sigma": 0.00046294727526813593,
+      "bounds": [
+        1.1926119811526064,
+        1.2026119811526061
+      ]
+    },
+    "quasar_slope_per_mag": {
+      "mu": 0.2851581088553328,
+      "sigma": 0.0011136491363816664,
+      "bounds": [
+        0.2795898631734245,
+        0.29072635453724116
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "epochs_used": [
+    0,
+    15
+  ],
+  "n_epoch": 16,
+  "weighted_mean_beta_vector": [
+    0.04835658976238309,
+    -0.030483381418821513,
+    -0.0576615947656018
+  ],
+  "weighted_mean_amplitude": 0.08119393959579276,
+  "weighted_mean_direction_l_deg": 327.77318825325716,
+  "weighted_mean_direction_b_deg": -45.24884358159157,
+  "weighted_mean_sep_to_cmb_deg": 108.81638881582671,
+  "unweighted_mean_amplitude": 0.0820433160081668,
+  "unweighted_mean_direction_l_deg": 328.9858175119314,
+  "unweighted_mean_direction_b_deg": -42.53289240727213,
+  "unweighted_mean_sep_to_cmb_deg": 107.26170442136133,
+  "random_direction_null": {
+    "nsim": 500000,
+    "p_amp_ge_obs": 1.999996000008e-06,
+    "p_align_le_obs": 0.6611066777866444,
+    "p_joint_amp_align": 1.999996000008e-06
+  },
+  "adjacent_direction_cosine_mean": 0.8594765743317982,
+  "adjacent_direction_cosine_median": 0.8587983494170184,
+  "corr_N_D": 0.05865127121532903
+}

@@ -1,0 +1,52 @@
+{
+  "notes": "Fill with your own z_eff, value, sigma points. Keep sigma > 0 and z > -1.",
+  "probes": [
+    {
+      "name": "quasar",
+      "points": [
+        {
+          "label": "q_bin_1",
+          "z": 0.8,
+          "value": 0.018,
+          "sigma": 0.003
+        },
+        {
+          "label": "q_bin_2",
+          "z": 1.2,
+          "value": 0.015,
+          "sigma": 0.003
+        },
+        {
+          "label": "q_bin_3",
+          "z": 1.6,
+          "value": 0.013,
+          "sigma": 0.003
+        }
+      ]
+    },
+    {
+      "name": "radio",
+      "points": [
+        {
+          "label": "r_bin_1",
+          "z": 0.4,
+          "value": 0.021,
+          "sigma": 0.004
+        },
+        {
+          "label": "r_bin_2",
+          "z": 0.8,
+          "value": 0.018,
+          "sigma": 0.004
+        },
+        {
+          "label": "r_bin_3",
+          "z": 1.2,
+          "value": 0.016,
+          "sigma": 0.004
+        }
+      ]
+    }
+  ]
+}
+

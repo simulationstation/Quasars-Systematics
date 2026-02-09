@@ -12,6 +12,9 @@
 \usepackage{bm}
 \usepackage[mathlines]{lineno}
 
+%% Simple DOI helper for inline text.
+\renewcommand{\doi}[1]{\href{https://doi.org/#1}{doi:#1}}
+
 % Allow compilation from repo root or from radio_a/.
 \graphicspath{{./}{radio_a/}}
 
@@ -248,6 +251,15 @@ These results motivate treating dipole-only NB inferences as incomplete unless t
 explicit, physically grounded systematics templates, robustness to template choices, and end-to-end
 injection/recovery validation on the relevant footprints.
 
+\section*{Data and code availability}
+The software and reproducibility materials for this radio NB dipole audit are archived on Zenodo at
+\doi{10.5281/zenodo.18530376}.
+This study is extracted from the broader Quasars-Systematics archive at \doi{10.5281/zenodo.18476711}.
+Related external products used in this analysis include NVSS \doi{10.1086/300337}, RACS DR1
+\doi{10.1017/pasa.2020.41}, LoTSS-DR2 \doi{10.1051/0004-6361/202142484} (with released LoTSS-DR2
+data products at \doi{10.25606/SURF.LoTSS-DR2}), and the Remazeilles 408 MHz map
+\doi{10.1093/mnras/stv1274}.
+
 \begin{acknowledgments}
 The author used AI assistance during this project for brainstorming, drafting/editing text, and
 software development.
@@ -265,22 +277,26 @@ C.~L.~Hale, C.~S.~Heneka, and T.~M.~Siewert,
 \bibitem{condon1998}
 J.~J.~Condon \textit{et al.},
 ``The NRAO VLA Sky Survey,''
-\emph{Astron.\ J.} \textbf{115}, 1693 (1998).
+\emph{Astron.\ J.} \textbf{115}, 1693 (1998),
+\doi{10.1086/300337}.
 
 \bibitem{racsdr1}
 D.~McConnell \textit{et al.},
 ``The Rapid ASKAP Continuum Survey I: Design and first results,''
-\emph{Publ.\ Astron.\ Soc.\ Aust.} \textbf{37}, e048 (2020).
+\emph{Publ.\ Astron.\ Soc.\ Aust.} \textbf{37}, e048 (2020),
+\doi{10.1017/pasa.2020.41}.
 
 \bibitem{lotssdr2}
 T.~W.~Shimwell \textit{et al.},
 ``The LOFAR Two-metre Sky Survey. V. Second data release,''
-\emph{Astron.\ Astrophys.} \textbf{659}, A1 (2022).
+\emph{Astron.\ Astrophys.} \textbf{659}, A1 (2022),
+\doi{10.1051/0004-6361/202142484}.
 
 \bibitem{remazeilles2015}
 M.~Remazeilles, C.~Dickinson, A.~J.~Banday, M.~A.~Bigot-Sazy, and T.~Ghosh,
 ``An improved source-subtracted and destriped 408\,MHz all-sky map,''
-\emph{Mon.\ Not.\ R.\ Astron.\ Soc.} \textbf{451}, 4311 (2015).
+\emph{Mon.\ Not.\ R.\ Astron.\ Soc.} \textbf{451}, 4311 (2015),
+\doi{10.1093/mnras/stv1274}.
 
 \end{thebibliography}
 

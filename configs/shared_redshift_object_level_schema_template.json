@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "description": "Template schema for object-level shared-redshift mapping fit inputs.",
+  "point_fields": [
+    {
+      "name": "point_id",
+      "type": "int",
+      "description": "Unique row id."
+    },
+    {
+      "name": "probe_name",
+      "type": "string",
+      "description": "Probe identifier used for per-probe intercept/slope terms."
+    },
+    {
+      "name": "family",
+      "type": "string",
+      "description": "High-level family label: quasar or radio."
+    },
+    {
+      "name": "survey",
+      "type": "string",
+      "description": "Survey name (e.g., CatWISE, NVSS, RACS-low, LoTSS-DR2)."
+    },
+    {
+      "name": "selection_kind",
+      "type": "string",
+      "description": "Selection axis type (w1_max or flux_min_mjy)."
+    },
+    {
+      "name": "selection_value",
+      "type": "float",
+      "description": "Selection cut value in native units."
+    },
+    {
+      "name": "value",
+      "type": "float",
+      "description": "Measured anomaly metric at this point."
+    },
+    {
+      "name": "sigma",
+      "type": "float",
+      "description": "Total uncertainty used in fitting."
+    },
+    {
+      "name": "sigma_stat",
+      "type": "float",
+      "description": "Statistical component of uncertainty."
+    },
+    {
+      "name": "sigma_floor",
+      "type": "float",
+      "description": "Systematic floor component added in quadrature."
+    }
+  ],
+  "mapping_model": {
+    "quasar": {
+      "formula": "z_eff = z_ref + slope_per_mag*(W1_cut - w1_ref)"
+    },
+    "radio": {
+      "formula": "z_eff = z_ref*(S_ref/S_cut)^eta"
+    }
+  },
+  "notes": [
+    "This is a scaffold schema, not evidence of physical identifiability.",
+    "Object-level redshift calibration should replace effective mapping priors when available."
+  ]
+}
+
