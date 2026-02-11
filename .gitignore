@@ -63,3 +63,7 @@ REPORTS_local_backup_*/
 
 # Local manuscript drafts (not tracked)
 local_papers/
+
+# Local uploaded manuscript bundle + extracted staging copy
+Final_Letter_Q_2_5.zip
+_staging/final_letter_q_2_5/

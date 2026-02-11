@@ -1,0 +1,210 @@
+%% MNRAS letter -- CatWISE quasar dipole systematics investigation
+%% Figures expected in this folder:
+%%   baseline_rvmp_fig5_poisson_glm.png
+%%   cmb_projection_plot.png
+%%   validate_depth_systematic_recovery.png
+%%   D_vs_epoch_compare.png
+%%   N_vs_epoch.png
+%%   drift_mc_null_hist.png
+%%   drift_mc_inject_bias.png
+%%   lss_cov_D_hist_w1max16p6.png
+%% Additional figures and methodological details are referenced as Supplementary Data.
+
+\documentclass[fleqn,usenatbib]{mnras}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{txfonts}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{lastpage}
+
+\title[Systematics in the CatWISE quasar dipole]{Time-domain instability and selection systematics in the CatWISE quasar dipole}
+
+\author[A. Smith]{
+Aiden Smith$^{1}$\thanks{E-mail: aidenblakesmithtravel@gmail.com} \\
+$^{1}$Independent researcher
+}
+
+\date{Accepted XXX. Received YYY; in original form ZZZ}
+\pubyear{2026}
+
+\begin{document}
+\label{firstpage}
+\pagerange{\pageref{firstpage}--\pageref{LastPage}}
+\maketitle
+
+\begin{abstract}
+Recent studies have reported a dipole in CatWISE AGN number counts with an amplitude that exceeds standard kinematic expectations.
+We investigate this signal using the publicly available CatWISE sample and exclusion mask.
+By scanning cumulative faint limits $W1 \le W1_{\rm max}$ ($15.5 \le W1_{\rm max} \le 16.6$) on a fixed, coverage-defined footprint, we fit dipoles using both linear regression, following the methodology of \citet{secrest2022} after removing the dominant ecliptic-latitude trend, and Poisson generalised linear models (GLM) on HEALPix counts with nuisance templates.
+While the dipole amplitude remains stable near $D \simeq 1.6 \times 10^{-2}$, the dipole axis is unstable: its sign-invariant separation from the CMB dipole axis increases from $\sim1^\circ$ at $W1_{\rm max}=15.5$ to $\sim34^\circ$ at $W1_{\rm max}=16.6$, driven by a growing component perpendicular to the CMB.
+Clustered lognormal mock catalogues at $W1_{\rm max}=16.6$ yield $D_{\rm hat} \approx 0.0168$ with $\sigma_D \approx 0.0023$ (S/N $\approx 7$).
+Injection and recovery tests demonstrate that modest depth-linked completeness modulations can bias both amplitude and axis when the depth model is misspecified.
+Furthermore, a correlated-cut Monte Carlo analysis shows that the observed drift span lies in the $<1$ per cent tail under a Poisson-only null hypothesis, while injected ecliptic-longitude patterns can drive per cent-level dipoles if longitude templates are omitted.
+Finally, an epoch-sliced unWISE time-domain selection (2010--2020) exhibits strongly epoch-dependent dipole amplitudes.
+This is inconsistent with a single time-invariant kinematic dipole, indicating time-dependent selection or coverage systematics in WISE-based quasar selections.
+\end{abstract}
+
+\begin{keywords}
+quasars: general -- surveys -- catalogues -- methods: statistical -- cosmology: observations
+\end{keywords}
+
+\section{Introduction}
+A kinematic dipole resulting from Solar System motion is expected in number counts; however, sufficiently large-scale tracers should otherwise be statistically isotropic.
+\citet{secrest2022} reported a dipole in CatWISE AGN candidates with an amplitude significantly larger than theoretical kinematic expectations.
+Flux-limited dipole measurements can be sensitive to completeness and scan-depth structure near the faint selection boundary.
+Therefore, a central question regarding the robustness of these results is whether the inferred solution, particularly the axis direction, is stable under plausible changes to the faint limit and completeness or scan modelling.
+
+In this paper, we focus on five results that most directly diagnose the control of selection effects and systematics on the inference: (i) faint-limit axis drift and its decomposition into CMB-parallel and perpendicular components; (ii) an end-to-end depth-linked injection and recovery demonstration; (iii) a clustered-mock-covariance verification for amplitude signal-to-noise (S/N); (iv) a correlated-cut Monte Carlo demonstrating how scan- or season-linked longitude structure can mimic per cent-level dipoles; and (v) a time-domain stability test using the unWISE time-domain catalogue.
+Full methodological details, additional figures, and extended robustness suites are provided as Supplementary Data on Zenodo (Section~\ref{sec:data_code}).
+
+\section{Data and methodology}
+\subsection{CatWISE sample, masking, and fixed footprint}
+We utilise the publicly released CatWISE AGN candidate sample and the associated exclusion mask \citep{catwise2020,secrest2022}.
+Following the published baseline criteria, we impose $|b|>30^\circ$ and require $W1_{\rm cov}\ge 80$.
+We define cumulative samples by a hard faint limit $W1 \le W1_{\rm max}$ over the range $W1_{\rm max}\in[15.5,16.6]$.
+
+To isolate magnitude-limit dependence from footprint changes, we enforce a fixed footprint across the scan: the valid HEALPix pixel set is defined strictly from coverage and exclusion products and the parent $W1_{\rm cov}\ge 80$ requirement.
+This construction is independent of shot-noise or data fluctuations at each $W1_{\rm max}$.
+
+\subsection{Dipole estimators and axis diagnostics}
+We implement two primary estimators: (i) a linear regression following the methodology of \citet{secrest2022}, performed after removing the dominant ecliptic-latitude trend in the mean density, and (ii) Poisson maximum-likelihood fits on HEALPix counts via a GLM with a log link function:
+\begin{equation}
+\lambda(\hat n)=\exp\!\left[\beta_0+\bm{\beta}_{\rm dip}\!\cdot\!\hat n+\sum_{k}\beta_k\,t_k(\hat n)\right],
+\end{equation}
+where $t_k$ represent nuisance templates (e.g.\ depth and scan proxies), and $D\simeq|\bm{\beta}_{\rm dip}|$ for small amplitudes.
+For drift comparisons, we quote the sign-invariant axis separation
+$\Delta\theta_{\rm axis}\equiv\cos^{-1}\!\left(|\hat{\bm d}_1\!\cdot\!\hat{\bm d}_2|\right)$.
+To interpret drift relative to the CMB, we decompose $\bm{\beta}_{\rm dip}$ into CMB-parallel and perpendicular components.
+
+\subsection{Uncertainty modelling, injections, and drift tests}
+We use Poisson resampling for scan-point uncertainties, and clustered lognormal mock catalogues to provide a diagnostic large-scale-structure covariance for $D$ at a representative faint cut.
+We perform end-to-end injection and recovery tests to demonstrate depth-template misspecification biases.
+To address concerns about correlated nested cuts and scan/season effects, we run a \emph{correlated-cut drift Monte Carlo} that simulates independent Poisson counts in \emph{differential} $W1$ bins and cumulatively sums them to form correlated $W1<{\rm cut}$ maps (preserving the dependence structure of real scans).
+We also include a longitude-pattern injection test to show how unmodelled ecliptic-longitude structure can inflate dipole estimates.
+
+Low-$\ell$ mask coupling is a recurrent concern in masked-sky analyses.
+In Supplementary Data, we further validate a GLM extension that marginalises $\ell\ge2$ spherical harmonic nuisance modes with a physically motivated Gaussian prior calibrated from clustered mock catalogues; a masked-sky injection test shows that unregularised harmonics inflate uncertainty while the prior-regularised fit remains stable.
+
+\subsection{Time-domain epoch-sliced test}
+A kinematic/cosmological dipole is time-invariant.
+As an independent diagnostic, we analyse the unWISE time-domain catalogue \citep{unwise_lang2014,unwise_meisner2017} by constructing epoch-sliced HEALPix count maps (17 epochs spanning 2010--2020) under a fixed sky mask and simple quasar-like WISE photometric selection.
+We measure the dipole amplitude per epoch with both a Poisson GLM dipole-only fit and a vector-sum cross-check.
+
+\section{Results}
+\subsection{Stable amplitude but strong faint-limit axis drift}
+Figure~\ref{fig:drift_and_cmb} shows the baseline Poisson GLM scan and the CMB decomposition.
+The total amplitude remains near $D\simeq1.6\times10^{-2}$ across $W1_{\rm max}\in[15.5,16.6]$, but the best-fit axis drifts substantially with faint limit.
+Quoting sign-invariant axis angles to the CMB dipole axis, the separation grows from $\sim1.3^\circ$ at $W1_{\rm max}=15.5$ to $\sim34^\circ$ at $W1_{\rm max}=16.6$.
+The CMB-parallel/perpendicular decomposition shows that this drift is driven primarily by a growing non-CMB (perpendicular) component at fainter cuts, rather than by a simple reduction of a CMB-aligned component.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.49\textwidth]{baseline_rvmp_fig5_poisson_glm.png}\hfill
+\includegraphics[width=0.49\textwidth]{cmb_projection_plot.png}
+\caption{\textbf{Magnitude-limit drift and CMB decomposition.}
+\textit{Left:} Baseline Poisson GLM scan on a fixed footprint, showing stable amplitude but a drifting axis as the faint limit is deepened.
+\textit{Right:} Decomposition of the recovered dipole vector into CMB-parallel and CMB-perpendicular components; the drift is driven primarily by a growing perpendicular component at fainter cuts.}
+\label{fig:drift_and_cmb}
+\end{figure*}
+
+\subsection{Clustered-mock-covariance verification: high amplitude S/N persists}
+Figure~\ref{fig:lss_cov} shows the clustered lognormal mock-catalogue amplitude distribution at $W1_{\rm max}=16.6$.
+For the real data we obtain $D_{\rm hat}\approx0.0168$ with mock percentiles consistent with $\sigma_D\approx0.0023$, implying an amplitude S/N of order $\sim7$ at this representative cut.
+This covariance is used as a diagnostic upgrade beyond Poisson-only noise, not as a final precision covariance for cosmological parameter inference.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{lss_cov_D_hist_w1max16p6.png}
+\caption{Clustered lognormal mock amplitude distribution at $W1_{\rm max}=16.6$ (diagnostic LSS covariance). The real-data estimate lies near the centre of the mock distribution, implying $\sigma_D\approx 0.0023$ and amplitude S/N of order $\sim 7$.}
+\label{fig:lss_cov}
+\end{figure}
+
+\subsection{End-to-end depth-linked injection and recovery}
+Figure~\ref{fig:depth_injection} demonstrates that modest depth-linked selection systematics can bias both amplitude and axis when the fit omits the correct depth template, and that including the correct map-level depth covariate materially improves recovery.
+This provides an explicit mechanism for the template sensitivity and axis instability observed in the real-data scans near the faint limit.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{validate_depth_systematic_recovery.png}
+\caption{End-to-end injection and recovery completeness validation. A depth-linked selection systematic biases both amplitude and axis when the fit is misspecified (omits the depth template), while including the correct depth-map covariate materially improves recovery.}
+\label{fig:depth_injection}
+\end{figure}
+
+\subsection{Correlated-cut drift Monte Carlo and longitude-pattern injection}
+Figure~\ref{fig:drift_mc} summarizes the correlated-cut drift Monte Carlo.
+Under a correlated Poisson-only null (with a fixed injected dipole), the observed drift path length is typical, but the observed drift span (end-to-end and maximum pairwise separation across the scan) lies in the $\sim0.5$--$0.9$ per cent tail, indicating that the coherence of the observed migration is unlikely to be a random walk from Poisson fluctuations alone.
+A seasonal/scan-linked longitude-pattern injection shows that if ecliptic-longitude structure is omitted from the recovery model, the inferred dipole can be inflated to the per cent level; adding $\sin \lambda$ and $\cos \lambda$ longitude templates restores a kinematic-scale injected dipole.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.49\textwidth]{drift_mc_null_hist.png}\hfill
+\includegraphics[width=0.49\textwidth]{drift_mc_inject_bias.png}
+\caption{\textbf{Correlated-cut drift Monte Carlo.}
+\textit{Left:} Drift-metric distributions under a correlated Poisson-only null, with observed values marked; the drift span (end-to-end and max-pair separation) is in the $<1$ per cent tail.
+\textit{Right:} Seasonal/scan-linked longitude-pattern injection: omitting longitude templates can inflate recovered dipoles to the per cent level, while including $\sin \lambda, \cos \lambda$ restores a kinematic-scale injected dipole.}
+\label{fig:drift_mc}
+\end{figure*}
+
+\subsection{True time-domain instability in unWISE epoch-sliced selections}
+Figure~\ref{fig:time_domain} shows the unWISE epoch-sliced amplitudes and the per-epoch sample sizes.
+Across epochs 0--15 (excluding epoch 16, which has much smaller $N$ and is likely partial), the dipole amplitude varies strongly in time under two estimators.
+In the Poisson GLM dipole-only fits, $D$ ranges from $\sim0.146$ to $\sim0.220$ across epochs, while the vector-sum cross-check ranges from $\sim0.103$ to $\sim0.150$.
+Per-epoch sample sizes are large and vary comparatively modestly (tens of millions), so the epoch dependence in $D$ is not driven by a trivial collapse of $N$.
+These epoch maps are overlapping re-selections from a fixed parent catalogue, not independent additive catalogues, so theoretical $1/\sqrt{N_{\rm epoch}}$ vector-cancellation expectations are not the relevant null.
+Because a kinematic/cosmological dipole is time-invariant, this epoch dependence is a strong diagnostic that time-dependent selection/coverage/background effects imprint large-scale anisotropy in WISE-based quasar-like selections.
+We emphasise that this is a time-invariance diagnostic, not a claim that the per-epoch selection is an exact reproduction of the published CatWISE accepted-catalogue selection.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.49\textwidth]{D_vs_epoch_compare.png}\hfill
+\includegraphics[width=0.49\textwidth]{N_vs_epoch.png}
+\caption{\textbf{True time-domain epoch-sliced stability test (unWISE).}
+\textit{Left:} Epoch-resolved dipole amplitudes from a Poisson GLM (dipole-only) and a vector-sum cross-check; amplitudes vary strongly with epoch.
+\textit{Right:} Per-epoch sample sizes on the fixed sky mask; epoch 16 has much smaller $N$ and is likely partial.}
+\label{fig:time_domain}
+\end{figure*}
+
+\section{Discussion and conclusions}
+Across multiple estimators on a fixed footprint, the CatWISE number-count dipole remains non-zero at the $D\sim10^{-2}$ level, and clustered mock catalogues imply a high nominal amplitude S/N.
+However, the axis drifts with the faint limit, driven by a growing CMB-perpendicular component, suggesting a degeneracy with completeness or scan modelling near the magnitude boundary.
+End-to-end injections and correlated-cut Monte Carlo tests show that modest depth- and scan-linked modulations, including ecliptic-longitude structure, can bias both amplitude and axis when the recovery model is misspecified.
+Finally, unWISE epoch slicing yields strongly time-dependent amplitudes, inconsistent with a time-invariant kinematic dipole.
+These diagnostics motivate caution regarding cosmological interpretations of the CatWISE dipole without an end-to-end completeness model validated against external information and in the time domain.
+
+\clearpage
+
+\section*{AI assistance disclosure}
+The author used large language models extensively in preparing this work.
+
+\section*{Data and code availability}
+\label{sec:data_code}
+Software and reproducibility materials for this analysis are archived on Zenodo at \doi{10.5281/zenodo.18530376}; related supplementary assets used in this study are archived at \doi{10.5281/zenodo.18489200}.
+This work used the CatWISE2020 catalogue and the unWISE Time-Domain catalogue provided via NASA/IPAC IRSA (\doi{10.26131/IRSA552}; \doi{10.26131/IRSA580}).
+
+% ========================= Bibliography =========================
+
+\begin{thebibliography}{}
+
+\bibitem[Secrest et al.(2022)]{secrest2022}
+Secrest, N.~J., von Hausegger, S., Rameez, M., Mohayaee, R., \& Sarkar, S.\ 2022, \apjl, 937, L31, \doi{10.3847/2041-8213/ac88c0}
+
+\bibitem[Marocco et al.(2021)]{catwise2020}
+Marocco, F., et al.\ 2021, \apjs, 253, 8, \doi{10.3847/1538-4365/abd805}
+
+\bibitem[Lang(2014)]{unwise_lang2014}
+Lang, D.\ 2014, \aj, 147, 108, \doi{10.1088/0004-6256/147/5/108}
+
+\bibitem[Meisner et al.(2017)]{unwise_meisner2017}
+Meisner, A.~M., Lang, D., \& Schlegel, D.~J.\ 2017, \aj, 153, 38, \doi{10.3847/1538-3881/153/1/38}
+
+\bibitem[Gaia Collaboration et al.(2023)]{gaia_dr3_summary}
+Gaia Collaboration, Vallenari, A., et al.\ 2023, \aap, 674, A1, \doi{10.1051/0004-6361/202243940}
+
+\bibitem[Lyke et al.(2020)]{sdss_dr16q}
+Lyke, B.~W., et al.\ 2020, \apjs, 250, 8, \doi{10.3847/1538-4365/aba623}
+
+\end{thebibliography}
+
+\end{document}
