@@ -35,8 +35,8 @@
   ],
   "dois": [
     {
-      "label": "MNRAS letter reproducibility archive",
-      "doi": "10.5281/zenodo.18530376"
+      "label": "Quasar-dipole reproducibility archive",
+      "doi": "10.5281/zenodo.18643926"
     },
     {
       "label": "Supplementary assets archive",
@@ -44,4 +44,3 @@
     }
   ]
 }
-

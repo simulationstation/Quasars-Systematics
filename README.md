@@ -126,7 +126,7 @@ injection/recovery validation on the relevant footprints.
 
 ## References / DOIs used by this repository
 
-- MNRAS Letter reproducibility archive (Zenodo), DOI: `10.5281/zenodo.18530376`
+- Quasar-dipole reproducibility archive (Zenodo), DOI: `10.5281/zenodo.18643926`
 - Supplementary assets archive (Zenodo), DOI: `10.5281/zenodo.18489200`
 - Legacy repository archive (Zenodo), DOI: `10.5281/zenodo.18476711`
 - Secrest et al. 2022, ApJL 937 L31, DOI: `10.3847/2041-8213/ac88c0`

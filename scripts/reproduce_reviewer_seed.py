@@ -189,7 +189,7 @@ def main() -> None:
         "inputs_dir": str(inputs_dir),
         "paper_tex": "mnras_letter/main.tex",
         "dois": {
-            "mnras_letter_reproducibility_archive": "10.5281/zenodo.18530376",
+            "quasar_dipole_reproducibility_archive": "10.5281/zenodo.18643926",
             "supplementary_assets_archive": "10.5281/zenodo.18489200"
         },
         "headlines": dataclasses.asdict(headlines),
@@ -231,7 +231,7 @@ This report is generated from vendored artifacts under `artifacts/` and is inten
 
 ## DOIs
 
-- Reproducibility archive (letter): 10.5281/zenodo.18530376
+- Quasar-dipole reproducibility archive: 10.5281/zenodo.18643926
 - Supplementary assets: 10.5281/zenodo.18489200
 """
     (out_dir / "report.md").write_text(report)
