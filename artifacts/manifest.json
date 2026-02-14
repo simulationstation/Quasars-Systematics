@@ -1,0 +1,47 @@
+{
+  "purpose": "Curated, small reviewer-seed artifacts used by scripts/reproduce_reviewer_seed.py (no large external downloads required).",
+  "papers": [
+    {
+      "id": "mnras_letter",
+      "tex": "mnras_letter/main.tex",
+      "note": "MNRAS letter source (compiled PDFs are not tracked in git by design)."
+    }
+  ],
+  "reviewer_seed_inputs": [
+    {
+      "id": "glm_cumulative_scan",
+      "path": "artifacts/quasar_reviewer_seed/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json",
+      "source_path": "REPORTS/Q_D_RES/rvmp_fig5_poisson_glm_ecliponly_cumulative_jk.json",
+      "description": "Cumulative W1max scan using Poisson GLM (ecliptic-latitude nuisance), including fitted dipoles per cut."
+    },
+    {
+      "id": "lognormal_mocks_cov",
+      "path": "artifacts/quasar_reviewer_seed/lognormal_mocks_cov_w1max16p6_n500.json",
+      "source_path": "REPORTS/Q_D_RES_2_2/data/lognormal_cov_w1max16p6_n500/lognormal_mocks_cov.json",
+      "description": "Clustered lognormal mocks covariance summary at W1max=16.6 (n=500)."
+    },
+    {
+      "id": "correlated_cut_drift_null",
+      "path": "artifacts/quasar_reviewer_seed/drift_mc_null_summary.json",
+      "source_path": "REPORTS/seasonal_drift_mc/data/drift_mc_null_summary.json",
+      "description": "Correlated-cut drift Monte Carlo null summary (Poisson-only correlated scan)."
+    },
+    {
+      "id": "unwise_epoch_amplitude",
+      "path": "artifacts/quasar_reviewer_seed/epoch_amplitude.json",
+      "source_path": "REPORTS/unwise_time_domain_epoch_amplitude/data/epoch_amplitude.json",
+      "description": "unWISE time-domain epoch-sliced dipole amplitude summary (2010-2020 epochs)."
+    }
+  ],
+  "dois": [
+    {
+      "label": "MNRAS letter reproducibility archive",
+      "doi": "10.5281/zenodo.18530376"
+    },
+    {
+      "label": "Supplementary assets archive",
+      "doi": "10.5281/zenodo.18489200"
+    }
+  ]
+}
+

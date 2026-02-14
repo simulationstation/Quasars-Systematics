@@ -3,8 +3,28 @@
 This repository contains a reproducible CatWISE dipole audit and paper-ready bundles supporting a PRD-style
 manuscript (CatWISE dipole sensitivity to magnitude cuts, depth templates, and LSS covariance).
 
-Main manuscript sources are intentionally **not** tracked here; the repo focuses on code + reproducible
-figures/tables and audit reports. (Exception: a few short note-style manuscripts live under `radio_a/`.)
+Main PRD manuscript sources are intentionally **not** tracked here; the repo focuses on code + reproducible
+figures/tables and audit reports. A compact MNRAS Letter bundle is included under `mnras_letter/`.
+(Exception: a few short note-style manuscripts live under `radio_a/`.)
+
+## Reviewer seed (headline verification)
+
+This repository includes a lightweight “run-one seed” command that reproduces the headline numbers quoted in
+`mnras_letter/main.tex` using **vendored** small artifacts (no large external downloads and no heavy reruns).
+
+```bash
+make reproduce
+```
+
+This writes a timestamped folder under `outputs/` containing:
+
+- `report.md` (human-readable headline summary)
+- `summary.json` (machine-readable values and input provenance)
+
+Notes:
+
+- This is a quick verifier for reviewers; it is intentionally not a substitute for the full end-to-end reruns.
+- The vendored inputs used by the seed live under `artifacts/`.
 
 ## Scope and limitations (read first)
 
@@ -106,7 +126,9 @@ injection/recovery validation on the relevant footprints.
 
 ## References / DOIs used by this repository
 
-- This repository’s analysis archive (Zenodo), DOI: `10.5281/zenodo.18476711`
+- MNRAS Letter reproducibility archive (Zenodo), DOI: `10.5281/zenodo.18530376`
+- Supplementary assets archive (Zenodo), DOI: `10.5281/zenodo.18489200`
+- Legacy repository archive (Zenodo), DOI: `10.5281/zenodo.18476711`
 - Secrest et al. 2022, ApJL 937 L31, DOI: `10.3847/2041-8213/ac88c0`
 - Secrest+22 accepted CatWISE AGN catalog (Zenodo record), DOI: `10.5281/zenodo.6784602`
 - CatWISE2020 (Marocco et al. 2021, ApJS 253, 8), DOI: `10.3847/1538-4365/abd805`
