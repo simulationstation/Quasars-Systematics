@@ -41,6 +41,7 @@ import math
 import os
 import shlex
 import subprocess
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -158,9 +159,19 @@ def fit_poisson_glm(
     beta_init: np.ndarray | None,
     prior_prec_diag: np.ndarray | None,
     prior_mean: np.ndarray | None = None,
+    out_info: dict[str, Any] | None = None,
 ) -> tuple[np.ndarray, np.ndarray | None]:
-    """Poisson GLM (log link) via L-BFGS; optional diagonal Gaussian priors (ridge)."""
-    from scipy.optimize import minimize
+    """
+    Poisson GLM (log link) via damped Newton steps; optional diagonal Gaussian priors (ridge).
+
+    Notes on solver choice
+    ----------------------
+    We intentionally avoid generic quasi-Newton stopping criteria that can declare convergence
+    based on tiny relative changes in a very large log-likelihood value. In this application,
+    that can yield materially different fitted dipoles depending on warm-start path, despite
+    the objective being convex. A Newton solver with explicit gradient-based termination is
+    deterministic and makes scan-vs-single-cut fits auditable.
+    """
 
     y = np.asarray(y, dtype=float)
     X = np.asarray(X, dtype=float)
@@ -176,38 +187,104 @@ def fit_poisson_glm(
     prec = None if prior_prec_diag is None else np.asarray(prior_prec_diag, dtype=float).reshape(X.shape[1])
     mu_prior = None if prior_mean is None else np.asarray(prior_mean, dtype=float).reshape(X.shape[1])
 
-    def fun_and_grad(beta: np.ndarray) -> tuple[float, np.ndarray]:
+    def nll_grad_hess(beta: np.ndarray) -> tuple[float, np.ndarray, np.ndarray]:
         eta = np.clip(off + X @ beta, -25.0, 25.0)
         mu = np.exp(eta)
         nll = float(np.sum(mu - y * eta))
         grad = X.T @ (mu - y)
+        hess = X.T @ (mu[:, None] * X)
         if prec is not None:
             dp = beta if mu_prior is None else (beta - mu_prior)
             nll = float(nll + 0.5 * np.sum(prec * dp * dp))
             grad = grad + prec * dp
-        return nll, np.asarray(grad, dtype=float)
+            hess = hess + np.diag(prec)
+        return nll, np.asarray(grad, dtype=float), np.asarray(hess, dtype=float)
 
-    res = minimize(
-        lambda b: fun_and_grad(b)[0],
-        beta0,
-        jac=lambda b: fun_and_grad(b)[1],
-        method="L-BFGS-B",
-        options={"maxiter": int(max_iter), "ftol": 1e-12},
-    )
-    beta = np.asarray(res.x, dtype=float)
+    beta = beta0.copy()
+    success = False
+    message = "max_iter reached"
+    status = 1
 
+    # Gradient tolerances are on the raw objective scale (sums over pixels).
+    # These values are conservative enough to avoid warm-start path dependence,
+    # while still being feasible for bootstrap loops.
+    gtol = 1e-3
+    ftol = 1e-10
+
+    nll_prev = float("inf")
+    for it in range(int(max_iter)):
+        nll, grad, hess = nll_grad_hess(beta)
+        g_inf = float(np.max(np.abs(grad))) if grad.size else 0.0
+        if g_inf <= gtol:
+            success = True
+            message = "converged: grad_inf <= gtol"
+            status = 0
+            nll_prev = nll
+            break
+        if np.isfinite(nll_prev) and abs(nll_prev - nll) <= ftol * max(1.0, abs(nll_prev)):
+            success = True
+            message = "converged: relative nll change <= ftol"
+            status = 0
+            nll_prev = nll
+            break
+
+        # Newton direction: solve H d = grad.
+        try:
+            step_dir = np.linalg.solve(hess, grad)
+        except Exception:  # noqa: BLE001
+            # Fallback to least squares if H is singular/ill-conditioned.
+            step_dir, *_ = np.linalg.lstsq(hess, grad, rcond=None)
+            step_dir = np.asarray(step_dir, dtype=float)
+
+        # Backtracking line search to ensure decrease.
+        step = 1.0
+        for _ls in range(20):
+            beta_try = beta - step * step_dir
+            nll_try, _, _ = nll_grad_hess(beta_try)
+            if np.isfinite(nll_try) and nll_try <= nll:
+                beta = beta_try
+                nll_prev = nll
+                break
+            step *= 0.5
+        else:
+            # Could not find a decreasing step.
+            message = "failed: line search"
+            status = 2
+            break
+
+    # Final diagnostics + covariance (inverse Hessian).
     cov = None
     try:
-        eta = np.clip(off + X @ beta, -25.0, 25.0)
-        mu = np.exp(eta)
-        fisher = X.T @ (mu[:, None] * X)
-        if prec is not None:
-            fisher = fisher + np.diag(prec)
-        cov = np.linalg.inv(fisher)
+        nll, grad, hess = nll_grad_hess(beta)
+        cov = np.linalg.inv(hess)
+        if out_info is not None:
+            out_info.update(
+                {
+                    "success": bool(success),
+                    "nit": int(it + 1),
+                    "status": int(status),
+                    "fun": float(nll),
+                    "message": str(message),
+                    "grad_inf_norm": float(np.max(np.abs(grad))) if grad.size else float("nan"),
+                    "grad_l2_norm": float(np.linalg.norm(grad)) if grad.size else float("nan"),
+                }
+            )
     except Exception:  # noqa: BLE001
         cov = None
+        if out_info is not None:
+            out_info.update(
+                {
+                    "success": bool(success),
+                    "nit": int(it + 1),
+                    "status": int(status),
+                    "fun": float("nan"),
+                    "message": str(message),
+                    "grad_inf_norm": float("nan"),
+                    "grad_l2_norm": float("nan"),
+                }
+            )
 
-    return beta, cov
+    return np.asarray(beta, dtype=float), cov
 
 
 @dataclass(frozen=True)
@@ -333,6 +410,7 @@ class ScanRow:
     D_par_cmb: float
     D_perp_cmb: float
     diag: dict[str, float]
+    opt: dict[str, Any]
 
 
 def scan_glm(
@@ -343,9 +421,9 @@ def scan_glm(
     n_seen: np.ndarray,
     X_nuis_seen: np.ndarray,
     nuisance_names: list[str],
+    nuisance_prior_prec: np.ndarray | None,
     offset_seen: np.ndarray | None,
     cuts: list[float],
-    ridge_prec: float,
     max_iter: int,
     seed: int,
 ) -> tuple[list[ScanRow], dict[str, Any]]:
@@ -353,7 +431,7 @@ def scan_glm(
     Run a cumulative scan and return rows + a small meta blob.
 
     Model columns are: [1, nx, ny, nz, nuis...]
-    Ridge prior is applied only to nuisance columns (not intercept/dipole).
+    Prior/regularization is applied only to nuisance columns (not intercept/dipole).
     """
     rng = np.random.default_rng(int(seed))
     _ = rng  # reserved for future stochastic diagnostics
@@ -365,7 +443,8 @@ def scan_glm(
 
     rows: list[ScanRow] = []
     for w1_cut in cuts:
-        nxt = int(np.searchsorted(w1_sorted, float(w1_cut), side="left"))
+        # Inclusive faint-cut semantics: W1 <= W1_max.
+        nxt = int(np.searchsorted(w1_sorted, float(w1_cut), side="right"))
         if nxt > cursor:
             delta = ipix_sorted[cursor:nxt]
             counts_all += np.bincount(delta, minlength=npix).astype(np.int64)
@@ -382,18 +461,56 @@ def scan_glm(
         prior = None
         if X.shape[1] > 4:
             prior = np.zeros(X.shape[1], dtype=float)
-            prior[4:] = float(ridge_prec)
+            if nuisance_prior_prec is None:
+                raise RuntimeError("nuisance_prior_prec is required when nuisance columns are present.")
+            if nuisance_prior_prec.shape != (X.shape[1] - 4,):
+                raise RuntimeError(
+                    f"nuisance_prior_prec shape {nuisance_prior_prec.shape} does not match nuisance columns "
+                    f"{X.shape[1] - 4}."
+                )
+            prior[4:] = nuisance_prior_prec
 
-        beta, _cov = fit_poisson_glm(
-            X,
-            y,
-            offset=offset_seen,
-            max_iter=int(max_iter),
-            beta_init=beta_prev,
-            prior_prec_diag=prior,
-            prior_mean=None,
-        )
-        beta_prev = beta
+        # Fit with convergence auditing. If the warm-started scan fit does not converge,
+        # fall back to a cold-start refit with a larger iteration cap to avoid propagating
+        # non-converged solutions across cuts.
+        attempts: list[dict[str, Any]] = []
+        results: list[tuple[np.ndarray, np.ndarray | None, dict[str, Any]]] = []
+        beta_init_i = beta_prev
+        max_iter_i = int(max_iter)
+        for attempt in range(3):
+            info: dict[str, Any] = {}
+            beta_i, cov_i = fit_poisson_glm(
+                X,
+                y,
+                offset=offset_seen,
+                max_iter=int(max_iter_i),
+                beta_init=beta_init_i,
+                prior_prec_diag=prior,
+                prior_mean=None,
+                out_info=info,
+            )
+            info = dict(info)
+            info.update(
+                {
+                    "attempt": int(attempt),
+                    "init": "warm" if beta_init_i is not None else "cold",
+                    "max_iter": int(max_iter_i),
+                }
+            )
+            attempts.append(info)
+            results.append((beta_i, cov_i, info))
+            if bool(info.get("success", False)):
+                break
+            # Retry: cold start with a larger cap.
+            beta_init_i = None
+            max_iter_i = int(max_iter_i * 4)
+
+        # Select the best attempt by minimum objective value (prefer converged fits).
+        converged = [r for r in results if bool(r[2].get("success", False))]
+        pool = converged if converged else results
+        beta, _cov, best_info = min(pool, key=lambda r: float(r[2].get("fun", float("inf"))))
+        beta_prev = beta if bool(best_info.get("success", False)) else None
+        opt = {"selected": int(best_info.get("attempt", -1)), "attempts": attempts}
         bvec = np.asarray(beta[1:4], dtype=float)
         D = float(np.linalg.norm(bvec))
         l_deg, b_deg = vec_to_lb(bvec)
@@ -418,12 +535,19 @@ def scan_glm(
                 D_par_cmb=D_par,
                 D_perp_cmb=D_perp,
                 diag=diag,
+                opt=opt,
             )
         )
 
     meta = {
         "nuisance_names": nuisance_names,
-        "ridge_prec_nuisance": float(ridge_prec),
+        "nuisance_prior_prec_summary": None
+        if nuisance_prior_prec is None
+        else {
+            "min": float(np.min(nuisance_prior_prec)),
+            "p50": float(np.median(nuisance_prior_prec)),
+            "max": float(np.max(nuisance_prior_prec)),
+        },
         "offset_used": bool(offset_seen is not None),
         "max_iter": int(max_iter),
     }
@@ -438,9 +562,9 @@ def scan_glm_fixed_axis(
     dipole_mode_seen: np.ndarray,
     X_nuis_seen: np.ndarray,
     nuisance_names: list[str],
+    nuisance_prior_prec: np.ndarray | None,
     offset_seen: np.ndarray | None,
     cuts: list[float],
-    ridge_prec: float,
     max_iter: int,
     seed: int,
 ) -> tuple[list[ScanRow], dict[str, Any]]:
@@ -463,7 +587,8 @@ def scan_glm_fixed_axis(
 
     rows: list[ScanRow] = []
     for w1_cut in cuts:
-        nxt = int(np.searchsorted(w1_sorted, float(w1_cut), side="left"))
+        # Inclusive faint-cut semantics: W1 <= W1_max.
+        nxt = int(np.searchsorted(w1_sorted, float(w1_cut), side="right"))
         if nxt > cursor:
             delta = ipix_sorted[cursor:nxt]
             counts_all += np.bincount(delta, minlength=npix).astype(np.int64)
@@ -480,18 +605,52 @@ def scan_glm_fixed_axis(
         prior = None
         if X.shape[1] > 2:
             prior = np.zeros(X.shape[1], dtype=float)
-            prior[2:] = float(ridge_prec)
+            if nuisance_prior_prec is None:
+                raise RuntimeError("nuisance_prior_prec is required when nuisance columns are present.")
+            if nuisance_prior_prec.shape != (X.shape[1] - 2,):
+                raise RuntimeError(
+                    f"nuisance_prior_prec shape {nuisance_prior_prec.shape} does not match nuisance columns "
+                    f"{X.shape[1] - 2}."
+                )
+            prior[2:] = nuisance_prior_prec
 
-        beta, _ = fit_poisson_glm(
-            X,
-            y,
-            offset=offset_seen,
-            max_iter=int(max_iter),
-            beta_init=beta_prev,
-            prior_prec_diag=prior,
-            prior_mean=None,
-        )
-        beta_prev = beta
+        # As in scan_glm, audit convergence and avoid propagating non-converged warm starts.
+        attempts: list[dict[str, Any]] = []
+        results: list[tuple[np.ndarray, np.ndarray | None, dict[str, Any]]] = []
+        beta_init_i = beta_prev
+        max_iter_i = int(max_iter)
+        for attempt in range(3):
+            info: dict[str, Any] = {}
+            beta_i, cov_i = fit_poisson_glm(
+                X,
+                y,
+                offset=offset_seen,
+                max_iter=int(max_iter_i),
+                beta_init=beta_init_i,
+                prior_prec_diag=prior,
+                prior_mean=None,
+                out_info=info,
+            )
+            info = dict(info)
+            info.update(
+                {
+                    "attempt": int(attempt),
+                    "init": "warm" if beta_init_i is not None else "cold",
+                    "max_iter": int(max_iter_i),
+                }
+            )
+            attempts.append(info)
+            results.append((beta_i, cov_i, info))
+            if bool(info.get("success", False)):
+                break
+            beta_init_i = None
+            max_iter_i = int(max_iter_i * 4)
+
+        converged = [r for r in results if bool(r[2].get("success", False))]
+        pool = converged if converged else results
+        beta, _cov, best_info = min(pool, key=lambda r: float(r[2].get("fun", float("inf"))))
+        beta_prev = beta if bool(best_info.get("success", False)) else None
+        opt = {"selected": int(best_info.get("attempt", -1)), "attempts": attempts}
         D_cmb = float(beta[1])
         bvec = u_cmb * D_cmb
         D = float(abs(D_cmb))
@@ -512,12 +671,19 @@ def scan_glm_fixed_axis(
                 D_par_cmb=D_cmb,
                 D_perp_cmb=0.0,
                 diag=diag,
+                opt=opt,
             )
         )
 
     meta = {
         "nuisance_names": nuisance_names,
-        "ridge_prec_nuisance": float(ridge_prec),
+        "nuisance_prior_prec_summary": None
+        if nuisance_prior_prec is None
+        else {
+            "min": float(np.min(nuisance_prior_prec)),
+            "p50": float(np.median(nuisance_prior_prec)),
+            "max": float(np.max(nuisance_prior_prec)),
+        },
         "offset_used": bool(offset_seen is not None),
         "max_iter": int(max_iter),
         "dipole_axis": "CMB (fixed)",
@@ -544,6 +710,7 @@ def rows_to_json(rows: list[ScanRow]) -> list[dict[str, Any]]:
                     "D_perp": float(r.D_perp_cmb),
                 },
                 "fit_diag": r.diag,
+                "fit_opt": r.opt,
             }
         )
     return out
@@ -575,8 +742,8 @@ def plot_case_closed_figure(
         ax.set_ylim(bottom=0.0)
 
     panel(axes[0, 0], "Raw (baseline) dipole-only recovery", baseline["D"], baseline["axis_sep"])
-    panel(axes[0, 1], "Maximal nuisance GLM (ridge)", maximal["D"], maximal["axis_sep"])
-    panel(axes[1, 1], "Maximal + external completeness offset", external["D"], external["axis_sep"])
+    panel(axes[0, 1], "Maximal nuisance GLM (ridge + low-ell)", maximal["D"], maximal["axis_sep"])
+    panel(axes[1, 1], "Maximal + Gaia completeness template", external["D"], external["axis_sep"])
 
     # Held-out is a single representative cut, shown as a bar comparison.
     ax = axes[1, 0]
@@ -613,13 +780,53 @@ def plot_cmb_fixed_amplitude_scan(
     ax.axhline(0.0, color="0.5", lw=1)
     ax.axhline(D_KIN_REF, color="0.4", ls="--", lw=1, label=f"kinematic ref {D_KIN_REF:.4f}")
     ax.axhline(-D_KIN_REF, color="0.4", ls="--", lw=1)
-    ax.plot(cuts, Dpar_maximal, color="C2", lw=2, label="CMB-fixed (maximal nuis, orth templates)")
-    ax.plot(cuts, Dpar_external, color="C3", lw=2, label="CMB-fixed + Gaia offset")
+    ax.plot(cuts, Dpar_maximal, color="C2", lw=2, label="CMB-fixed (maximal nuis)")
+    ax.plot(cuts, Dpar_external, color="C3", lw=2, label="CMB-fixed + Gaia template")
     ax.set_xlabel("W1_max")
     ax.set_ylabel("Signed CMB-parallel dipole D_par")
     ax.set_title("CMB-fixed dipole amplitude vs W1_max")
     ax.grid(alpha=0.3)
     ax.legend(frameon=False, fontsize=9)
+    fig.tight_layout()
+    fig.savefig(outpath, dpi=200)
+    plt.close(fig)
+
+
+def plot_cmb_projection_par_perp_scan(
+    *,
+    outpath: Path,
+    cuts: np.ndarray,
+    series: dict[str, dict[str, np.ndarray]],
+    cmb_fixed: dict[str, np.ndarray] | None = None,
+) -> None:
+    """
+    Plot the CMB-parallel/perpendicular decomposition of the free-axis dipole vectors:
+      D_par = b · u_cmb
+      D_perp = |b - (b·u_cmb)u_cmb|
+    """
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(2, 1, figsize=(8.4, 6.2), sharex=True)
+    ax0, ax1 = axes
+
+    ax0.axhline(D_KIN_REF, color="0.4", ls="--", lw=1, label=f"kinematic ref {D_KIN_REF:.4f}")
+    ax0.axhline(-D_KIN_REF, color="0.4", ls="--", lw=1)
+    ax1.axhline(0.0, color="0.5", lw=1)
+
+    for label, obj in series.items():
+        ax0.plot(cuts, obj["D_par"], lw=2, label=label)
+        ax1.plot(cuts, obj["D_perp"], lw=2, label=label)
+
+    if cmb_fixed is not None:
+        for label, dpar in cmb_fixed.items():
+            ax0.plot(cuts, dpar, lw=2, ls=":", label=label)
+
+    ax0.set_ylabel("CMB-parallel component D_par (signed)")
+    ax1.set_ylabel("CMB-perp component D_perp")
+    ax1.set_xlabel("W1_max")
+    ax0.grid(alpha=0.3)
+    ax1.grid(alpha=0.3)
+    ax0.legend(frameon=False, fontsize=8, ncol=2)
     fig.tight_layout()
     fig.savefig(outpath, dpi=200)
     plt.close(fig)
@@ -647,6 +854,35 @@ def main() -> int:
         type=float,
         default=3.0,
         help="Gaussian prior sigma for nuisance coefficients (templates are standardized).",
+    )
+    ap.add_argument(
+        "--harmonic-lmax",
+        type=int,
+        default=5,
+        help="Include explicit real spherical-harmonic nuisance modes for 2<=ell<=harmonic_lmax (0/1 disables).",
+    )
+    ap.add_argument(
+        "--harmonic-prior",
+        choices=["ridge", "lognormal_cl"],
+        default="lognormal_cl",
+        help="Prior for harmonic coefficients: ridge (same as other templates) or lognormal_cl (C_ell-based).",
+    )
+    ap.add_argument(
+        "--harmonic-prior-cl-json",
+        default="REPORTS/Q_D_RES_2_2/data/lognormal_cov_w1max16p6_n500/lognormal_mocks_cov.json",
+        help="C_ell JSON providing cl_estimate.cl_signal (used when --harmonic-prior=lognormal_cl).",
+    )
+    ap.add_argument(
+        "--harmonic-prior-scale",
+        type=float,
+        default=1000.0,
+        help="Multiply C_ell by this factor when forming harmonic priors (larger = weaker prior).",
+    )
+    ap.add_argument(
+        "--harmonic-prior-min-cl",
+        type=float,
+        default=1e-12,
+        help="Floor for C_ell when forming 1/C_ell priors (avoids singular priors).",
     )
     ap.add_argument(
         "--heldout-wedge-deg",
@@ -678,6 +914,20 @@ def main() -> int:
     ap.add_argument("--gaia-qsocand-gz", default="data/external/gaia_dr3_extragal/qsocand.dat.gz")
     ap.add_argument("--gaia-pqso-min", type=float, default=0.8)
     ap.add_argument("--gaia-max-lines", type=int, default=None, help="Optional cap for smoke tests.")
+    ap.add_argument("--bootstrap-nsim", type=int, default=400, help="Parametric bootstrap draws for D_par calibration.")
+    ap.add_argument(
+        "--bootstrap-kin-dpar",
+        type=float,
+        default=D_KIN_REF,
+        help="Constrained-null CMB-parallel dipole amplitude used for bootstrap calibration.",
+    )
+    ap.add_argument(
+        "--bootstrap-max-iter",
+        type=int,
+        default=250,
+        help="Max optimizer iterations per bootstrap recovery fit (warm-started).",
+    )
+    ap.add_argument("--no-bootstrap", action="store_true", help="Disable the constrained-null parametric bootstrap.")
     ap.add_argument("--no-plots", action="store_true")
     args = ap.parse_args()
 
@@ -795,12 +1045,18 @@ def main() -> int:
         fill_from=seen,
     )
 
-    # Standardized nuisance templates (seen pixels only).
+    # Ridge prior precision for nuisance coefs (templates are standardized).
+    if not np.isfinite(args.ridge_sigma) or float(args.ridge_sigma) <= 0.0:
+        raise SystemExit("--ridge-sigma must be finite and > 0")
+    ridge_prec = 1.0 / (float(args.ridge_sigma) ** 2)
+
+    # Standardized nuisance templates (seen pixels only), with per-template priors/regularization.
     nuisance_cols: list[np.ndarray] = []
     nuisance_names: list[str] = []
+    nuisance_prior_prec: list[float] = []
 
-    def add_t(name: str, arr: np.ndarray, *, transform: str = "z") -> None:
-        nonlocal nuisance_cols, nuisance_names
+    def add_t(name: str, arr: np.ndarray, *, transform: str = "z", prior_prec: float | None = None) -> None:
+        nonlocal nuisance_cols, nuisance_names, nuisance_prior_prec
         if transform == "z":
             col = zscore(arr, seen)[seen]
         elif transform == "log1p_z":
@@ -811,6 +1067,7 @@ def main() -> int:
             raise ValueError(f"unknown transform: {transform}")
         nuisance_cols.append(np.asarray(col, dtype=float))
         nuisance_names.append(str(name))
+        nuisance_prior_prec.append(float(ridge_prec if prior_prec is None else prior_prec))
 
     # "Maximal reasonable" basis (not exhaustive).
     add_t("abs_elat_z", abs_elat, transform="z")
@@ -824,12 +1081,144 @@ def main() -> int:
     add_t("log_invvar_z", invvar_map, transform="log_z")
     add_t("log1p_starcount_z", star_map, transform="log1p_z")
 
-    X_nuis_seen = np.column_stack(nuisance_cols) if nuisance_cols else np.zeros((n_seen.shape[0], 0), dtype=float)
+    # Explicit low-ell harmonic nuisance modes (ℓ=2..lmax), with priors.
+    harmonic_meta: dict[str, Any] | None = None
+    if int(args.harmonic_lmax) > 1:
+        try:
+            # SciPy <1.17
+            from scipy.special import sph_harm as _sph_harm  # type: ignore
 
-    # Ridge prior precision for nuisance coefs (templates are standardized).
-    if not np.isfinite(args.ridge_sigma) or float(args.ridge_sigma) <= 0.0:
-        raise SystemExit("--ridge-sigma must be finite and > 0")
-    ridge_prec = 1.0 / (float(args.ridge_sigma) ** 2)
+            def sph_harm(l: int, m: int, th: np.ndarray, ph: np.ndarray) -> np.ndarray:
+                return _sph_harm(m, l, ph, th)
+
+        except Exception:
+            # SciPy >=1.17
+            from scipy.special import sph_harm_y as _sph_harm_y  # type: ignore
+
+            def sph_harm(l: int, m: int, th: np.ndarray, ph: np.ndarray) -> np.ndarray:
+                return _sph_harm_y(l, m, th, ph)
+
+        prior_mode = str(args.harmonic_prior)
+        cl_signal = None
+        cl_path = None
+        if prior_mode == "lognormal_cl":
+            cl_path = repo_root / str(args.harmonic_prior_cl_json)
+            if not cl_path.exists():
+                raise SystemExit(f"Missing --harmonic-prior-cl-json: {cl_path}")
+            cl_obj = json.loads(cl_path.read_text())
+            try:
+                cl_signal = np.asarray(cl_obj["cl_estimate"]["cl_signal"], dtype=float)
+            except Exception as e:  # noqa: BLE001
+                raise SystemExit(f"{cl_path}: expected cl_estimate.cl_signal") from e
+
+        scale = float(args.harmonic_prior_scale)
+        cl_floor = float(args.harmonic_prior_min_cl)
+        if not np.isfinite(scale) or scale <= 0.0:
+            raise SystemExit("--harmonic-prior-scale must be finite and > 0")
+        if not np.isfinite(cl_floor) or cl_floor <= 0.0:
+            raise SystemExit("--harmonic-prior-min-cl must be finite and > 0")
+
+        th = np.deg2rad(90.0 - lat_pix)  # colatitude
+        ph = np.deg2rad(lon_pix % 360.0)  # longitude
+
+        harm_names: list[str] = []
+        harm_ells: list[int] = []
+        harm_raw_std: list[float] = []
+        harm_prior_prec: list[float] = []
+
+        def _harm_col(raw_full: np.ndarray) -> tuple[np.ndarray, float] | None:
+            raw_full = np.asarray(raw_full, dtype=float)
+            raw0 = raw_full - float(np.mean(raw_full[seen]))
+            std = float(np.std(raw0[seen]))
+            if not np.isfinite(std) or std <= 0.0:
+                return None
+            return (raw0 / std)[seen], std
+
+        for ell in range(2, int(args.harmonic_lmax) + 1):
+            y0 = sph_harm(int(ell), 0, th, ph).real.astype(float)
+            col = _harm_col(y0)
+            if col is not None:
+                name = f"Y{ell}_0_re_z"
+                std_raw = float(col[1])
+                prec = float(ridge_prec)
+                if prior_mode == "lognormal_cl":
+                    assert cl_signal is not None
+                    if int(ell) >= int(cl_signal.size):
+                        raise SystemExit(f"C_ell array too short for ell={ell} (size={cl_signal.size}).")
+                    cl = float(cl_signal[int(ell)])
+                    if not np.isfinite(cl) or cl <= 0.0:
+                        cl = cl_floor
+                    cl = max(cl_floor, cl)
+                    var_beta = cl * scale * (std_raw**2)
+                    prec = 1.0 / float(max(cl_floor, var_beta))
+                nuisance_cols.append(np.asarray(col[0], dtype=float))
+                nuisance_names.append(str(name))
+                nuisance_prior_prec.append(float(prec))
+                harm_names.append(name)
+                harm_ells.append(int(ell))
+                harm_raw_std.append(std_raw)
+                harm_prior_prec.append(float(prec))
+
+            for m in range(1, int(ell) + 1):
+                y = sph_harm(int(ell), int(m), th, ph)
+                yr = (np.sqrt(2.0) * y.real).astype(float)
+                yi = (np.sqrt(2.0) * y.imag).astype(float)
+                colr = _harm_col(yr)
+                if colr is not None:
+                    name = f"Y{ell}_{m}_re_z"
+                    std_raw = float(colr[1])
+                    prec = float(ridge_prec)
+                    if prior_mode == "lognormal_cl":
+                        assert cl_signal is not None
+                        cl = float(cl_signal[int(ell)])
+                        if not np.isfinite(cl) or cl <= 0.0:
+                            cl = cl_floor
+                        cl = max(cl_floor, cl)
+                        var_beta = cl * scale * (std_raw**2)
+                        prec = 1.0 / float(max(cl_floor, var_beta))
+                    nuisance_cols.append(np.asarray(colr[0], dtype=float))
+                    nuisance_names.append(str(name))
+                    nuisance_prior_prec.append(float(prec))
+                    harm_names.append(name)
+                    harm_ells.append(int(ell))
+                    harm_raw_std.append(std_raw)
+                    harm_prior_prec.append(float(prec))
+
+                coli = _harm_col(yi)
+                if coli is not None:
+                    name = f"Y{ell}_{m}_im_z"
+                    std_raw = float(coli[1])
+                    prec = float(ridge_prec)
+                    if prior_mode == "lognormal_cl":
+                        assert cl_signal is not None
+                        cl = float(cl_signal[int(ell)])
+                        if not np.isfinite(cl) or cl <= 0.0:
+                            cl = cl_floor
+                        cl = max(cl_floor, cl)
+                        var_beta = cl * scale * (std_raw**2)
+                        prec = 1.0 / float(max(cl_floor, var_beta))
+                    nuisance_cols.append(np.asarray(coli[0], dtype=float))
+                    nuisance_names.append(str(name))
+                    nuisance_prior_prec.append(float(prec))
+                    harm_names.append(name)
+                    harm_ells.append(int(ell))
+                    harm_raw_std.append(std_raw)
+                    harm_prior_prec.append(float(prec))
+
+        harmonic_meta = {
+            "harmonic_lmax": int(args.harmonic_lmax),
+            "prior": prior_mode,
+            "prior_cl_json": None if cl_path is None else str(cl_path),
+            "prior_scale": float(scale),
+            "prior_min_cl": float(cl_floor),
+            "n_harmonics": int(len(harm_names)),
+            "prior_prec_summary": None
+            if not harm_prior_prec
+            else {"min": float(np.min(harm_prior_prec)), "p50": float(np.median(harm_prior_prec)), "max": float(np.max(harm_prior_prec))},
+        }
+
+    X_nuis_seen = np.column_stack(nuisance_cols) if nuisance_cols else np.zeros((n_seen.shape[0], 0), dtype=float)
+    nuisance_prior_prec_arr = np.array(nuisance_prior_prec, dtype=float) if nuisance_prior_prec else None
 
     # Prepare cumulative selection ordering.
     order = np.argsort(w1[base])
@@ -840,6 +1229,18 @@ def main() -> int:
     w1_start, w1_stop, w1_step = (float(x) for x in str(args.w1_grid).split(","))
     n_steps = int(round((w1_stop - w1_start) / w1_step)) + 1
     cuts = [w1_start + i * w1_step for i in range(n_steps)]
+    # Ensure the representative cut is included in the scan grid so scan vs rep-cut
+    # consistency can be audited deterministically.
+    rep_cut = float(args.representative_cut)
+    if not any(abs(float(c) - rep_cut) <= 1e-9 for c in cuts):
+        cuts.append(rep_cut)
+    cuts = sorted(float(c) for c in cuts)
+    # Unique with tolerance to avoid float duplication.
+    cuts_unique: list[float] = []
+    for c in cuts:
+        if not cuts_unique or abs(c - cuts_unique[-1]) > 1e-9:
+            cuts_unique.append(float(c))
+    cuts = cuts_unique
 
     # Baseline model: dipole + abs_elat (Secrest-style minimal ecliptic latitude trend).
     X_base_nuis = zscore(abs_elat, seen)[seen][:, None]
@@ -855,9 +1256,9 @@ def main() -> int:
             n_seen=n_seen,
             X_nuis_seen=X_base_nuis,
             nuisance_names=base_names,
+            nuisance_prior_prec=np.array([ridge_prec], dtype=float),
             offset_seen=None,
             cuts=cuts,
-            ridge_prec=ridge_prec,
             max_iter=int(args.max_iter),
             seed=int(args.seed),
         )
@@ -868,48 +1269,48 @@ def main() -> int:
             n_seen=n_seen,
             X_nuis_seen=X_nuis_seen,
             nuisance_names=nuisance_names,
+            nuisance_prior_prec=nuisance_prior_prec_arr,
             offset_seen=None,
             cuts=cuts,
-            ridge_prec=ridge_prec,
             max_iter=int(args.max_iter),
             seed=int(args.seed),
         )
 
-        # Cross-catalog external offset variant: Gaia logp offset added as fixed offset.
-        gaia_offset_seen = gaia_logp_map[seen]
-        gaia_offset_seen = gaia_offset_seen - float(np.median(gaia_offset_seen))
+        # Cross-catalog external completeness pattern (Gaia qsocand) as a *free* nuisance template.
+        gaia_logp_z_seen = zscore(gaia_logp_map, seen)[seen]
+        X_nuis_gaia_seen = np.column_stack([X_nuis_seen, gaia_logp_z_seen])
+        prior_gaia = (
+            np.concatenate([nuisance_prior_prec_arr, np.array([ridge_prec], dtype=float)])
+            if nuisance_prior_prec_arr is not None
+            else np.array([ridge_prec], dtype=float)
+        )
         external_rows, external_meta = scan_glm(
             w1_sorted=w1_sorted,
             ipix_sorted=ipix_sorted,
             seen=seen,
             n_seen=n_seen,
-            X_nuis_seen=X_nuis_seen,
-            nuisance_names=nuisance_names + ["gaia_logp_offset"],
-            offset_seen=gaia_offset_seen,
+            X_nuis_seen=X_nuis_gaia_seen,
+            nuisance_names=nuisance_names + ["gaia_logp_offset_z"],
+            nuisance_prior_prec=prior_gaia,
+            offset_seen=None,
             cuts=cuts,
-            ridge_prec=ridge_prec,
             max_iter=int(args.max_iter),
             seed=int(args.seed),
         )
 
-        # Fixed-axis (CMB) scan with nuisance templates projected ⟂ {1, u_cmb·n}.
+        # Fixed-axis (CMB) scan (physical mode), with the same nuisance basis + priors.
         u_cmb = lb_to_unitvec(np.array([CMB_L_DEG]), np.array([CMB_B_DEG]))[0]
         dip_mode = (n_seen @ u_cmb).astype(float)
-        X_base_cmb = np.column_stack([np.ones_like(dip_mode), dip_mode])
-        T_perp_cmb = proj_orthogonal_to(X_base_cmb, X_nuis_seen)
-        T_perp_cmb_z = np.column_stack(
-            [zscore(T_perp_cmb[:, j], np.ones(T_perp_cmb.shape[0], dtype=bool)) for j in range(T_perp_cmb.shape[1])]
-        )
         cmb_rows, cmb_meta = scan_glm_fixed_axis(
             w1_sorted=w1_sorted,
             ipix_sorted=ipix_sorted,
             seen=seen,
             dipole_mode_seen=dip_mode,
-            X_nuis_seen=T_perp_cmb_z,
-            nuisance_names=[f"{n}_perp_cmb" for n in nuisance_names],
+            X_nuis_seen=X_nuis_seen,
+            nuisance_names=nuisance_names,
+            nuisance_prior_prec=nuisance_prior_prec_arr,
             offset_seen=None,
             cuts=cuts,
-            ridge_prec=ridge_prec,
             max_iter=int(args.max_iter),
             seed=int(args.seed),
         )
@@ -918,11 +1319,11 @@ def main() -> int:
             ipix_sorted=ipix_sorted,
             seen=seen,
             dipole_mode_seen=dip_mode,
-            X_nuis_seen=T_perp_cmb_z,
-            nuisance_names=[f"{n}_perp_cmb" for n in nuisance_names] + ["gaia_logp_offset"],
-            offset_seen=gaia_offset_seen,
+            X_nuis_seen=X_nuis_gaia_seen,
+            nuisance_names=nuisance_names + ["gaia_logp_offset_z"],
+            nuisance_prior_prec=prior_gaia,
+            offset_seen=None,
             cuts=cuts,
-            ridge_prec=ridge_prec,
             max_iter=int(args.max_iter),
             seed=int(args.seed),
         )
@@ -930,9 +1331,9 @@ def main() -> int:
         scan_payload = {
             "baseline": {"meta": baseline_meta, "rows": rows_to_json(baseline_rows)},
             "maximal": {"meta": maximal_meta, "rows": rows_to_json(maximal_rows)},
-            "external_gaia": {"meta": external_meta, "rows": rows_to_json(external_rows)},
+            "external_gaia_template": {"meta": external_meta, "rows": rows_to_json(external_rows)},
             "cmb_fixed_maximal": {"meta": cmb_meta, "rows": rows_to_json(cmb_rows)},
-            "cmb_fixed_external_gaia": {"meta": cmb_ext_meta, "rows": rows_to_json(cmb_ext_rows)},
+            "cmb_fixed_external_gaia_template": {"meta": cmb_ext_meta, "rows": rows_to_json(cmb_ext_rows)},
         }
 
         if args.do_orthogonalized:
@@ -948,9 +1349,9 @@ def main() -> int:
                 n_seen=n_seen,
                 X_nuis_seen=T_perp_z,
                 nuisance_names=[f"{n}_orth" for n in nuisance_names],
+                nuisance_prior_prec=np.full(T_perp_z.shape[1], ridge_prec, dtype=float),
                 offset_seen=None,
                 cuts=cuts,
-                ridge_prec=ridge_prec,
                 max_iter=int(args.max_iter),
                 seed=int(args.seed),
             )
@@ -973,7 +1374,8 @@ def main() -> int:
     if args.do_heldout:
         rep_cut = float(args.representative_cut)
         # Build counts at rep_cut.
-        nxt = int(np.searchsorted(w1_sorted, rep_cut, side="left"))
+        # Inclusive faint-cut semantics: W1 <= W1_max.
+        nxt = int(np.searchsorted(w1_sorted, rep_cut, side="right"))
         counts_all = np.bincount(ipix_sorted[:nxt], minlength=npix).astype(np.int64)
         y_all_seen = counts_all[seen].astype(float)
 
@@ -992,7 +1394,7 @@ def main() -> int:
         # In-sample baseline fit (for context).
         Xb_all = np.column_stack([np.ones_like(y_all_seen), n_seen[:, 0], n_seen[:, 1], n_seen[:, 2], X_base_nuis[:, 0]])
         prior_b = np.zeros(Xb_all.shape[1], dtype=float)
-        prior_b[4:] = ridge_prec
+        prior_b[4:] = np.array([ridge_prec], dtype=float)
         beta_b, _ = fit_poisson_glm(
             Xb_all,
             y_all_seen,
@@ -1023,7 +1425,9 @@ def main() -> int:
         # In-sample maximal fit.
         Xm_all = np.column_stack([np.ones_like(y_all_seen), n_seen, X_nuis_seen])
         prior_m = np.zeros(Xm_all.shape[1], dtype=float)
-        prior_m[4:] = ridge_prec
+        if nuisance_prior_prec_arr is None:
+            raise RuntimeError("Internal error: nuisance_prior_prec_arr is None but maximal nuisance columns exist.")
+        prior_m[4:] = nuisance_prior_prec_arr
         beta_m, _ = fit_poisson_glm(
             Xm_all,
             y_all_seen,
@@ -1109,20 +1513,17 @@ def main() -> int:
             },
         }
 
-        # CMB-fixed held-out measurement: train nuisance-only on train with templates ⟂ {1, u_cmb·n},
-        # then fit D_par on test with that nuisance field as an offset.
+        # CMB-fixed held-out measurement: train nuisance-only on train, then fit D_par on test
+        # with that nuisance field as an offset (out-of-sample dipole estimate).
         u_cmb = lb_to_unitvec(np.array([CMB_L_DEG]), np.array([CMB_B_DEG]))[0]
         dip_mode_all = (n_seen @ u_cmb).astype(float)
-        X_base_cmb = np.column_stack([np.ones_like(dip_mode_all), dip_mode_all])
-        T_perp_cmb = proj_orthogonal_to(X_base_cmb, X_nuis_seen)
-        T_perp_cmb_z = np.column_stack(
-            [zscore(T_perp_cmb[:, j], np.ones(T_perp_cmb.shape[0], dtype=bool)) for j in range(T_perp_cmb.shape[1])]
-        )
+        if nuisance_prior_prec_arr is None:
+            raise RuntimeError("Internal error: nuisance_prior_prec_arr is None but nuisance columns exist.")
 
-        # Nuisance-only training fit: [1, T_perp].
-        Xn_train = np.column_stack([np.ones_like(y_all_seen[train_idx]), T_perp_cmb_z[train_idx]])
+        # Nuisance-only training fit: [1, T].
+        Xn_train = np.column_stack([np.ones_like(y_all_seen[train_idx]), X_nuis_seen[train_idx]])
         prior_n = np.zeros(Xn_train.shape[1], dtype=float)
-        prior_n[1:] = ridge_prec
+        prior_n[1:] = nuisance_prior_prec_arr
         beta_n_train, _ = fit_poisson_glm(
             Xn_train,
             y_all_seen[train_idx],
@@ -1132,7 +1533,7 @@ def main() -> int:
             prior_prec_diag=prior_n,
         )
         c_n_train = beta_n_train[1:]
-        off_cmb_test = T_perp_cmb_z[test_idx] @ c_n_train
+        off_cmb_test = X_nuis_seen[test_idx] @ c_n_train
 
         # Test dipole fit (CMB fixed): [1, u_cmb·n] with nuisance offset.
         Xcmb_test = np.column_stack([np.ones_like(y_all_seen[test_idx]), dip_mode_all[test_idx]])
@@ -1162,13 +1563,16 @@ def main() -> int:
     loto_payload: dict[str, Any] = {}
     if args.do_loto:
         rep_cut = float(args.representative_cut)
-        nxt = int(np.searchsorted(w1_sorted, rep_cut, side="left"))
+        # Inclusive faint-cut semantics: W1 <= W1_max.
+        nxt = int(np.searchsorted(w1_sorted, rep_cut, side="right"))
         counts_all = np.bincount(ipix_sorted[:nxt], minlength=npix).astype(np.int64)
         y_seen = counts_all[seen].astype(float)
 
         Xfull = np.column_stack([np.ones_like(y_seen), n_seen, X_nuis_seen])
         prior_full = np.zeros(Xfull.shape[1], dtype=float)
-        prior_full[4:] = ridge_prec
+        if nuisance_prior_prec_arr is None:
+            raise RuntimeError("Internal error: nuisance_prior_prec_arr is None but nuisance columns exist.")
+        prior_full[4:] = nuisance_prior_prec_arr
         beta_full, _ = fit_poisson_glm(
             Xfull,
             y_seen,
@@ -1190,7 +1594,7 @@ def main() -> int:
             T = X_nuis_seen[:, keep]
             Xj = np.column_stack([np.ones_like(y_seen), n_seen, T])
             prior_j = np.zeros(Xj.shape[1], dtype=float)
-            prior_j[4:] = ridge_prec
+            prior_j[4:] = nuisance_prior_prec_arr[np.asarray(keep, dtype=int)]
             beta_init = np.concatenate([beta_full[:4], beta_full[4 + np.asarray(keep, dtype=int)]])
             beta_j, _ = fit_poisson_glm(
                 Xj,
@@ -1365,8 +1769,10 @@ def main() -> int:
         baseline_sep = np.array([r["dipole"]["axis_sep_cmb_deg"] for r in scan_payload["baseline"]["rows"]], dtype=float)
         maximal_D = np.array([r["dipole"]["D"] for r in scan_payload["maximal"]["rows"]], dtype=float)
         maximal_sep = np.array([r["dipole"]["axis_sep_cmb_deg"] for r in scan_payload["maximal"]["rows"]], dtype=float)
-        ext_D = np.array([r["dipole"]["D"] for r in scan_payload["external_gaia"]["rows"]], dtype=float)
-        ext_sep = np.array([r["dipole"]["axis_sep_cmb_deg"] for r in scan_payload["external_gaia"]["rows"]], dtype=float)
+        ext_D = np.array([r["dipole"]["D"] for r in scan_payload["external_gaia_template"]["rows"]], dtype=float)
+        ext_sep = np.array(
+            [r["dipole"]["axis_sep_cmb_deg"] for r in scan_payload["external_gaia_template"]["rows"]], dtype=float
+        )
 
         plot_case_closed_figure(
             outpath=fig_dir / "case_closed_4panel.png",
@@ -1379,7 +1785,7 @@ def main() -> int:
 
         cmb_Dpar = np.array([r["cmb_projection"]["D_par"] for r in scan_payload["cmb_fixed_maximal"]["rows"]], dtype=float)
         cmb_Dpar_ext = np.array(
-            [r["cmb_projection"]["D_par"] for r in scan_payload["cmb_fixed_external_gaia"]["rows"]], dtype=float
+            [r["cmb_projection"]["D_par"] for r in scan_payload["cmb_fixed_external_gaia_template"]["rows"]], dtype=float
         )
         plot_cmb_fixed_amplitude_scan(
             outpath=fig_dir / "cmb_fixed_amplitude_scan.png",
@@ -1388,14 +1794,42 @@ def main() -> int:
             Dpar_external=cmb_Dpar_ext,
         )
 
+        base_par = np.array([r["cmb_projection"]["D_par"] for r in scan_payload["baseline"]["rows"]], dtype=float)
+        base_perp = np.array([r["cmb_projection"]["D_perp"] for r in scan_payload["baseline"]["rows"]], dtype=float)
+        max_par = np.array([r["cmb_projection"]["D_par"] for r in scan_payload["maximal"]["rows"]], dtype=float)
+        max_perp = np.array([r["cmb_projection"]["D_perp"] for r in scan_payload["maximal"]["rows"]], dtype=float)
+        ext_par = np.array(
+            [r["cmb_projection"]["D_par"] for r in scan_payload["external_gaia_template"]["rows"]], dtype=float
+        )
+        ext_perp = np.array(
+            [r["cmb_projection"]["D_perp"] for r in scan_payload["external_gaia_template"]["rows"]], dtype=float
+        )
+
+        plot_cmb_projection_par_perp_scan(
+            outpath=fig_dir / "cmb_projection_par_perp_scan.png",
+            cuts=cuts_arr,
+            series={
+                "Baseline (free axis)": {"D_par": base_par, "D_perp": base_perp},
+                "Maximal nuis (free axis)": {"D_par": max_par, "D_perp": max_perp},
+                "Maximal + Gaia template": {"D_par": ext_par, "D_perp": ext_perp},
+            },
+            cmb_fixed={
+                "CMB-fixed (maximal)": cmb_Dpar,
+                "CMB-fixed + Gaia": cmb_Dpar_ext,
+            },
+        )
+
     # Compact coefficient table at representative cut (maximal model, in-sample).
-    rep_cut = float(args.representative_cut)
-    nxt = int(np.searchsorted(w1_sorted, rep_cut, side="left"))
+    # Inclusive faint-cut semantics: W1 <= W1_max.
+    nxt = int(np.searchsorted(w1_sorted, rep_cut, side="right"))
     counts_all = np.bincount(ipix_sorted[:nxt], minlength=npix).astype(np.int64)
     y_seen = counts_all[seen].astype(float)
     Xfull = np.column_stack([np.ones_like(y_seen), n_seen, X_nuis_seen])
     prior_full = np.zeros(Xfull.shape[1], dtype=float)
-    prior_full[4:] = ridge_prec
+    if nuisance_prior_prec_arr is None:
+        raise RuntimeError("Internal error: nuisance_prior_prec_arr is None but nuisance columns exist.")
+    prior_full[4:] = nuisance_prior_prec_arr
+    info_full: dict[str, Any] = {}
     beta_full, _ = fit_poisson_glm(
         Xfull,
         y_seen,
@@ -1403,6 +1837,7 @@ def main() -> int:
         max_iter=int(args.max_iter),
         beta_init=None,
         prior_prec_diag=prior_full,
+        out_info=info_full,
     )
     coeff_csv = data_dir / "coefficients_representative_cut.csv"
     with coeff_csv.open("w", newline="") as f:
@@ -1415,42 +1850,312 @@ def main() -> int:
         for name, val in zip(nuisance_names, beta_full[4:], strict=True):
             w.writerow([name, f"{float(val):.10g}"])
 
-    # Representative-cut external-offset fits (cross-catalog robustness).
+    # Representative-cut fits (free axis + CMB-fixed), plus constrained-null bootstrap calibration.
     rep_fits: dict[str, Any] = {}
 
-    def _fit_with_offset(label: str, off: np.ndarray | None) -> None:
-        beta, _ = fit_poisson_glm(
-            Xfull,
-            y_seen,
-            offset=off,
-            max_iter=int(args.max_iter),
-            beta_init=beta_full,
-            prior_prec_diag=prior_full,
-        )
-        bvec = beta[1:4]
-        D = float(np.linalg.norm(bvec))
-        l_hat, b_hat = vec_to_lb(bvec)
-        rep_fits[label] = {
-            "D": D,
-            "lb_deg": [float(l_hat), float(b_hat)],
-            "axis_sep_cmb_deg": float(
-                axis_angle_deg(bvec, lb_to_unitvec(np.array([CMB_L_DEG]), np.array([CMB_B_DEG]))[0])
-            ),
-        }
+    u_cmb = lb_to_unitvec(np.array([CMB_L_DEG]), np.array([CMB_B_DEG]))[0]
+    dip_mode_all = (n_seen @ u_cmb).astype(float)
 
-    gaia_off = gaia_logp_map[seen].astype(float)
-    gaia_off = gaia_off - float(np.median(gaia_off))
-
+    gaia_logp_z_seen = zscore(gaia_logp_map, seen)[seen]
     a_edge = float(alpha_edge_from_cumcounts(w1[base], rep_cut, delta=float(w1_step)))
     sdss_dm_seen = sdss_dm_map[seen].astype(float)
     sdss_dm_seen = sdss_dm_seen - float(np.median(sdss_dm_seen))
-    sdss_off = sdss_dm_seen * a_edge
+    sdss_t = sdss_dm_seen * a_edge
+    sdss_sig = float(np.std(sdss_t)) if np.isfinite(np.std(sdss_t)) else 1.0
+    if not np.isfinite(sdss_sig) or sdss_sig <= 0.0:
+        sdss_sig = 1.0
+    sdss_z_seen = (sdss_t - float(np.median(sdss_t))) / sdss_sig
 
-    _fit_with_offset("maximal_no_external", None)
-    _fit_with_offset("maximal_plus_gaia_logp_offset", gaia_off)
-    _fit_with_offset("maximal_plus_sdss_delta_m_alpha_edge_offset", sdss_off)
-    _fit_with_offset("maximal_plus_gaia_plus_sdss_offsets", gaia_off + sdss_off)
     rep_fits["sdss_alpha_edge_at_cut"] = a_edge
+
+    def _summarize_free_axis(beta: np.ndarray) -> dict[str, Any]:
+        bvec = np.asarray(beta[1:4], dtype=float)
+        D = float(np.linalg.norm(bvec))
+        l_hat, b_hat = vec_to_lb(bvec)
+        D_par = float(np.dot(bvec, u_cmb))
+        D_perp = float(np.linalg.norm(bvec - D_par * u_cmb))
+        return {
+            "D": D,
+            "lb_deg": [float(l_hat), float(b_hat)],
+            "axis_sep_cmb_deg": float(axis_angle_deg(bvec, u_cmb)),
+            "cmb_projection": {"D_par": D_par, "D_perp": D_perp},
+        }
+
+    rep_fits["free_axis_maximal"] = _summarize_free_axis(beta_full)
+    rep_fits["free_axis_maximal_fit_opt"] = info_full
+
+    def _fit_free_axis_with_extra(label: str, extra_cols: list[np.ndarray], extra_names: list[str]) -> None:
+        if extra_cols:
+            X = np.column_stack([np.ones_like(y_seen), n_seen, X_nuis_seen] + extra_cols)
+            prior = np.zeros(X.shape[1], dtype=float)
+            prior[4 : 4 + X_nuis_seen.shape[1]] = nuisance_prior_prec_arr
+            prior[(4 + X_nuis_seen.shape[1]) :] = ridge_prec
+            beta, _ = fit_poisson_glm(
+                X,
+                y_seen,
+                offset=None,
+                max_iter=int(args.max_iter),
+                beta_init=None,
+                prior_prec_diag=prior,
+            )
+            rep_fits[label] = _summarize_free_axis(beta) | {"extra_templates": extra_names}
+
+    _fit_free_axis_with_extra("free_axis_plus_gaia_logp_template", [gaia_logp_z_seen], ["gaia_logp_offset_z"])
+    _fit_free_axis_with_extra("free_axis_plus_sdss_delta_m_template", [sdss_z_seen], ["sdss_delta_m_alpha_edge_z"])
+    _fit_free_axis_with_extra(
+        "free_axis_plus_gaia_plus_sdss_templates",
+        [gaia_logp_z_seen, sdss_z_seen],
+        ["gaia_logp_offset_z", "sdss_delta_m_alpha_edge_z"],
+    )
+
+    def _fit_cmb_fixed(extra_cols: list[np.ndarray], extra_names: list[str]) -> tuple[np.ndarray, np.ndarray]:
+        X = np.column_stack([np.ones_like(y_seen), dip_mode_all, X_nuis_seen] + extra_cols)
+        prior = np.zeros(X.shape[1], dtype=float)
+        prior[2 : 2 + X_nuis_seen.shape[1]] = nuisance_prior_prec_arr
+        if extra_cols:
+            prior[(2 + X_nuis_seen.shape[1]) :] = ridge_prec
+        info: dict[str, Any] = {}
+        beta, _ = fit_poisson_glm(
+            X,
+            y_seen,
+            offset=None,
+            max_iter=int(args.max_iter),
+            beta_init=None,
+            prior_prec_diag=prior,
+            out_info=info,
+        )
+        rep_fits[f"fit_opt::{'+'.join(extra_names) if extra_names else 'cmb_fixed_maximal'}"] = info
+        return beta, prior
+
+    beta_cmb, prior_cmb = _fit_cmb_fixed([], [])
+    Dpar_obs = float(beta_cmb[1])
+    rep_fits["cmb_fixed_maximal"] = {
+        "D_par": Dpar_obs,
+        "D_abs": float(abs(Dpar_obs)),
+        "axis_sep_cmb_deg": 0.0,
+    }
+    beta_cmb_gaia, prior_cmb_gaia = _fit_cmb_fixed([gaia_logp_z_seen], ["gaia_logp_offset_z"])
+    rep_fits["cmb_fixed_plus_gaia_logp_template"] = {
+        "D_par": float(beta_cmb_gaia[1]),
+        "D_abs": float(abs(float(beta_cmb_gaia[1]))),
+        "axis_sep_cmb_deg": 0.0,
+    }
+
+    # Constrained-null parametric bootstrap: simulate under (D_par = D_kin_ref) + fitted nuisance field,
+    # then recover D_par with the same (CMB-fixed) model.
+    bootstrap_payload: dict[str, Any] = {}
+    if not bool(args.no_bootstrap):
+        n_sim = int(args.bootstrap_nsim)
+        if n_sim <= 0:
+            raise SystemExit("--bootstrap-nsim must be > 0")
+        D_true = float(args.bootstrap_kin_dpar)
+        if not np.isfinite(D_true):
+            raise SystemExit("--bootstrap-kin-dpar must be finite")
+
+        # Fit nuisance field under constrained D_true by treating the dipole term as an offset.
+        Xnull = np.column_stack([np.ones_like(y_seen), X_nuis_seen])
+        prior_null = np.zeros(Xnull.shape[1], dtype=float)
+        prior_null[1:] = nuisance_prior_prec_arr
+        offset_null = dip_mode_all * D_true
+        beta_null, _ = fit_poisson_glm(
+            Xnull,
+            y_seen,
+            offset=offset_null,
+            max_iter=int(args.max_iter),
+            beta_init=None,
+            prior_prec_diag=prior_null,
+        )
+        eta_null = offset_null + Xnull @ beta_null
+        mu_null = np.exp(np.clip(eta_null, -25.0, 25.0))
+
+        rng = np.random.default_rng(int(args.seed) + 991)
+        dpar_sims = np.empty(n_sim, dtype=float)
+        nit = np.empty(n_sim, dtype=int)
+        success = np.zeros(n_sim, dtype=bool)
+        grad_inf = np.empty(n_sim, dtype=float)
+        progress_path = data_dir / "bootstrap_dpar_progress.json"
+        t0 = time.time()
+        Xfit = np.column_stack([np.ones_like(y_seen), dip_mode_all, X_nuis_seen])
+        prior_fit = np.zeros(Xfit.shape[1], dtype=float)
+        prior_fit[2:] = nuisance_prior_prec_arr
+        beta_init = beta_cmb
+        for i in range(n_sim):
+            y_sim = rng.poisson(mu_null).astype(float)
+            info: dict[str, Any] = {}
+            beta_i, _ = fit_poisson_glm(
+                Xfit,
+                y_sim,
+                offset=None,
+                max_iter=int(args.bootstrap_max_iter),
+                beta_init=beta_init,
+                prior_prec_diag=prior_fit,
+                out_info=info,
+            )
+            dpar_sims[i] = float(beta_i[1])
+            success[i] = bool(info.get("success", True))
+            nit[i] = int(info.get("nit", -1))
+            grad_inf[i] = float(info.get("grad_inf_norm", float("nan")))
+            beta_init = beta_i
+            if (i + 1) % 25 == 0 or (i + 1) == n_sim:
+                done = i + 1
+                try:
+                    write_json(
+                        progress_path,
+                        {
+                            "done": int(done),
+                            "nsim": int(n_sim),
+                            "elapsed_s": float(time.time() - t0),
+                            "success_frac": float(np.mean(success[:done])),
+                            "grad_inf_p50": float(np.nanpercentile(grad_inf[:done], 50)),
+                            "grad_inf_p90": float(np.nanpercentile(grad_inf[:done], 90)),
+                            "nit_p50": float(np.percentile(nit[:done], 50)),
+                            "nit_p90": float(np.percentile(nit[:done], 90)),
+                            "nit_max": int(np.max(nit[:done])),
+                            "dpar_sim_mean": float(np.mean(dpar_sims[:done])),
+                        },
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
+
+        p_one_sided = float(np.mean(dpar_sims >= Dpar_obs))
+        p_abs = float(np.mean(np.abs(dpar_sims) >= abs(Dpar_obs)))
+        bootstrap_payload = {
+            "nsim": int(n_sim),
+            "D_true": D_true,
+            "D_par_obs": Dpar_obs,
+            "p_one_sided_ge_obs": p_one_sided,
+            "p_abs_ge_obs": p_abs,
+            "dpar_sim_summary": {
+                "mean": float(np.mean(dpar_sims)),
+                "p16": float(np.percentile(dpar_sims, 16)),
+                "p50": float(np.percentile(dpar_sims, 50)),
+                "p84": float(np.percentile(dpar_sims, 84)),
+            },
+            "fit_convergence": {
+                "success_frac": float(np.mean(success)),
+                "n_fail": int(np.sum(~success)),
+                "nit_summary": {
+                    "p50": float(np.percentile(nit, 50)),
+                    "p90": float(np.percentile(nit, 90)),
+                    "max": int(np.max(nit)),
+                },
+                "grad_inf_summary": {
+                    "p50": float(np.nanpercentile(grad_inf, 50)),
+                    "p90": float(np.nanpercentile(grad_inf, 90)),
+                    "max": float(np.nanmax(grad_inf)),
+                },
+            },
+        }
+        write_json(data_dir / "bootstrap_dpar.json", bootstrap_payload)
+
+        if not bool(args.no_plots):
+            import matplotlib.pyplot as plt
+
+            fig, ax = plt.subplots(1, 1, figsize=(7.6, 4.2))
+            ax.hist(dpar_sims, bins=50, color="C0", alpha=0.75)
+            ax.axvline(D_true, color="0.3", ls="--", lw=1.5, label=f"D_true={D_true:.4f}")
+            ax.axvline(Dpar_obs, color="C3", lw=2, label=f"D_par,obs={Dpar_obs:.4f}")
+            ax.set_xlabel("Recovered D_par (CMB-fixed)")
+            ax.set_ylabel("Count")
+            ax.set_title("Constrained-null parametric bootstrap for D_par")
+            ax.grid(alpha=0.3)
+            ax.legend(frameon=False, fontsize=9)
+            fig.tight_layout()
+            fig.savefig(fig_dir / "bootstrap_dpar_hist.png", dpi=200)
+            plt.close(fig)
+
+    rep_fits["bootstrap_dpar"] = bootstrap_payload if bootstrap_payload else None
+
+    # Consistency audit: scan at rep_cut must match the direct rep-cut fits (same model/data).
+    # If this fails, treat it as a pipeline bug (typically non-converged scan fits or mismatched config),
+    # not an astrophysical signal.
+    if args.do_scan:
+        def _find_scan_row(rows: list[dict[str, Any]], cut: float) -> dict[str, Any]:
+            best = min(rows, key=lambda r: abs(float(r["w1_cut"]) - float(cut)))
+            return best
+
+        eps_D = 1e-4
+        eps_axis = 0.5  # deg
+        eps_par = 1e-4
+        eps_perp = 1e-4
+
+        scan_row_free = _find_scan_row(scan_payload["maximal"]["rows"], rep_cut)
+        scan_row_cmb = _find_scan_row(scan_payload["cmb_fixed_maximal"]["rows"], rep_cut)
+
+        rep_free = rep_fits["free_axis_maximal"]
+        rep_cmb = rep_fits["cmb_fixed_maximal"]
+
+        def _scan_opt_ok(row: dict[str, Any]) -> bool:
+            opt = row.get("fit_opt", {})
+            sel = int(opt.get("selected", -1))
+            attempts = opt.get("attempts", [])
+            if not isinstance(attempts, list) or sel < 0 or sel >= len(attempts):
+                return False
+            return bool(attempts[sel].get("success", False))
+
+        diffs = {
+            "free_axis_maximal": {
+                "scan_cut": float(scan_row_free["w1_cut"]),
+                "rep_cut": float(rep_cut),
+                "scan": {
+                    "D": float(scan_row_free["dipole"]["D"]),
+                    "axis_sep_cmb_deg": float(scan_row_free["dipole"]["axis_sep_cmb_deg"]),
+                    "D_par": float(scan_row_free["cmb_projection"]["D_par"]),
+                    "D_perp": float(scan_row_free["cmb_projection"]["D_perp"]),
+                },
+                "rep": {
+                    "D": float(rep_free["D"]),
+                    "axis_sep_cmb_deg": float(rep_free["axis_sep_cmb_deg"]),
+                    "D_par": float(rep_free["cmb_projection"]["D_par"]),
+                    "D_perp": float(rep_free["cmb_projection"]["D_perp"]),
+                },
+            },
+            "cmb_fixed_maximal": {
+                "scan_cut": float(scan_row_cmb["w1_cut"]),
+                "rep_cut": float(rep_cut),
+                "scan": {"D_par": float(scan_row_cmb["cmb_projection"]["D_par"])},
+                "rep": {"D_par": float(rep_cmb["D_par"])},
+            },
+            "tolerances": {
+                "eps_D": float(eps_D),
+                "eps_axis_deg": float(eps_axis),
+                "eps_par": float(eps_par),
+                "eps_perp": float(eps_perp),
+            },
+            "scan_opt_ok": {
+                "free_axis_maximal": bool(_scan_opt_ok(scan_row_free)),
+                "cmb_fixed_maximal": bool(_scan_opt_ok(scan_row_cmb)),
+            },
+        }
+
+        def _bad() -> bool:
+            if not diffs["scan_opt_ok"]["free_axis_maximal"]:
+                return True
+            if not diffs["scan_opt_ok"]["cmb_fixed_maximal"]:
+                return True
+            a = diffs["free_axis_maximal"]["scan"]
+            b = diffs["free_axis_maximal"]["rep"]
+            if abs(a["D"] - b["D"]) > eps_D:
+                return True
+            if abs(a["axis_sep_cmb_deg"] - b["axis_sep_cmb_deg"]) > eps_axis:
+                return True
+            if abs(a["D_par"] - b["D_par"]) > eps_par:
+                return True
+            if abs(a["D_perp"] - b["D_perp"]) > eps_perp:
+                return True
+            ac = diffs["cmb_fixed_maximal"]["scan"]["D_par"]
+            bc = diffs["cmb_fixed_maximal"]["rep"]["D_par"]
+            if abs(ac - bc) > eps_par:
+                return True
+            return False
+
+        diffs["ok"] = not _bad()
+        write_json(data_dir / "scan_rep_consistency.json", diffs)
+        if not bool(diffs["ok"]):
+            raise SystemExit(
+                "Scan-vs-representative-cut mismatch detected (see data/scan_rep_consistency.json). "
+                "Treat this as a pipeline inconsistency until resolved."
+            )
 
     # Build master summary JSON.
     summary: dict[str, Any] = {
@@ -1467,6 +2172,12 @@ def main() -> int:
             "representative_cut": rep_cut,
             "ridge_sigma": float(args.ridge_sigma),
             "ridge_prec": float(ridge_prec),
+            "harmonics": harmonic_meta,
+            "bootstrap": {
+                "nsim": None if bool(args.no_bootstrap) else int(args.bootstrap_nsim),
+                "kin_dpar": float(args.bootstrap_kin_dpar),
+                "max_iter": int(args.bootstrap_max_iter),
+            },
             "maps": {
                 "unwise_lognexp": lognexp_meta,
                 "unwise_invvar": invvar_meta,
@@ -1487,10 +2198,15 @@ def main() -> int:
             "cmb_fixed_amplitude_scan": str(fig_dir / "cmb_fixed_amplitude_scan.png")
             if (not args.no_plots and args.do_scan)
             else None,
+            "cmb_projection_par_perp_scan": str(fig_dir / "cmb_projection_par_perp_scan.png")
+            if (not args.no_plots and args.do_scan)
+            else None,
+            "bootstrap_dpar_hist": str(fig_dir / "bootstrap_dpar_hist.png") if (not args.no_plots and (not bool(args.no_bootstrap))) else None,
             "scan_suite_json": str(data_dir / "scan_suite.json") if args.do_scan else None,
             "heldout_validation_json": str(data_dir / "heldout_validation.json") if args.do_heldout else None,
             "loto_attribution_json": str(data_dir / "loto_attribution.json") if args.do_loto else None,
             "coefficients_csv": str(data_dir / "coefficients_representative_cut.csv"),
+            "bootstrap_dpar_json": str(data_dir / "bootstrap_dpar.json") if not bool(args.no_bootstrap) else None,
             "gaia_replication_json": str(gaia_json_path) if bool(args.do_gaia_replication) else None,
         },
     }
@@ -1505,7 +2221,7 @@ def main() -> int:
     lines.append("")
     lines.append("Goal: a single, auditable bundle testing whether the **percent-level CatWISE dipole** can be")
     lines.append("explained by **survey systematics** under a maximal reasonable nuisance basis, with held-out")
-    lines.append("validation and external (cross-catalog) completeness offsets.")
+    lines.append("validation and external (cross-catalog) completeness templates.")
     lines.append("")
     lines.append("This suite is designed to be *hard to hand-wave away*: it includes a ridge-regularized maximal")
     lines.append("nuisance basis, an explicit CMB-fixed dipole fit (physical mode), a held-out sky check, and a")
@@ -1548,9 +2264,7 @@ def main() -> int:
                 f"- Maximal nuis (templates ⟂ {{1,nx,ny,nz}}): `D={r_orth['dipole']['D']:.5f}`, axis sep to CMB `={r_orth['dipole']['axis_sep_cmb_deg']:.2f}°`"
             )
         if r_cmb is not None:
-            lines.append(
-                f"- CMB-fixed (templates ⟂ {{1,u·n}}): `D_par={r_cmb['cmb_projection']['D_par']:.5f}` (signed)"
-            )
+            lines.append(f"- CMB-fixed (maximal nuis; priors): `D_par={r_cmb['cmb_projection']['D_par']:.5f}` (signed)")
 
     if args.do_heldout and isinstance(heldout_payload, dict) and "cmb_fixed_test" in heldout_payload:
         cmbt = heldout_payload["cmb_fixed_test"]
@@ -1564,6 +2278,12 @@ def main() -> int:
             lines.append("- LOTO attribution (top Δdeviance drivers):")
             for r in top:
                 lines.append(f"  - `{r['dropped']}`: `Δdev={r['delta_deviance']:.2f}`")
+    if rep_fits.get("bootstrap_dpar"):
+        bp = rep_fits["bootstrap_dpar"]
+        if bp:
+            lines.append(
+                f"- Bootstrap calibration (constrained D_true={bp['D_true']:.4f}): `p(D_par,sim ≥ D_par,obs)={bp['p_one_sided_ge_obs']:.3f}`"
+            )
     if bool(args.do_gaia_replication) and gaia_payload:
         lines.append(
             f"- Gaia qsocand replication (PQSO≥{gaia_payload['pqso_min']:.2f}, same footprint): `|D_par|={gaia_payload['cmb_fixed_fit']['D_abs']:.5f}`"
@@ -1579,15 +2299,25 @@ def main() -> int:
         lines.append(f"- LOTO JSON: `{data_dir / 'loto_attribution.json'}`")
         lines.append(f"- LOTO CSV: `{data_dir / 'loto_attribution.csv'}`")
     lines.append(f"- Coefficients CSV (rep cut): `{data_dir / 'coefficients_representative_cut.csv'}`")
+    if not bool(args.no_bootstrap):
+        lines.append(f"- Bootstrap JSON: `{data_dir / 'bootstrap_dpar.json'}`")
     if bool(args.do_gaia_replication):
         lines.append(f"- Gaia replication JSON: `{data_dir / 'gaia_replication.json'}`")
     if args.do_scan and not args.no_plots:
         lines.append(f"- Key figure: `REPORTS/case_closed_maximal_nuisance_suite/figures/case_closed_4panel.png`")
         lines.append(f"- CMB-fixed scan: `REPORTS/case_closed_maximal_nuisance_suite/figures/cmb_fixed_amplitude_scan.png`")
+        lines.append(f"- D_par/D_perp scan: `REPORTS/case_closed_maximal_nuisance_suite/figures/cmb_projection_par_perp_scan.png`")
+        if not bool(args.no_bootstrap):
+            lines.append(f"- Bootstrap hist: `REPORTS/case_closed_maximal_nuisance_suite/figures/bootstrap_dpar_hist.png`")
         lines.append("")
         lines.append("![](REPORTS/case_closed_maximal_nuisance_suite/figures/case_closed_4panel.png)")
         lines.append("")
         lines.append("![](REPORTS/case_closed_maximal_nuisance_suite/figures/cmb_fixed_amplitude_scan.png)")
+        lines.append("")
+        lines.append("![](REPORTS/case_closed_maximal_nuisance_suite/figures/cmb_projection_par_perp_scan.png)")
+        if not bool(args.no_bootstrap):
+            lines.append("")
+            lines.append("![](REPORTS/case_closed_maximal_nuisance_suite/figures/bootstrap_dpar_hist.png)")
     lines.append("")
     lines.append("## Reproduce")
     lines.append("")
@@ -1606,6 +2336,9 @@ def main() -> int:
     if args.do_scan and not args.no_plots:
         print(f"- {fig_dir / 'case_closed_4panel.png'}")
         print(f"- {fig_dir / 'cmb_fixed_amplitude_scan.png'}")
+        print(f"- {fig_dir / 'cmb_projection_par_perp_scan.png'}")
+        if not bool(args.no_bootstrap):
+            print(f"- {fig_dir / 'bootstrap_dpar_hist.png'}")
     return 0
 
 

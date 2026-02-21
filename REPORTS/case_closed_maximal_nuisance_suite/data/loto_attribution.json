@@ -1,73 +1,265 @@
 {
   "full": {
-    "D": 0.00920547410599184,
-    "deviance": 32997.69421118343,
+    "D": 0.005777002857653249,
+    "deviance": 32870.58083764234,
     "lb_deg": [
-      279.82022465999034,
-      -47.90863575669106
+      54.11484140428646,
+      55.32558135679632
     ]
   },
   "representative_cut": 16.6,
   "rows": [
     {
-      "D_drop": 0.012598346495492348,
-      "axis_sep_cmb_deg": 11.863603028521341,
-      "delta_deviance": 4.606989943342342,
-      "dropped": "cos_elon_z"
+      "D_drop": 0.02684828131016807,
+      "axis_sep_cmb_deg": 30.573336523372923,
+      "delta_deviance": 23.073673787075677,
+      "dropped": "Y2_0_re_z"
     },
     {
-      "D_drop": 0.009063857902882935,
-      "axis_sep_cmb_deg": 83.86930863296611,
-      "delta_deviance": 3.202524522697786,
+      "D_drop": 0.014584612090971064,
+      "axis_sep_cmb_deg": 59.04886608428373,
+      "delta_deviance": 16.056336239067605,
+      "dropped": "Y2_1_re_z"
+    },
+    {
+      "D_drop": 0.010256038335227261,
+      "axis_sep_cmb_deg": 76.64329923114671,
+      "delta_deviance": 13.31075063746539,
       "dropped": "log1p_starcount_z"
     },
     {
-      "D_drop": 0.012705381213157346,
-      "axis_sep_cmb_deg": 86.77648394348132,
-      "delta_deviance": 3.013188193719543,
-      "dropped": "sin_elon_z"
-    },
-    {
-      "D_drop": 0.010900980491029185,
-      "axis_sep_cmb_deg": 74.71260854924253,
-      "delta_deviance": 2.2318307384412037,
-      "dropped": "log_invvar_z"
-    },
-    {
-      "D_drop": 0.007747960022014305,
-      "axis_sep_cmb_deg": 85.45098815797027,
-      "delta_deviance": 1.9958281546787475,
-      "dropped": "abs_elat_z"
-    },
-    {
-      "D_drop": 0.009595708244071962,
-      "axis_sep_cmb_deg": 81.72213191361114,
-      "delta_deviance": 1.785969277159893,
-      "dropped": "ebv_mean_z"
-    },
-    {
-      "D_drop": 0.009283928411530962,
-      "axis_sep_cmb_deg": 81.36404639399068,
-      "delta_deviance": 1.4689487228242797,
+      "D_drop": 0.014131143405360444,
+      "axis_sep_cmb_deg": 50.78443784438999,
+      "delta_deviance": 11.578475712936779,
       "dropped": "sin2_elon_z"
     },
     {
-      "D_drop": 0.009846949025648769,
-      "axis_sep_cmb_deg": 78.7008054590286,
-      "delta_deviance": 0.5289303667668719,
+      "D_drop": 0.00851765395039988,
+      "axis_sep_cmb_deg": 73.70773054585507,
+      "delta_deviance": 8.78273479417112,
+      "dropped": "log_invvar_z"
+    },
+    {
+      "D_drop": 0.011661429157504826,
+      "axis_sep_cmb_deg": 36.78206438459181,
+      "delta_deviance": 6.993583795017912,
+      "dropped": "Y4_0_re_z"
+    },
+    {
+      "D_drop": 0.009039296186822936,
+      "axis_sep_cmb_deg": 10.54848655924286,
+      "delta_deviance": 6.368654423073167,
+      "dropped": "Y3_0_re_z"
+    },
+    {
+      "D_drop": 0.007755921918214703,
+      "axis_sep_cmb_deg": 64.15995537597152,
+      "delta_deviance": 6.220260470727226,
       "dropped": "lognexp_z"
     },
     {
-      "D_drop": 0.009213401214207674,
-      "axis_sep_cmb_deg": 82.92461236276897,
-      "delta_deviance": 0.003611554733652156,
+      "D_drop": 0.034892927019113715,
+      "axis_sep_cmb_deg": 32.19067267352294,
+      "delta_deviance": 5.669030599579855,
+      "dropped": "Y5_4_re_z"
+    },
+    {
+      "D_drop": 0.00938349271828158,
+      "axis_sep_cmb_deg": 37.444673480819894,
+      "delta_deviance": 5.655300328638987,
+      "dropped": "Y4_2_im_z"
+    },
+    {
+      "D_drop": 0.021550028241368625,
+      "axis_sep_cmb_deg": 67.50669444995795,
+      "delta_deviance": 4.920565515800263,
+      "dropped": "Y3_1_re_z"
+    },
+    {
+      "D_drop": 0.011761852761364718,
+      "axis_sep_cmb_deg": 43.85921366743255,
+      "delta_deviance": 4.7672864397391095,
+      "dropped": "Y4_1_im_z"
+    },
+    {
+      "D_drop": 0.003961500827939558,
+      "axis_sep_cmb_deg": 85.40656697171875,
+      "delta_deviance": 4.436501269090513,
+      "dropped": "ebv_mean_z"
+    },
+    {
+      "D_drop": 0.016660262880033586,
+      "axis_sep_cmb_deg": 34.27204600567008,
+      "delta_deviance": 4.275387102999957,
+      "dropped": "cos2_elon_z"
+    },
+    {
+      "D_drop": 0.019333259251542504,
+      "axis_sep_cmb_deg": 25.412471243807584,
+      "delta_deviance": 3.328479703894118,
+      "dropped": "Y5_0_re_z"
+    },
+    {
+      "D_drop": 0.029914526878410633,
+      "axis_sep_cmb_deg": 77.72448622028345,
+      "delta_deviance": 3.310608728796069,
+      "dropped": "sin_elon_z"
+    },
+    {
+      "D_drop": 0.014191770899013134,
+      "axis_sep_cmb_deg": 75.01406740255554,
+      "delta_deviance": 3.1001968544806005,
+      "dropped": "Y5_1_re_z"
+    },
+    {
+      "D_drop": 0.018359685577725784,
+      "axis_sep_cmb_deg": 43.729359836827705,
+      "delta_deviance": 2.890795631457877,
+      "dropped": "Y5_5_re_z"
+    },
+    {
+      "D_drop": 0.035596384725844456,
+      "axis_sep_cmb_deg": 17.893799689997863,
+      "delta_deviance": 2.7297833074699156,
+      "dropped": "Y3_2_re_z"
+    },
+    {
+      "D_drop": 0.006624628291370761,
+      "axis_sep_cmb_deg": 33.34234113602828,
+      "delta_deviance": 2.7040544563060394,
+      "dropped": "Y4_2_re_z"
+    },
+    {
+      "D_drop": 0.005574758282984247,
+      "axis_sep_cmb_deg": 57.40506330338343,
+      "delta_deviance": 2.0996082253332133,
+      "dropped": "Y2_2_im_z"
+    },
+    {
+      "D_drop": 0.024354234405553524,
+      "axis_sep_cmb_deg": 11.996740380800064,
+      "delta_deviance": 1.985351450908638,
+      "dropped": "Y5_1_im_z"
+    },
+    {
+      "D_drop": 0.00542634143860857,
+      "axis_sep_cmb_deg": 72.77076176954213,
+      "delta_deviance": 1.8640118206094485,
+      "dropped": "Y2_2_re_z"
+    },
+    {
+      "D_drop": 0.01349223923852077,
+      "axis_sep_cmb_deg": 29.764230237650462,
+      "delta_deviance": 1.7581831875795615,
+      "dropped": "Y5_2_re_z"
+    },
+    {
+      "D_drop": 0.006679250292498651,
+      "axis_sep_cmb_deg": 59.27957029252052,
+      "delta_deviance": 0.9835596334014554,
+      "dropped": "Y4_4_im_z"
+    },
+    {
+      "D_drop": 0.006373619727110682,
+      "axis_sep_cmb_deg": 76.20553235428406,
+      "delta_deviance": 0.9558019222313305,
+      "dropped": "Y4_3_re_z"
+    },
+    {
+      "D_drop": 0.012770660733915367,
+      "axis_sep_cmb_deg": 46.47561100987122,
+      "delta_deviance": 0.8961515057017095,
+      "dropped": "Y5_4_im_z"
+    },
+    {
+      "D_drop": 0.005657063038358951,
+      "axis_sep_cmb_deg": 85.10978330573408,
+      "delta_deviance": 0.8002188863611082,
+      "dropped": "Y4_1_re_z"
+    },
+    {
+      "D_drop": 0.021146115011509124,
+      "axis_sep_cmb_deg": 19.837647120108567,
+      "delta_deviance": 0.6715614939748775,
+      "dropped": "Y3_1_im_z"
+    },
+    {
+      "D_drop": 0.00752080364129309,
+      "axis_sep_cmb_deg": 54.32470180204266,
+      "delta_deviance": 0.482167916270555,
+      "dropped": "Y5_3_re_z"
+    },
+    {
+      "D_drop": 0.005072990701107482,
+      "axis_sep_cmb_deg": 87.13670267321929,
+      "delta_deviance": 0.33362605884030927,
+      "dropped": "Y4_3_im_z"
+    },
+    {
+      "D_drop": 0.005037328189909343,
+      "axis_sep_cmb_deg": 56.25428906545573,
+      "delta_deviance": 0.3170404809352476,
+      "dropped": "Y5_5_im_z"
+    },
+    {
+      "D_drop": 0.006408561575755937,
+      "axis_sep_cmb_deg": 67.14950924740401,
+      "delta_deviance": 0.2437406214303337,
+      "dropped": "Y2_1_im_z"
+    },
+    {
+      "D_drop": 0.013443408573503492,
+      "axis_sep_cmb_deg": 36.31203778094138,
+      "delta_deviance": 0.14711646300565917,
+      "dropped": "cos_elon_z"
+    },
+    {
+      "D_drop": 0.006712367107153435,
+      "axis_sep_cmb_deg": 54.742035199186475,
+      "delta_deviance": 0.11774221621453762,
+      "dropped": "Y3_2_im_z"
+    },
+    {
+      "D_drop": 0.00523702077876911,
+      "axis_sep_cmb_deg": 69.40564338570896,
+      "delta_deviance": 0.0987150701257633,
+      "dropped": "Y3_3_re_z"
+    },
+    {
+      "D_drop": 0.006687765126006124,
+      "axis_sep_cmb_deg": 72.75161649784347,
+      "delta_deviance": 0.08384016204217914,
+      "dropped": "Y5_2_im_z"
+    },
+    {
+      "D_drop": 0.006154118682578361,
+      "axis_sep_cmb_deg": 70.45638521921562,
+      "delta_deviance": 0.06880810224538436,
+      "dropped": "Y4_4_re_z"
+    },
+    {
+      "D_drop": 0.006969114198496976,
+      "axis_sep_cmb_deg": 58.51847273432991,
+      "delta_deviance": 0.038506759723532014,
+      "dropped": "Y5_3_im_z"
+    },
+    {
+      "D_drop": 0.006056373725056738,
+      "axis_sep_cmb_deg": 83.26537103155687,
+      "delta_deviance": 0.03737378703226568,
+      "dropped": "Y3_3_im_z"
+    },
+    {
+      "D_drop": 0.005735862155771692,
+      "axis_sep_cmb_deg": 73.84616283364005,
+      "delta_deviance": 0.028291408634686377,
       "dropped": "log_w1cov_mean_z"
     },
     {
-      "D_drop": 0.009212875838331044,
-      "axis_sep_cmb_deg": 82.87724372130045,
-      "delta_deviance": 0.0029242875971249305,
-      "dropped": "cos2_elon_z"
+      "D_drop": 0.005849541965991255,
+      "axis_sep_cmb_deg": 73.45326759789121,
+      "delta_deviance": 0.018860348871385213,
+      "dropped": "abs_elat_z"
     }
   ]
 }

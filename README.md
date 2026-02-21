@@ -33,16 +33,20 @@ nuisance basis with ridge regularization, CMB-fixed physical-mode fit, held-out 
 leave-one-template-out attribution), run:
 
 ```bash
-./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py
+./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py \
+  --out-report-dir REPORTS/case_closed_maximal_nuisance_suite_$(date -u +%Y%m%d_%H%M%SUTC) \
+  --bootstrap-nsim 1000
 ```
 
-Artifacts are written to:
-- `REPORTS/case_closed_maximal_nuisance_suite/`
+Artifacts are written under the requested report directory. Each run includes an internal audit file:
+- `data/scan_rep_consistency.json` (scan-vs-single-cut consistency check; the script exits non-zero if it fails)
 
 Optional (slow; requires the Gaia qsocand external file):
 
 ```bash
-./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py --do-gaia-replication
+./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py \
+  --do-gaia-replication \
+  --out-report-dir REPORTS/case_closed_maximal_nuisance_suite_gaia_$(date -u +%Y%m%d_%H%M%SUTC)
 ```
 
 ## Scope and limitations (read first)
