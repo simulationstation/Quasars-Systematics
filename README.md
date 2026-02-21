@@ -7,6 +7,23 @@ Main PRD manuscript sources are intentionally **not** tracked here; the repo foc
 figures/tables and audit reports. A compact MNRAS Letter bundle is included under `mnras_letter/`.
 (Exception: a few short note-style manuscripts live under `radio_a/`.)
 
+## Quick summary (what matters)
+
+| Question / claim | Key quantitative summary | Where to verify | One-command reproduce |
+|---|---:|---|---|
+| Magnitude-limit stability diagnostic (CatWISE) | `D ≈ 1.6e-2` while axis drifts to `~34°` by `W1_max=16.6` | `mnras_letter/main.tex`, `REPORTS/Q_D_RES_2_2/master_report.md` | `make reproduce` |
+| Time-domain (epoch) diagnostic (unWISE; CatWISE parent) | Dipole-only epoch amplitudes span `D≈0.067–0.118`, but a constrained rich bootstrap gives `P(range_sim≥range_obs)=0.974` and `P(χ²_sim≥χ²_obs)=0.983` | `REPORTS/unwise_time_domain_catwise_epoch_systematics_suite/`, `REPORTS/unwise_time_domain_catwise_parametric_bootstrap_constrained_constantD_rich_20260220_231118UTC/` | `./.venv/bin/python scripts/run_unwise_time_domain_catwise_epoch_systematics_suite.py` |
+| “Case-closed” robustness package (maximal nuisance + calibration) | At `W1_max=16.6`: baseline `D=0.01678` → maximal nuis `D=0.00578` → orthog `D=0.01776`; CMB-fixed `D_par=-0.00815`; constrained-null bootstrap `p_abs=P(|D_par,sim|≥|D_par,obs|)=0.707` for `D_true=0.0046` | `REPORTS/case_closed_maximal_nuisance_suite/` (notably `data/scan_rep_consistency.json`, `data/bootstrap_dpar.json`) | `./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py --bootstrap-nsim 1000` |
+
+### Why this work should not be dismissed
+
+- **Controlled falsifiers:** time-domain stability and faint-limit axis drift are high-leverage diagnostics that a physical dipole should not depend on.
+- **Calibrated inference:** key “variability” statements are calibrated with constrained parametric bootstraps and injection-through-measured-systematics tests, not just analytic χ².
+- **Multiple estimators + templates:** results are checked with regression, Poisson GLMs, and cross-check estimators, reducing “it’s just the method” failure modes.
+- **Held-out validation:** where applicable, nuisance fields are trained on one sky subset and evaluated on another (wedge GroupKFold), to reduce overfit arguments.
+- **Internal self-audits:** the maximal-nuisance suite includes a scan-vs-single-cut consistency check (`scan_rep_consistency.json`) so optimizer artefacts cannot silently change headline numbers.
+- **Auditable artifacts:** every run writes a self-contained report directory with JSON summaries + plots + exact command lines for independent verification.
+
 ## Reviewer seed (headline verification)
 
 This repository includes a lightweight “run-one seed” command that reproduces the headline numbers quoted in
