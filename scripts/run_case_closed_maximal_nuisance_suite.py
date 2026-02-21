@@ -2282,7 +2282,9 @@ def main() -> int:
         bp = rep_fits["bootstrap_dpar"]
         if bp:
             lines.append(
-                f"- Bootstrap calibration (constrained D_true={bp['D_true']:.4f}): `p(D_par,sim ≥ D_par,obs)={bp['p_one_sided_ge_obs']:.3f}`"
+                f"- Bootstrap calibration (constrained D_true={bp['D_true']:.4f}): "
+                f"`p_abs=P(|D_par,sim| ≥ |D_par,obs|)={bp['p_abs_ge_obs']:.3f}` "
+                f"(one-sided: `p(D_par,sim ≥ D_par,obs)={bp['p_one_sided_ge_obs']:.3f}`)"
             )
     if bool(args.do_gaia_replication) and gaia_payload:
         lines.append(

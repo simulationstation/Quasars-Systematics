@@ -24,7 +24,7 @@ leave-one-template-out ranking for attribution.
   - `Y2_1_re_z`: `Δdev=16.06`
   - `log1p_starcount_z`: `Δdev=13.31`
   - `sin2_elon_z`: `Δdev=11.58`
-- Bootstrap calibration (constrained D_true=0.0046): `p(D_par,sim ≥ D_par,obs)=0.744`
+- Bootstrap calibration (constrained D_true=0.0046): `p_abs=P(|D_par,sim| ≥ |D_par,obs|)=0.707` (one-sided: `p(D_par,sim ≥ D_par,obs)=0.744`)
 
 ## Outputs
 
@@ -55,4 +55,3 @@ Run from repo root:
 ```bash
 ./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py
 ```
-
