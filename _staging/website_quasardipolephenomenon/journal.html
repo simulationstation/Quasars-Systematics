@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Journal | Quasar Dipole Phenomenon & Dark Siren Cosmology</title>
+  <meta name="description" content="Project journal: causal-closure and robustness notes linking dark sirens, inference bias, and anisotropy artifacts.">
+  <meta property="og:title" content="Journal">
+  <meta property="og:description" content="Project journal: causal-closure and robustness notes linking dark sirens, inference bias, and anisotropy artifacts.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://quasardipolephenomenon.org/journal.html">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#9a3516">
+  <link rel="stylesheet" href="styles.v2.css?v=20260213c">
+  <style>
+    pre {
+      margin: 0.8rem 0;
+      padding: 0.85rem 0.95rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(36, 65, 98, 0.22);
+      background: rgba(255, 255, 255, 0.82);
+      overflow-x: auto;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+    pre code {
+      font-family: "Courier New", Courier, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow">Quasar Dipole Phenomenon & Dark Siren Cosmology</p>
+        <div class="hero-nav">
+          <a href="index.html" class="badge-link">
+            <span class="badge-icon">Back</span> Home
+          </a>
+          <a href="research-notes.html" class="badge-link">
+            <span class="badge-icon">Notes</span> Research Notes
+          </a>
+        </div>
+      </div>
+      <h1>Journal</h1>
+      <p class="lead">
+        Longer-form project updates focused on mechanism, falsifiers, and how to reproduce each result.
+      </p>
+    </header>
+
+    <section class="panel">
+      <div class="journal-controls">
+        <div class="journal-filter" role="group" aria-label="Filter journal entries by date">
+          <label>
+            From
+            <input type="date" id="journal-from" autocomplete="off">
+          </label>
+          <label>
+            To
+            <input type="date" id="journal-to" autocomplete="off">
+          </label>
+          <button type="button" class="journal-clear" id="journal-clear">Clear</button>
+        </div>
+        <p class="journal-count" id="journal-count" aria-live="polite"></p>
+      </div>
+
+      <article class="note-entry" data-date="2026-02-21">
+        <h2>Quasar dipole manuscript update: maximal-nuisance suite + kinematic-scale calibration</h2>
+        <p class="note-meta">21 February 2026 • Manuscript update • Maximal nuisance + constrained-null bootstrap</p>
+
+        <p class="note-abstract">
+          Added a maximal-nuisance robustness suite at <code>W1<sub>max</sub>=16.6</code> with explicit low-ℓ harmonic modes (<code>ℓ=2–5</code>) and ridge regularization,
+          plus a CMB-parallel constrained-null parametric bootstrap calibrated at <code>D<sub>∥,true</sub>=0.0046</code>. The pipeline includes an internal
+          scan-vs-single-cut self-check to prevent optimizer artefacts. Under the constrained kinematic-scale null with measured systematics propagated through recovery,
+          the observed <code>|D<sub>∥</sub>|</code> is not anomalous (<code>p<sub>abs</sub>=0.707</code>).
+        </p>
+
+        <details class="note-details">
+          <summary>Show full entry</summary>
+          <div class="note-full">
+            <h3>Updated manuscript</h3>
+            <p>
+              Quasar manuscript (MNRAS letter draft):
+              <a href="assets/main.pdf?v=20260221c" target="_blank" rel="noopener noreferrer">PDF</a>
+              · <a href="assets/main.tex?v=20260221c" target="_blank" rel="noopener noreferrer">TeX</a>.
+            </p>
+          </div>
+        </details>
+      </article>
+
+      <article class="note-entry" data-date="2026-02-20">
+        <h2>Quasar dipole manuscript update: CatWISE-parent unWISE epoch test</h2>
+        <p class="note-meta">20 February 2026 • Manuscript update • Time-domain stability diagnostic</p>
+
+        <p class="note-abstract">
+          Updated the unWISE 2010–2020 epoch-sliced stability test to be explicitly restricted to the Secrest-accepted CatWISE parent sample
+          on a fixed footprint, with uniform per-epoch quality and photometric cuts. The dipole amplitude remains strongly epoch-dependent:
+          Poisson-GLM (dipole-only) amplitudes span <code>D ≈ 0.067–0.118</code> across epochs 0–15, while a vector-sum cross-check spans
+          <code>D ≈ 0.058–0.155</code>, with per-epoch sample sizes stable at <code>N ≈ 2.1–2.3×10<sup>5</sup></code>.
+        </p>
+
+        <details class="note-details">
+          <summary>Show full entry</summary>
+          <div class="note-full">
+            <h3>Updated manuscript</h3>
+            <p>
+              Quasar manuscript (MNRAS letter draft):
+              <a href="assets/main.pdf?v=20260221c" target="_blank" rel="noopener noreferrer">PDF</a>
+              · <a href="assets/main.tex?v=20260221c" target="_blank" rel="noopener noreferrer">TeX</a>.
+            </p>
+
+            <h3>What changed</h3>
+            <ul>
+              <li>Time-domain section now uses a fixed CatWISE parent list (not a fresh per-epoch selection from IRSA580).</li>
+              <li>Front-page epoch figures now correspond to the CatWISE-parent run.</li>
+            </ul>
+
+            <h3>Why this matters</h3>
+            <p>
+              A physical kinematic/cosmological dipole should not depend on observing epoch; restricting the test to a fixed parent population
+              removes the most obvious “selection-function changed” escape hatch while preserving the time-variation falsifier axis.
+            </p>
+          </div>
+        </details>
+      </article>
+
+      <article class="note-entry" data-date="2026-02-15">
+        <h2>On the Identifiability of Negative-Binomial Counts-in-Cells Radio Dipole Fits Under Survey Systematics Templates</h2>
+        <p class="note-meta">15 February 2026 • Paper release • Radio dipole identifiability / negative-binomial counts-in-cells</p>
+
+        <p class="note-abstract">
+          This note audits a negative-binomial (NB) counts-in-cells dipole estimator for wide-area radio catalogs by reproducing dipole-only fits
+          and then stress-testing them with survey-systematics templates. On a joint three-survey (LoTSS+RACS+NVSS) fit, an exponential modulation
+          model with physically motivated templates yields a large likelihood gain and is favored even under BIC (<code>ΔBIC ≈ −106.8</code>), while
+          injection/recovery shows that modest structured selection can drive large axis mis-recovery in the dipole-only model (median axis error
+          <code>≈ 63°</code> in one configuration).
+        </p>
+
+        <details class="note-details">
+          <summary>Show full entry</summary>
+          <div class="note-full">
+            <h3>Paper</h3>
+            <p>
+              Manuscript (PRD / REVTeX note):
+              <a href="assets/radio_nb_dipole_audit_prd.pdf" target="_blank" rel="noopener noreferrer">PDF</a>
+              · <a href="assets/radio_nb_dipole_audit_prd.tex" target="_blank" rel="noopener noreferrer">TeX</a>.
+            </p>
+            <p>
+              Software + run artefacts (Zenodo): <a href="https://doi.org/10.5281/zenodo.18719277" target="_blank" rel="noopener noreferrer">10.5281/zenodo.18719277</a>.
+              Parent archive: <a href="https://doi.org/10.5281/zenodo.18476711" target="_blank" rel="noopener noreferrer">10.5281/zenodo.18476711</a>.
+            </p>
+
+            <h3>What Was Tested</h3>
+            <ul>
+              <li><strong>Question:</strong> is a dipole-only NB counts-in-cells model identifiable on real radio survey footprints?</li>
+              <li><strong>Data:</strong> publicly staged NVSS (1.4 GHz), RACS-low DR1 (888 MHz), and LoTSS-DR2 (144 MHz) catalogs.</li>
+              <li><strong>Footprints:</strong> geometrically defined supports including zero-count HEALPix cells (<code>Nside=32</code>), so map support is footprint-defined rather than data-defined.</li>
+              <li><strong>Stress tests:</strong> add nuisance templates (geometry + physical proxies) and compare fit quality and recovered direction stability.</li>
+            </ul>
+
+            <h3>Model Variants</h3>
+            <ul>
+              <li><strong>Pure:</strong> dipole-only modulation.</li>
+              <li><strong>Exp(Dec/RA):</strong> positivity-preserving exponential modulation with basic geometric templates (<code>δ</code>, <code>δ²</code>, <code>sin α</code>, <code>cos α</code>).</li>
+              <li><strong>Exp(+phys):</strong> adds physical proxies (Haslam 408 MHz; NVSS flux-uncertainty proxy; LoTSS RMS/mask/MOC-coverage proxies).</li>
+            </ul>
+
+            <h3>Headline Results (run snapshot)</h3>
+            <ul>
+              <li><strong>Three-survey joint fit:</strong> Exp(+phys) improves log-likelihood by <code>Δlogℒ ≈ +185.17</code> and is BIC-preferred (<code>ΔBIC ≈ −106.77</code> vs pure).</li>
+              <li><strong>Direction instability:</strong> adding nuisance freedom produces large direction shifts relative to the dipole-only solution.</li>
+              <li><strong>Injection/recovery:</strong> in one configuration (<code>n=80</code> sims), the pure model’s median axis error is <code>63.4°</code>, while the template-augmented model recovers the injected axis (median error <code>0°</code>).</li>
+            </ul>
+
+            <h3>Figures</h3>
+            <div class="fig-grid">
+              <figure>
+                <img src="assets/fig1_direction_compare.png" alt="Radio NB dipole audit: fitted directions under model variants">
+                <figcaption>Direction shifts under pure vs template-augmented stress models (CMB shown for reference).</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/fig2_delta_ic.png" alt="Radio NB dipole audit: delta information criteria for model variants">
+                <figcaption>ΔAIC/ΔBIC relative to pure dipole-only fits for joint fits.</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/fig3_template_coefficients.png" alt="Radio NB dipole audit: nuisance template coefficients">
+                <figcaption>Per-survey nuisance-template coefficients in the Exp(+phys) joint fit.</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/fig4_injection_recovery.png" alt="Radio NB dipole audit: injection and recovery summary">
+                <figcaption>Injection/recovery: dipole-only fits can mis-recover the axis under modest structured selection.</figcaption>
+              </figure>
+            </div>
+
+            <h3>How To Reproduce (minimal)</h3>
+            <p>
+              Figures in the manuscript are generated from pinned JSON outputs:
+            </p>
+            <pre><code>.venv/bin/python radio_a/make_figures.py</code></pre>
+            <p>
+              Compile the REVTeX manuscript (two passes):
+            </p>
+            <pre><code>pdflatex -interaction=nonstopmode radio_a/main.tex
+pdflatex -interaction=nonstopmode radio_a/main.tex</code></pre>
+            <p>
+              The end-to-end audit pipeline is implemented in <code>scripts/run_radio_nb_dipole_audit.py</code>.
+            </p>
+
+            <h3>Connection to the Quasar Dipole Theme</h3>
+            <p>
+              The quasar-dipole analysis on the front page emphasizes an artifact signature: high apparent signal amplitude coupled to
+              axis instability under plausible changes in the selection boundary. This radio audit shows an analogous vulnerability:
+              dipole-only fits can move substantially once physically grounded survey templates are introduced, and can fail axis recovery
+              under modest injected selection structure.
+            </p>
+          </div>
+        </details>
+      </article>
+
+      <article class="note-entry" data-date="2026-02-16">
+        <h2>Assessing a Candidate Modified Gravity Anomaly in GWTC-3 Dark Siren Propagation</h2>
+        <p class="note-meta">14 February 2026 • Paper release (updated 20 February 2026) • Dark-siren propagation anomaly (GWTC-3 / O3)</p>
+
+	        <p class="note-abstract">
+	          We test whether the GWTC-3 O3 dark-siren catalogue prefers a non-General-Relativity mapping between observed GW amplitude and
+	          luminosity distance by scoring 3D GW localisations against 3D galaxy-catalogue structure (with an out-of-catalog completion and
+	          injection-calibrated selection normalisation). In this fixed scoring framework, a reference modified-propagation history yields
+	          a calibrated predictive-score shift of <code>ΔLPD_tot = +3.670</code> (≈ <code>39×</code> in <code>exp(ΔLPD)</code>) relative to
+	          an internal GR propagation baseline, and the preference is dominated by the data term (<code>ΔLPD_data = +2.670</code>) rather
+	          than the selection term (<code>ΔLPD_sel = +1.000</code>). However, an identifiability control that forces GR and modified
+	          hypotheses to compete on shared catalogue support in a masked anchored-only construction removes the modified-propagation data-term
+	          advantage (<code>ΔLPD_tot = 0.686</code>, <code>ΔLPD_data = −0.582</code>), indicating sensitivity to catalogue support/normalisation.
+	          A membership-changing rotation-baseline contrast remains positive (<code>ΔC_cat,data = +1.849</code>, <code>p ≈ 0.007</code>),
+	          demonstrating non-trivial sky–catalogue association.
+	        </p>
+
+        <details class="note-details">
+          <summary>Show full entry</summary>
+          <div class="note-full">
+            <h3>Paper</h3>
+            <p>
+              Manuscript (CQG format):
+              <a href="assets/dark_siren_cqg.pdf?v=20260220-0356" target="_blank" rel="noopener noreferrer">PDF</a>
+              · <a href="assets/dark_siren_cqg.tex" target="_blank" rel="noopener noreferrer">TeX</a>.
+            </p>
+            <p>
+              Followup tests letter (source evolution vs propagation):
+              <a href="assets/Followup_Tests.pdf" target="_blank" rel="noopener noreferrer">PDF</a>
+              · <a href="assets/Followup_Tests.tex" target="_blank" rel="noopener noreferrer">TeX</a>.
+            </p>
+	            <p>
+	              Skeptic's guide / cover letter (CQG): <a href="assets/Skeptics_Guide_Cover_Letter.pdf?v=20260220-0356" target="_blank" rel="noopener noreferrer">PDF</a>
+	              · <a href="assets/Skeptics_Guide_Cover_Letter.tex" target="_blank" rel="noopener noreferrer">TeX</a>.
+	            </p>
+	            <p>
+	              Bundle3 identifiability battery (pre-O4b): <a href="assets/dark_siren_bundle3_report.md" target="_blank" rel="noopener noreferrer">report</a>
+	              · <a href="assets/dark_siren_bundle3_summary.json" target="_blank" rel="noopener noreferrer">summary.json</a>.
+	            </p>
+	            <p>
+	              Bundle6b dominant-event patch audit (audit_nside=128; gradients + unique-matched null): <a href="assets/dark_siren_patch_audit_bundle6_report.md" target="_blank" rel="noopener noreferrer">report</a>
+	              · <a href="assets/dark_siren_patch_audit_bundle6_summary.json" target="_blank" rel="noopener noreferrer">summary.json</a>
+	              · <a href="assets/dark_siren_patch_audit_bundle6_top_wprob_galaxies.csv" target="_blank" rel="noopener noreferrer">top_wprob</a>.
+	            </p>
+	            <p>
+	              Bundle7 proxy-matched patch null on shared-support contrast (reviewer-clean per-patch rebuild; rejection-sampled to fixed N): <a href="assets/dark_siren_contrast_proxy_matched_null_reject1000_report.md" target="_blank" rel="noopener noreferrer">report</a>
+	              · <a href="assets/dark_siren_contrast_proxy_matched_null_reject1000_summary.json" target="_blank" rel="noopener noreferrer">summary.json</a>
+	              · <a href="assets/dark_siren_contrast_proxy_matched_null_reject1000_distribution.csv" target="_blank" rel="noopener noreferrer">distribution</a>
+	              · <a href="assets/dark_siren_contrast_proxy_matched_null_reject1000_patch_null.csv" target="_blank" rel="noopener noreferrer">patch_null</a>.
+	            </p>
+	            <p>
+	              Bundle6b patch audits (other high-leverage events): <a href="assets/dark_siren_patch_audit_bundle6b_GW200220_061928_report.md" target="_blank" rel="noopener noreferrer">GW200220</a>
+	              · <a href="assets/dark_siren_patch_audit_bundle6b_GW200308_173609_report.md" target="_blank" rel="noopener noreferrer">GW200308</a>.
+	            </p>
+
+	            <h3>What Was Tested</h3>
+	            <ul>
+	              <li><strong>Question:</strong> does GWTC-3 dark-siren data prefer a fixed modified-propagation mapping over an internal GR propagation baseline?</li>
+	              <li><strong>Data:</strong> 36 O3 dark sirens (GWTC-3), scored with a galaxy-catalogue likelihood marginalising host incompleteness.</li>
+	              <li><strong>Selection control:</strong> injection-calibrated selection normalisation separated into <code>ΔLPD_data</code> and <code>ΔLPD_sel</code>.</li>
+	              <li><strong>Evolution discriminant (partial):</strong> dominance of <code>ΔLPD_data</code> over <code>ΔLPD_sel</code> disfavors a purely isotropic rate/selection shift, but does not by itself uniquely identify propagation physics.</li>
+	              <li><strong>Host-model stresses:</strong> monotonic luminosity-weight families plus redshift-tilt and completeness-upweight stress tests reduce but do not erase the preference (adversarial minimum <code>ΔLPD_tot ≳ +3.18</code> across the tested set).</li>
+	              <li><strong>Spec-z anchoring audit:</strong> override a growing fraction of top host-weight candidates with external spectroscopy (public spec-z catalogs + SDSS/DESI), with shifted-sky false-match controls; the preference does not weaken under increased anchoring.</li>
+	              <li><strong>Overdensity/contrast check:</strong> subtract a membership-changing random-rotation baseline from the top-event catalogue term; the contrast remains positive (<code>ΔC_cat,data = +1.849</code>) with rotation-null <code>p ≈ 0.007</code>.</li>
+	              <li><strong>Proxy-matched patch null (contrast):</strong> a reviewer-clean conditional null (proxy-matched on low-|b|, extinction, stellar density, depth/spec-z proxies) applied directly to the shared-support contrast gives <code>Δcontrast ≈ 0.456</code> with leave-one-out <code>p ≈ 0.072</code> for GW200208_130117 (rebuilt per-patch spec-z subset from 6dFGS/2MRS/PSCz; rejection-sampled to 1000 finite reps; accept_rate ≈ 0.81).</li>
+	              <li><strong>Identifiability controls:</strong> a masked anchored-only shared-support diagnostic (GR/MG forced to share identical catalogue support) removes the modified-propagation advantage (<code>ΔLPD_data = −0.582</code>), while a membership-preserving radial destroyer (permuting <code>dL_EM(z)</code> across in-region galaxies) collapses the masked anchored-only score relative to observation.</li>
+	              <li><strong>Dominant-event patch audit:</strong> a dedicated sky-patch forensic audit for a near-plane high-leverage event (GW200208_130117) using membership-changing RA shifts and matched nulls conditioned on low-|b|, host-weight depth proxies, SFD <code>E(B–V)</code> (mean/CV/max), and Gaia DR3 star density (<code>G&lt;18</code> total/CV); no obvious extinction/star-density discontinuity is identified.</li>
+	              <li><strong>Calibration:</strong> matched GR-truth injection catalogues are used to characterise the false-alarm behaviour under the tested generator.</li>
+	            </ul>
+
+	            <h3>Headline Numbers (paper snapshot)</h3>
+	            <ul>
+	              <li><strong>Observed score shift:</strong> <code>ΔLPD_tot = +3.670</code> (<code>ΔLPD_data = +2.670</code>, <code>ΔLPD_sel = +1.000</code>).</li>
+	              <li><strong>Masked anchored-only (full likelihood):</strong> <code>ΔLPD_tot = 3.455</code>, <code>ΔLPD_data = 2.419</code> (top events’ in-catalogue term restricted to supported spec-z overrides).</li>
+	              <li><strong>Shared-support diagnostic (masked anchored-only):</strong> <code>ΔLPD_tot = 0.686</code>, <code>ΔLPD_data = −0.582</code> (MG advantage removed when support is forced shared).</li>
+	              <li><strong>Radial destroyer (masked anchored-only):</strong> <code>dL_EM</code>-permutation gives mean <code>ΔLPD_data ≈ 1.220</code> over <code>N=2000</code> replicates, with <code>p(data ≥ obs)=0</code>.</li>
+	              <li><strong>GR-truth injection calibration:</strong> 512 catalogues give mean <code>−0.839</code> with maximum <code>+0.076</code> (no GR-truth replicate approaches the observed scale).</li>
+	              <li><strong>Host-model stress range:</strong> across z-dependent tilts / completeness-upweights, <code>ΔLPD_tot ≈ 3.18–4.16</code> (data-term dominated).</li>
+	              <li><strong>All-out spec-z override (public):</strong> in the spectral-only+selection channel, baseline <code>ΔLPD_tot = 3.634</code> rises to <code>3.684</code> at <code>r=30″</code>, <code>K=100000</code>; at <code>r=30″</code>, <code>K=200000</code> the median anchored host-weight proxy across the five high-leverage events is <code>11.8%</code> (with <code>r=60″</code> excluded by shifted-sky controls).</li>
+	              <li><strong>Overdensity/contrast:</strong> top-event catalogue-term contrast (true minus membership-changing random rotations) <code>ΔC_cat,data = +1.849</code>, rotation-null <code>p ≈ 0.007</code>.</li>
+	              <li><strong>Proxy-matched contrast null (GW200208_130117):</strong> shared-support contrast under a proxy-matched patch ensemble (rebuilding a per-patch spec-z subset from 6dFGS/2MRS/PSCz) gives <code>Δcontrast ≈ 0.456</code> with leave-one-out <code>p ≈ 0.072</code> (1000 finite reps via rejection sampling; accept_rate ≈ 0.81; candidate pool 484 proxy-matched patches).</li>
+	              <li><strong>Patch audit (GW200208_130117):</strong> matched null p-values: <code>p(⟨E(B–V)⟩ ≥ event) = 0.194</code>, <code>p(N★ ≥ event) = 0.215</code> (Gaia DR3 <code>G&lt;18</code>); top-1 contributes <code>0.14%</code> of total <code>w×p_sky</code> across 11255 in-patch candidates.</li>
+	              <li><strong>Interpretation:</strong> a calibrated, sky-associated catalogue-scoring anomaly consistent with (but not uniquely identified as) modified propagation; shared-support controls indicate substantial sensitivity to catalogue support/normalisation.</li>
+	            </ul>
+
+            <h3>Figures</h3>
+            <div class="fig-grid">
+              <figure>
+                <img src="art/dark_siren.png" alt="Dark-siren paper overview figure">
+                <figcaption>Dark-siren propagation anomaly: overview figure for the paper.</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/specz_override_deltalpd_vs_coverage.png" alt="Spec-z override audit: score versus anchoring">
+                <figcaption>Spec-z override audit: ΔLPD<sub>tot</sub> versus anchored host-weight proxy across (r,K) conditions.</figcaption>
+              </figure>
+              <figure>
+                <img src="assets/specz_coverage_vs_radius_true_vs_shifted.png" alt="Shifted-sky false-match control for spec-z matching radii">
+                <figcaption>Shifted-sky false-match control for spec-z matching radii (true sky vs shifted controls).</figcaption>
+              </figure>
+            </div>
+
+            <h3>Data & Reproducibility</h3>
+            <p>
+              Project archive (source + artefacts + summary tables): <a href="https://doi.org/10.5281/zenodo.18640507" target="_blank" rel="noopener noreferrer">10.5281/zenodo.18640507</a>.
+            </p>
+          </div>
+        </details>
+      </article>
+
+	      <article class="note-entry" data-date="2026-02-14">
+	        <h2>Causal-Closure Test: Ruler Mismatch Can Mimic a Dark-Siren Anomaly</h2>
+	        <p class="note-meta">14 February 2026 • Causal-closure test (dark sirens) • implications for catalogue dipoles</p>
+
+        <p class="note-abstract">
+          This entry documents a <strong>causal-closure</strong> experiment inside the O3 dark-siren pipeline.
+          The purpose is narrow and technical: if the modified-propagation history used in the Hubble-tension
+          paper is the <em>truth</em>, does a GR-baseline analysis naturally generate a dark-siren score excursion
+          on the observed scale (<code>ΔLPD ≈ 3.67</code>)?
+        </p>
+
+	        <details class="note-details">
+	          <summary>Show full entry</summary>
+	          <div class="note-full">
+	        <p>
+	          Why quasar dipoles are mentioned here: once a pipeline is shown to generate a tension-scale
+	          “anomaly” from a <em>ruler mismatch</em> (truth ≠ analysis assumption), the default interpretation of
+	          other high-tension catalog signals changes. In particular, anisotropy measurements that depend on
+	          catalogue modelling, selection functions, and distance/redshift compression can exhibit dipole-like
+	          artefacts under misspecification. This entry does <strong>not</strong> claim an end-to-end simulation of the
+	          quasar dipole; it records a mechanism demonstration and its implications for catalogue-driven dipole claims.
+	        </p>
+
+        <h3>What Was Run</h3>
+        <ul>
+          <li><strong>Forward model (truth):</strong> generate synthetic dark-siren catalogs under MG-truth propagation using the fixed <code>R(z)</code> template used in the Hubble-tension analysis.</li>
+          <li><strong>Analysis model:</strong> score each synthetic catalog with the same <code>ΔLPD</code> definition and selection normalisation as the O3 dark-siren headline result.</li>
+          <li><strong>Controls:</strong> (i) GR-truth forward catalogs; (ii) MG-truth with the catalog structure removed (toy uniform-z weighting) to test whether the score scale depends on catalog geometry.</li>
+        </ul>
+
+	        <h3>Headline Outcome</h3>
+	        <ul>
+	          <li><strong>Observed (real O3 data):</strong> <code>ΔLPD_total = 3.669945</code>.</li>
+	          <li><strong>MG-truth forward catalogs (256 reps):</strong> mean <code>3.504</code>, median <code>3.442</code>, and <code>P(ΔLPD_total ≥ 3.669945) = 0.219</code>.</li>
+	          <li><strong>GR-truth forward catalogs (256 reps):</strong> mean <code>3.313</code>, median <code>3.309</code>, and <code>P(ΔLPD_total ≥ 3.669945) = 0.0195</code>.</li>
+	          <li><strong>MG-truth with catalog removed (256 reps):</strong> mean <code>0.637</code> (the large-score scale collapses under deliberately structureless <em>z</em>-weighting).</li>
+	        </ul>
+
+		        <p>
+		          In plain terms: under this forward model, <code>ΔLPD ≈ 3.67</code> is much more typical if the MG propagation
+		          template is true than if GR propagation is true, and the score amplitude depends strongly on the
+		          catalogue/likelihood structure rather than being “free”.
+		        </p>
+		        <p class="note-meta">
+		          Interpretation: this is a causal-closure / mechanism-alignment check, not a GR-null. The strict GR-null
+		          calibration for the production score is the matched injection suite reported in the main dark-siren paper.
+		        </p>
+	
+		        <p>
+		          A key strengthening check is a <strong>dose–response</strong> dial in the forward generator,
+		          <code>R<sub>α</sub>(z) = 1 + α [R(z) − 1]</code>:
+	          the tail probability <code>P(ΔLPD_total ≥ 3.669945)</code> rises monotonically with <code>α</code>
+	          (from <code>0.023</code> at <code>α=0</code> to <code>0.219</code> at <code>α=1</code> in the run snapshot below).
+	        </p>
+
+	        <h3>Implications for Dipole Analyses</h3>
+	        <p>
+	          The quasar dipole analysis on the front page shows a characteristic “artifact-like” signature:
+	          the <em>amplitude</em> remains high while the <em>axis</em> drifts with depth. In practice, this is the sort of behaviour
+	          that can be produced when an analysis pipeline compresses real sky-dependent structure through a misspecified
+	          modelling assumption (for example: an incorrect selection template, completeness model, or distance/redshift ruler).
+	        </p>
+        <p>
+          The causal-closure result above does not directly simulate the quasar dipole pipeline, but it does demonstrate a concrete
+	          mechanism: a ruler mismatch can generate a tension-scale “anomaly” <em>of the same order</em> as the observed dark-siren ΔLPD
+	          once it is filtered through catalogue and selection machinery. That is why we treat dipole-scale claims as “pipeline outputs”
+	          rather than direct observables, and why we focus on forward-model closure tests and structure-destruction nulls.
+	        </p>
+	        <p class="note-meta">
+	          Caution: this is a mechanism demonstration, not a proof that any specific quasar-dipole measurement is an artefact.
+	        </p>
+        <figure style="margin-top: 0.9rem;">
+          <img src="assets/baseline_rvmp_fig5_poisson_glm.png" alt="Quasar dipole magnitude-limit scan: stable amplitude, drifting axis">
+          <figcaption>Quasar dipole magnitude-limit scan: stable amplitude with strong axis drift as the faint cut deepens (artifact-like behaviour).</figcaption>
+        </figure>
+
+	        <h3>Figures</h3>
+	        <div class="fig-grid">
+	          <figure>
+	            <img src="assets/mg_truth_closure_delta_lpd_hist_overlay.png" alt="MG-truth closure: ΔLPD histogram overlay (MG truth, GR truth, and catalog-removed control)">
+	            <figcaption>ΔLPD histogram overlay: MG-truth vs GR-truth forward catalogs, plus a “catalog removed” control (toy uniform-z weighting).</figcaption>
+	          </figure>
+	          <figure>
+	            <img src="assets/mg_truth_closure_data_vs_sel_scatter.png" alt="MG-truth closure: ΔLPD data vs selection decomposition scatter">
+	            <figcaption>MG-truth decomposition: ΔLPD<sub>data</sub> versus ΔLPD<sub>sel</sub> across synthetic replicates (diagnostic for whether selection dominates).</figcaption>
+	          </figure>
+	          <figure>
+	            <img src="assets/mg_truth_closure_dose_response_p_ge_observed_vs_alpha.png" alt="MG-truth closure dose–response: P(ΔLPD ≥ observed) vs alpha">
+	            <figcaption>Dose–response: tail probability <code>P(ΔLPD_total ≥ 3.669945)</code> versus <code>α</code>.</figcaption>
+	          </figure>
+	          <figure>
+	            <img src="assets/mg_truth_closure_dose_response_mean_delta_lpd_vs_alpha.png" alt="MG-truth closure dose–response: mean ΔLPD vs alpha">
+	            <figcaption>Dose–response: mean ΔLPD versus <code>α</code>.</figcaption>
+	          </figure>
+	        </div>
+
+        <h3>How To Reproduce</h3>
+	        <p>
+	          Code repository (reviewer seed): <a href="https://doi.org/10.5281/zenodo.18640608" target="_blank" rel="noopener noreferrer">10.5281/zenodo.18640608</a>.
+	          Dark-siren scoring release: <a href="https://doi.org/10.5281/zenodo.18640507" target="_blank" rel="noopener noreferrer">10.5281/zenodo.18640507</a>.
+	        </p>
+	        <p>
+	          Technical note (CQG format) for this causal-closure experiment:
+	          <a href="assets/mg_truth_closure_cqg.pdf" target="_blank" rel="noopener noreferrer">PDF</a>
+	          · <a href="assets/mg_truth_closure_cqg.tex" target="_blank" rel="noopener noreferrer">TeX</a>.
+	        </p>
+	        <p>
+	          The script is designed to run as a standalone ancillary test (it does not modify any production scoring code). It needs two existing artifacts:
+	        </p>
+        <ul>
+          <li><strong>Baseline O3 dark-siren “gap run” directory</strong> (contains cached per-event terms and selection-normalisation draws).</li>
+          <li><strong>Reconstruction posterior directory</strong> (contains <code>samples/mu_forward_posterior.npz</code> for the same draw subset used by the gap run).</li>
+        </ul>
+	        <p>
+	          After setting up the environment as described in the repository <code>README.md</code>, run:
+	        </p>
+	        <pre><code>PYTHONPATH=src .venv/bin/python scripts/run_dark_siren_mg_truth_closure_suite.py --referee-suite --n-rep 256 --threads 8</code></pre>
+	        <p>
+	          If your local paths differ, pass them explicitly:
+	        </p>
+	        <pre><code>PYTHONPATH=src .venv/bin/python scripts/run_dark_siren_mg_truth_closure_suite.py \
+	  --referee-suite --n-rep 256 --threads 8 \
+	  --gap-run-root /path/to/dark_siren_o3_gap_run \
+	  --run-label M0_start101 \
+	  --recon-run-dir /path/to/recon_run_dir</code></pre>
+        <p>
+          This writes a timestamped output directory:
+        </p>
+        <pre><code>outputs/mg_truth_closure_YYYYMMDD_HHMMSSUTC/</code></pre>
+        <p>
+          Key files:
+        </p>
+        <ul>
+          <li><code>summary.json</code> (means/percentiles + tail probabilities)</li>
+          <li><code>report.md</code> (human-readable summary)</li>
+          <li><code>figures/delta_lpd_hist_overlay.png</code></li>
+          <li><code>figures/mg_truth_data_vs_sel_scatter.png</code></li>
+        </ul>
+        <p class="note-meta">
+          Tip: the seed repo also vendors a snapshot of this run under <code>artifacts/o3/mg_truth_closure/</code> (tables + figures) so you can verify the numbers without rerunning.
+        </p>
+          </div>
+	        </details>
+      </article>
+
+      <article class="note-entry" data-date="2026-02-12">
+        <h2>Testing the Bekenstein-Hawking Area Law at Cosmological Scales: A Data-Driven Reconstruction of the Horizon Entropy Current</h2>
+        <p class="note-meta">12 February 2026 • Paper release • Horizon thermodynamics / entropy-current reconstruction</p>
+
+        <p class="note-abstract">
+          The Bekenstein-Hawking area law implies a constant horizon entropy slope, <code>μ(A) ∝ dS/dA = const</code>. This paper tests
+          that assumption directly at cosmological scales using a data-driven reconstruction of the apparent-horizon entropy current
+          from late-time background geometry (Pantheon+, BAO, and cosmic chronometers), in a framework designed to avoid GR-anchored
+          circularity. The reconstruction prefers a time-evolving entropy slope with a negative mean gradient,
+          <code>⟨d log μ / d log A⟩ ≈ −0.24</code>, with posterior weight <code>P(d log μ / d log A &lt; 0) ≈ 0.79</code>.
+        </p>
+
+        <details class="note-details">
+          <summary>Show full entry</summary>
+          <div class="note-full">
+            <h3>Why This Matters</h3>
+            <p>
+              The same thermodynamic degree of freedom that governs horizon entropy also controls modified gravitational-wave propagation
+              (a “friction” effect) in dark-siren analyses. If <code>μ(A)</code> evolves, it provides a concrete bridge between background
+              geometry and multimessenger propagation tests.
+            </p>
+
+            <h3>What Was Done</h3>
+            <ul>
+              <li><strong>Null hypothesis:</strong> strict Bekenstein-Hawking behavior on cosmological apparent horizons (<code>μ(A)=1</code>).</li>
+              <li><strong>Inference strategy:</strong> forward-model a spline representation of <code>log μ</code>, solve for <code>H(z)</code>, and evaluate the likelihood in data space.</li>
+              <li><strong>Data stack:</strong> Pantheon+, BAO, and cosmic chronometers.</li>
+              <li><strong>Calibration layer:</strong> synthetic closure and simulation-based calibration checks to guard against reconstruction artifacts.</li>
+            </ul>
+
+            <h3>Key Results (paper snapshot)</h3>
+            <ul>
+              <li><strong>Negative-slope preference:</strong> <code>⟨d log μ / d log A⟩ ≈ −0.24</code> with <code>P(d log μ / d log A &lt; 0) ≈ 0.79</code>.</li>
+              <li><strong>Function-space proximity:</strong> non-extensive templates (Tsallis/Barrow-like) are substantially closer to the reconstructed <code>μ(A)</code> than <code>μ=1</code> (representative distances <code>D² ~ 10⁻⁸</code> vs <code>10⁻⁴</code>).</li>
+              <li><strong>Interpretation:</strong> supports an effective thermodynamic sector that evolves with horizon area, consistent with late-time modified-gravity channels that also impact siren propagation.</li>
+            </ul>
+
+            <h3>Links</h3>
+            <p>
+              Paper PDF:
+              <a href="assets/negative_slope_power_map_letter.pdf" target="_blank" rel="noopener noreferrer">PDF</a>.
+            </p>
+            <p>
+              Software archive (Zenodo):
+              <a href="https://doi.org/10.5281/zenodo.18604922" target="_blank" rel="noopener noreferrer">10.5281/zenodo.18604922</a>.
+            </p>
+            <p>
+              Code:
+              <a href="https://github.com/simulationstation/Negative-Slope-Properties" target="_blank" rel="noopener noreferrer">simulationstation/Negative-Slope-Properties</a>.
+            </p>
+
+            <h3>How To Reproduce (minimal)</h3>
+            <p>
+              The repository ships fast smoke checks that validate the core pipeline wiring:
+            </p>
+            <pre><code>python -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -e ".[dev]"
+PYTHONPATH=src .venv/bin/python scripts/run_info_plus_smoke.py --out outputs/smoke_info_plus</code></pre>
+            <p class="note-meta">
+              Note: decision-grade runs are substantially heavier; see the Zenodo archive + run cards for the long-run pattern.
+            </p>
+          </div>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const entries = Array.from(document.querySelectorAll(".note-entry[data-date]"));
+      const fromInput = document.getElementById("journal-from");
+      const toInput = document.getElementById("journal-to");
+      const clearButton = document.getElementById("journal-clear");
+      const countElement = document.getElementById("journal-count");
+
+      if (!fromInput || !toInput || !clearButton || !countElement || entries.length === 0) {
+        return;
+      }
+
+      const dates = entries
+        .map((entry) => entry.dataset.date)
+        .filter(Boolean)
+        .sort();
+
+      if (dates.length > 0) {
+        fromInput.min = dates[0];
+        toInput.min = dates[0];
+        fromInput.max = dates[dates.length - 1];
+        toInput.max = dates[dates.length - 1];
+      }
+
+      const applyFilter = () => {
+        let from = fromInput.value;
+        let to = toInput.value;
+
+        if (from && to && from > to) {
+          const tmp = from;
+          from = to;
+          to = tmp;
+          fromInput.value = from;
+          toInput.value = to;
+        }
+
+        let visibleCount = 0;
+        for (const entry of entries) {
+          const date = entry.dataset.date ?? "";
+          const visible = (!from || date >= from) && (!to || date <= to);
+          entry.hidden = !visible;
+          if (visible) {
+            visibleCount += 1;
+          }
+        }
+
+        countElement.textContent = `Showing ${visibleCount} of ${entries.length} entries`;
+      };
+
+      fromInput.addEventListener("change", applyFilter);
+      toInput.addEventListener("change", applyFilter);
+      clearButton.addEventListener("click", () => {
+        fromInput.value = "";
+        toInput.value = "";
+        applyFilter();
+      });
+
+      applyFilter();
+    })();
+  </script>
+</body>
+</html>
