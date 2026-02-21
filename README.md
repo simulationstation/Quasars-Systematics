@@ -26,6 +26,25 @@ Notes:
 - This is a quick verifier for reviewers; it is intentionally not a substitute for the full end-to-end reruns.
 - The vendored inputs used by the seed live under `artifacts/`.
 
+## Case-closed suite (maximal nuisance + held-out + attribution)
+
+If your goal is to make the strongest, referee-resistant systematics case in one run (maximal reasonable
+nuisance basis with ridge regularization, CMB-fixed physical-mode fit, held-out sky validation, and
+leave-one-template-out attribution), run:
+
+```bash
+./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py
+```
+
+Artifacts are written to:
+- `REPORTS/case_closed_maximal_nuisance_suite/`
+
+Optional (slow; requires the Gaia qsocand external file):
+
+```bash
+./.venv/bin/python scripts/run_case_closed_maximal_nuisance_suite.py --do-gaia-replication
+```
+
 ## Scope and limitations (read first)
 
 This repo is designed to support the following (core, referee-facing) claims:

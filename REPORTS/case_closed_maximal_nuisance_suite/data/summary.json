@@ -1,0 +1,4553 @@
+{
+  "command": "scripts/run_case_closed_maximal_nuisance_suite.py",
+  "gaia_replication": null,
+  "generated_utc": "2026-02-21T00:43:55.343364+00:00",
+  "git_head": "492e0110c25678be1eec5c6953a7a509c1a88911",
+  "heldout_validation": {
+    "baseline_full": {
+      "D": 0.016778515040228766,
+      "axis_sep_cmb_deg": 34.33135060889454,
+      "lb_deg": [
+        236.57706156282933,
+        21.80768433139346
+      ]
+    },
+    "baseline_train_model": {
+      "beta": [
+        4.384724630878545,
+        -0.010628993215526418,
+        -0.013407494120551498,
+        0.007140502662838716,
+        -0.02487503202467397
+      ]
+    },
+    "cmb_fixed_test": {
+      "D_abs": 0.011602240760969391,
+      "D_par": 0.011602240760969391,
+      "axis_sep_cmb_deg": 0.0
+    },
+    "cmb_fixed_train_nuisance_beta": [
+      4.383471981554882,
+      -0.012828042311489526,
+      0.003566761914595622,
+      -0.00014471864699414387,
+      0.0009897148086328964,
+      -0.002367729866044648,
+      -0.0018187924669267367,
+      0.012713115370284422,
+      -0.010300188144409738,
+      -0.0150323248104884,
+      -0.0015314550515349893
+    ],
+    "heldout": {
+      "fold_index": 0,
+      "n_test_pix": 12018,
+      "n_train_pix": 12033,
+      "scheme": "GroupKFold n_splits=2 on ecliptic longitude wedges",
+      "wedge_deg": 15.0
+    },
+    "maximal_full": {
+      "D": 0.00920547410599184,
+      "axis_sep_cmb_deg": 82.86572710949478,
+      "lb_deg": [
+        279.82022465999034,
+        -47.90863575669106
+      ]
+    },
+    "maximal_train_model": {
+      "beta": [
+        4.390194931817873,
+        0.003938193986186605,
+        -0.005103167941971296,
+        -0.01773462168398231,
+        -0.019492251868636682,
+        0.007882257148482013,
+        -0.020192107292594817,
+        -0.0015866622924715689,
+        0.00047400947696610177,
+        -0.0005226285446986811,
+        0.014308318981880163,
+        -0.02126760250176543,
+        0.0005560415330181448,
+        -0.001384054924364554
+      ]
+    },
+    "representative_cut": 16.6,
+    "test_baseline_deviance": {
+      "deviance": 16368.276352345252,
+      "deviance_over_dof": 1.3625469368471865,
+      "dispersion_phi": 1.3586578209689848,
+      "dispersion_phi_eff": 1.3586578209689848,
+      "dof": 12013.0,
+      "n_obs": 12018.0,
+      "n_params": 5.0,
+      "pearson_chi2": 16321.556403300416,
+      "pearson_over_dof": 1.3586578209689848
+    },
+    "test_deviance": {
+      "deviance": 16367.128660644374,
+      "deviance_over_dof": 1.363472897421224,
+      "dispersion_phi": 1.358932094454075,
+      "dispersion_phi_eff": 1.358932094454075,
+      "dof": 12004.0,
+      "n_obs": 12018.0,
+      "n_params": 14.0,
+      "pearson_chi2": 16312.620861826717,
+      "pearson_over_dof": 1.358932094454075
+    },
+    "test_residual_dipole": {
+      "D": 0.022763017399771986,
+      "axis_sep_cmb_deg": 54.143901281734095,
+      "lb_deg": [
+        345.1062648629969,
+        -58.923493208378105
+      ]
+    }
+  },
+  "inputs": {
+    "b_cut": 30.0,
+    "catalog": "/home/primary/QS/data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/catwise_agns.fits",
+    "exclude_mask_fits": "/home/primary/QS/data/external/zenodo_6784602/secrest_extracted/secrest+22_accepted/wise/reference/exclude_master_revised.fits",
+    "maps": {
+      "gaia_logp_offset": {
+        "fill_value": 0.0,
+        "missing_frac": 0.51068115234375,
+        "nside_in": 64,
+        "nside_used": 64,
+        "ordering_in": "RING",
+        "path": "/home/primary/QS/REPORTS/external_completeness_gaia_qsocand_externalonly/data/logp_offset_map_nside64.fits"
+      },
+      "sdss_delta_m": {
+        "fill_value": 0.0,
+        "missing_frac": 0.51068115234375,
+        "nside_in": 64,
+        "nside_used": 64,
+        "ordering_in": "RING",
+        "path": "/home/primary/QS/REPORTS/external_completeness_sdss_dr16q/data/delta_m_map_nside64.fits"
+      },
+      "star_count": {
+        "fill_value": 48.0,
+        "missing_frac": 0.0,
+        "nside_in": 64,
+        "nside_used": 64,
+        "ordering_in": "RING",
+        "path": "/home/primary/QS/outputs/star_w1_zeropoint_map_allwise_mod8_snr20_msig0p1_full/star_w1_resid_count_nside64_all.fits"
+      },
+      "unwise_invvar": {
+        "fill_value": 0.5986239314079285,
+        "missing_frac": 0.0,
+        "nside_in": 64,
+        "nside_used": 64,
+        "ordering_in": "RING",
+        "path": "/home/primary/QS/data/cache/unwise_invvar/neo7/invvar_healpix_nside64.fits"
+      },
+      "unwise_lognexp": {
+        "fill_value": 5.356586456298828,
+        "missing_frac": 0.0,
+        "nside_in": 64,
+        "nside_used": 64,
+        "ordering_in": "RING",
+        "path": "/home/primary/QS/data/cache/unwise_nexp/neo7/lognexp_healpix_nside64.fits"
+      }
+    },
+    "nside": 64,
+    "representative_cut": 16.6,
+    "ridge_prec": 0.1111111111111111,
+    "ridge_sigma": 3.0,
+    "templates_maximal": [
+      "abs_elat_z",
+      "sin_elon_z",
+      "cos_elon_z",
+      "sin2_elon_z",
+      "cos2_elon_z",
+      "ebv_mean_z",
+      "log_w1cov_mean_z",
+      "lognexp_z",
+      "log_invvar_z",
+      "log1p_starcount_z"
+    ],
+    "w1_grid": "15.5,16.6,0.05",
+    "w1cov_min": 80.0
+  },
+  "loto_attribution": {
+    "full": {
+      "D": 0.00920547410599184,
+      "deviance": 32997.69421118343,
+      "lb_deg": [
+        279.82022465999034,
+        -47.90863575669106
+      ]
+    },
+    "representative_cut": 16.6,
+    "rows": [
+      {
+        "D_drop": 0.012598346495492348,
+        "axis_sep_cmb_deg": 11.863603028521341,
+        "delta_deviance": 4.606989943342342,
+        "dropped": "cos_elon_z"
+      },
+      {
+        "D_drop": 0.009063857902882935,
+        "axis_sep_cmb_deg": 83.86930863296611,
+        "delta_deviance": 3.202524522697786,
+        "dropped": "log1p_starcount_z"
+      },
+      {
+        "D_drop": 0.012705381213157346,
+        "axis_sep_cmb_deg": 86.77648394348132,
+        "delta_deviance": 3.013188193719543,
+        "dropped": "sin_elon_z"
+      },
+      {
+        "D_drop": 0.010900980491029185,
+        "axis_sep_cmb_deg": 74.71260854924253,
+        "delta_deviance": 2.2318307384412037,
+        "dropped": "log_invvar_z"
+      },
+      {
+        "D_drop": 0.007747960022014305,
+        "axis_sep_cmb_deg": 85.45098815797027,
+        "delta_deviance": 1.9958281546787475,
+        "dropped": "abs_elat_z"
+      },
+      {
+        "D_drop": 0.009595708244071962,
+        "axis_sep_cmb_deg": 81.72213191361114,
+        "delta_deviance": 1.785969277159893,
+        "dropped": "ebv_mean_z"
+      },
+      {
+        "D_drop": 0.009283928411530962,
+        "axis_sep_cmb_deg": 81.36404639399068,
+        "delta_deviance": 1.4689487228242797,
+        "dropped": "sin2_elon_z"
+      },
+      {
+        "D_drop": 0.009846949025648769,
+        "axis_sep_cmb_deg": 78.7008054590286,
+        "delta_deviance": 0.5289303667668719,
+        "dropped": "lognexp_z"
+      },
+      {
+        "D_drop": 0.009213401214207674,
+        "axis_sep_cmb_deg": 82.92461236276897,
+        "delta_deviance": 0.003611554733652156,
+        "dropped": "log_w1cov_mean_z"
+      },
+      {
+        "D_drop": 0.009212875838331044,
+        "axis_sep_cmb_deg": 82.87724372130045,
+        "delta_deviance": 0.0029242875971249305,
+        "dropped": "cos2_elon_z"
+      }
+    ]
+  },
+  "outputs": {
+    "case_closed_figure": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite/figures/case_closed_4panel.png",
+    "cmb_fixed_amplitude_scan": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite/figures/cmb_fixed_amplitude_scan.png",
+    "coefficients_csv": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite/data/coefficients_representative_cut.csv",
+    "gaia_replication_json": null,
+    "heldout_validation_json": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite/data/heldout_validation.json",
+    "loto_attribution_json": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite/data/loto_attribution.json",
+    "report_dir": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite",
+    "scan_suite_json": "/home/primary/QS/REPORTS/case_closed_maximal_nuisance_suite/data/scan_suite.json"
+  },
+  "representative_cut_fits": {
+    "maximal_no_external": {
+      "D": 0.009205737998577981,
+      "axis_sep_cmb_deg": 82.86599348573692,
+      "lb_deg": [
+        279.8191988033134,
+        -47.90849260144077
+      ]
+    },
+    "maximal_plus_gaia_logp_offset": {
+      "D": 0.015881917276527772,
+      "axis_sep_cmb_deg": 64.12217620228635,
+      "lb_deg": [
+        202.98730649791761,
+        -55.85238235298515
+      ]
+    },
+    "maximal_plus_gaia_plus_sdss_offsets": {
+      "D": 0.018916545603138397,
+      "axis_sep_cmb_deg": 56.57530530303432,
+      "lb_deg": [
+        202.58326598707916,
+        -65.87818740431973
+      ]
+    },
+    "maximal_plus_sdss_delta_m_alpha_edge_offset": {
+      "D": 0.012452917323264586,
+      "axis_sep_cmb_deg": 68.26563901798507,
+      "lb_deg": [
+        290.66848378818986,
+        -61.40821332044362
+      ]
+    },
+    "sdss_alpha_edge_at_cut": 1.5351674420233152
+  },
+  "scan_suite": {
+    "baseline": {
+      "meta": {
+        "max_iter": 200,
+        "nuisance_names": [
+          "abs_elat_z"
+        ],
+        "offset_used": false,
+        "ridge_prec_nuisance": 0.1111111111111111
+      },
+      "rows": [
+        {
+          "N_seen": 379879,
+          "cmb_projection": {
+            "D_par": 0.016996877433373678,
+            "D_perp": 0.0004019350563723634
+          },
+          "dipole": {
+            "D": 0.017001629165308497,
+            "axis_sep_cmb_deg": 1.3546541825914558,
+            "b_deg": 48.29723331300365,
+            "bvec": [
+              -0.0007780880056691764,
+              -0.011283817613749015,
+              0.01269351934609743
+            ],
+            "l_deg": 266.05535103844545
+          },
+          "fit_diag": {
+            "deviance": 26306.618330133773,
+            "deviance_over_dof": 1.0940122402950085,
+            "dispersion_phi": 1.0822023439097572,
+            "dispersion_phi_eff": 1.0822023439097572,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26022.637561654024,
+            "pearson_over_dof": 1.0822023439097572
+          },
+          "w1_cut": 15.5
+        },
+        {
+          "N_seen": 407391,
+          "cmb_projection": {
+            "D_par": 0.017361511684501847,
+            "D_perp": 0.0005464395962314212
+          },
+          "dipole": {
+            "D": 0.017370108928945253,
+            "axis_sep_cmb_deg": 1.8027433869291265,
+            "b_deg": 49.99590023611578,
+            "bvec": [
+              -0.0010265771402169677,
+              -0.011118953174685604,
+              0.013305476461884277
+            ],
+            "l_deg": 264.7250196574595
+          },
+          "fit_diag": {
+            "deviance": 26391.73987065274,
+            "deviance_over_dof": 1.097552186253545,
+            "dispersion_phi": 1.0876797349031249,
+            "dispersion_phi_eff": 1.0876797349031249,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26154.34690548054,
+            "pearson_over_dof": 1.0876797349031249
+          },
+          "w1_cut": 15.55
+        },
+        {
+          "N_seen": 436609,
+          "cmb_projection": {
+            "D_par": 0.01698789771705254,
+            "D_perp": 0.0008235356556691284
+          },
+          "dipole": {
+            "D": 0.01700784759518962,
+            "axis_sep_cmb_deg": 2.775399698469047,
+            "b_deg": 50.459066504748264,
+            "bvec": [
+              -0.001612662727564652,
+              -0.010706927100639972,
+              0.013115941095091208
+            ],
+            "l_deg": 261.43457242351724
+          },
+          "fit_diag": {
+            "deviance": 26374.728551698485,
+            "deviance_over_dof": 1.0968447372410581,
+            "dispersion_phi": 1.0889494255428511,
+            "dispersion_phi_eff": 1.0889494255428511,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26184.877886603397,
+            "pearson_over_dof": 1.0889494255428511
+          },
+          "w1_cut": 15.6
+        },
+        {
+          "N_seen": 468277,
+          "cmb_projection": {
+            "D_par": 0.0172702222929663,
+            "D_perp": 0.0015091288480290567
+          },
+          "dipole": {
+            "D": 0.017336033223561368,
+            "axis_sep_cmb_deg": 4.9940083647638644,
+            "b_deg": 48.54093159840039,
+            "bvec": [
+              -0.002677719195503373,
+              -0.011161208446395773,
+              0.012992124301074092
+            ],
+            "l_deg": 256.50897912260615
+          },
+          "fit_diag": {
+            "deviance": 26487.210527911528,
+            "deviance_over_dof": 1.1015225204986911,
+            "dispersion_phi": 1.0941830293129478,
+            "dispersion_phi_eff": 1.0941830293129478,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26310.72512285914,
+            "pearson_over_dof": 1.0941830293129478
+          },
+          "w1_cut": 15.65
+        },
+        {
+          "N_seen": 501888,
+          "cmb_projection": {
+            "D_par": 0.016237817293103914,
+            "D_perp": 0.0020709884273629143
+          },
+          "dipole": {
+            "D": 0.016369352568458402,
+            "axis_sep_cmb_deg": 7.268323359716889,
+            "b_deg": 47.10297623437176,
+            "bvec": [
+              -0.0031920702030686808,
+              -0.010675315531925586,
+              0.011991831787637994
+            ],
+            "l_deg": 253.35259192709094
+          },
+          "fit_diag": {
+            "deviance": 26556.814727866757,
+            "deviance_over_dof": 1.104417147461813,
+            "dispersion_phi": 1.0970042376084772,
+            "dispersion_phi_eff": 1.0970042376084772,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26378.563897533444,
+            "pearson_over_dof": 1.0970042376084772
+          },
+          "w1_cut": 15.7
+        },
+        {
+          "N_seen": 536409,
+          "cmb_projection": {
+            "D_par": 0.016180052849611642,
+            "D_perp": 0.001918014781025145
+          },
+          "dipole": {
+            "D": 0.01629333885109055,
+            "axis_sep_cmb_deg": 6.760404231414132,
+            "b_deg": 45.59020162475044,
+            "bvec": [
+              -0.002967488819757717,
+              -0.011008906528352284,
+              0.011639195765647732
+            ],
+            "l_deg": 254.9142741324623
+          },
+          "fit_diag": {
+            "deviance": 26524.853911419836,
+            "deviance_over_dof": 1.1030879943200464,
+            "dispersion_phi": 1.0970153213281029,
+            "dispersion_phi_eff": 1.0970153213281029,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26378.83041665556,
+            "pearson_over_dof": 1.0970153213281029
+          },
+          "w1_cut": 15.75
+        },
+        {
+          "N_seen": 574401,
+          "cmb_projection": {
+            "D_par": 0.016388598068158105,
+            "D_perp": 0.0020519394717971175
+          },
+          "dipole": {
+            "D": 0.016516555398616097,
+            "axis_sep_cmb_deg": 7.136598374689678,
+            "b_deg": 46.63069988697392,
+            "bvec": [
+              -0.003176381133982845,
+              -0.010888021381553238,
+              0.012006589670762966
+            ],
+            "l_deg": 253.7363606337614
+          },
+          "fit_diag": {
+            "deviance": 26607.758021961283,
+            "deviance_over_dof": 1.1065357241105083,
+            "dispersion_phi": 1.1011483944615446,
+            "dispersion_phi_eff": 1.1011483944615446,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26478.2142932223,
+            "pearson_over_dof": 1.1011483944615446
+          },
+          "w1_cut": 15.8
+        },
+        {
+          "N_seen": 615210,
+          "cmb_projection": {
+            "D_par": 0.01645061392021689,
+            "D_perp": 0.0032460948696200103
+          },
+          "dipole": {
+            "D": 0.016767821273338025,
+            "axis_sep_cmb_deg": 11.16241009070743,
+            "b_deg": 40.9932250893023,
+            "bvec": [
+              -0.003897162254308269,
+              -0.012041175429482643,
+              0.010999184101315222
+            ],
+            "l_deg": 252.06567162114544
+          },
+          "fit_diag": {
+            "deviance": 26899.273765596598,
+            "deviance_over_dof": 1.1186589771935707,
+            "dispersion_phi": 1.1138887245104743,
+            "dispersion_phi_eff": 1.1138887245104743,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26784.568269578864,
+            "pearson_over_dof": 1.1138887245104743
+          },
+          "w1_cut": 15.85
+        },
+        {
+          "N_seen": 659630,
+          "cmb_projection": {
+            "D_par": 0.01551251603847976,
+            "D_perp": 0.003156520930851959
+          },
+          "dipole": {
+            "D": 0.015830406761387982,
+            "axis_sep_cmb_deg": 11.501645213777008,
+            "b_deg": 39.63341513998982,
+            "bvec": [
+              -0.0034831352695928056,
+              -0.011683497932230011,
+              0.01009779297630398
+            ],
+            "l_deg": 253.39939982020724
+          },
+          "fit_diag": {
+            "deviance": 27036.00853320899,
+            "deviance_over_dof": 1.1243453602765112,
+            "dispersion_phi": 1.11991239792608,
+            "dispersion_phi_eff": 1.11991239792608,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26929.41352053052,
+            "pearson_over_dof": 1.11991239792608
+          },
+          "w1_cut": 15.9
+        },
+        {
+          "N_seen": 706281,
+          "cmb_projection": {
+            "D_par": 0.016102225994446655,
+            "D_perp": 0.0033357604817172972
+          },
+          "dipole": {
+            "D": 0.016444116880137416,
+            "axis_sep_cmb_deg": 11.703922927575885,
+            "b_deg": 39.670449834524796,
+            "bvec": [
+              -0.0037180100101722783,
+              -0.012099132603396042,
+              0.010497445964486693
+            ],
+            "l_deg": 252.91803808915665
+          },
+          "fit_diag": {
+            "deviance": 27094.912026125254,
+            "deviance_over_dof": 1.1267949773819035,
+            "dispersion_phi": 1.1224347757848918,
+            "dispersion_phi_eff": 1.1224347757848918,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 26990.066618523506,
+            "pearson_over_dof": 1.1224347757848918
+          },
+          "w1_cut": 15.95
+        },
+        {
+          "N_seen": 755475,
+          "cmb_projection": {
+            "D_par": 0.016099154760521296,
+            "D_perp": 0.004126356382335583
+          },
+          "dipole": {
+            "D": 0.016619554777347594,
+            "axis_sep_cmb_deg": 14.375944531660236,
+            "b_deg": 37.37821523243255,
+            "bvec": [
+              -0.004273314567397276,
+              -0.012496179503422803,
+              0.010089295387863477
+            ],
+            "l_deg": 251.12086709164538
+          },
+          "fit_diag": {
+            "deviance": 27275.398617707666,
+            "deviance_over_dof": 1.1343008657451412,
+            "dispersion_phi": 1.1296640259808985,
+            "dispersion_phi_eff": 1.1296640259808985,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 27163.901168736687,
+            "pearson_over_dof": 1.1296640259808985
+          },
+          "w1_cut": 16.0
+        },
+        {
+          "N_seen": 810508,
+          "cmb_projection": {
+            "D_par": 0.016025631118333328,
+            "D_perp": 0.005337569754196016
+          },
+          "dipole": {
+            "D": 0.01689113683627605,
+            "axis_sep_cmb_deg": 18.421088011820647,
+            "b_deg": 33.8070239693417,
+            "bvec": [
+              -0.005094787332881527,
+              -0.013077757652529906,
+              0.00939818601838712
+            ],
+            "l_deg": 248.7152796744014
+          },
+          "fit_diag": {
+            "deviance": 27388.83274655079,
+            "deviance_over_dof": 1.139018246134525,
+            "dispersion_phi": 1.1346268221514215,
+            "dispersion_phi_eff": 1.1346268221514215,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 27283.23656545308,
+            "pearson_over_dof": 1.1346268221514215
+          },
+          "w1_cut": 16.05
+        },
+        {
+          "N_seen": 867658,
+          "cmb_projection": {
+            "D_par": 0.016119537921532742,
+            "D_perp": 0.006044925050067618
+          },
+          "dipole": {
+            "D": 0.017215708572831587,
+            "axis_sep_cmb_deg": 20.556351634629024,
+            "b_deg": 31.509888349664497,
+            "bvec": [
+              -0.005430748276975892,
+              -0.013635567377409504,
+              0.008997716216513841
+            ],
+            "l_deg": 248.28368915253637
+          },
+          "fit_diag": {
+            "deviance": 27632.072396365475,
+            "deviance_over_dof": 1.14913384331554,
+            "dispersion_phi": 1.1445226960892838,
+            "dispersion_phi_eff": 1.1445226960892838,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 27521.192750162918,
+            "pearson_over_dof": 1.1445226960892838
+          },
+          "w1_cut": 16.1
+        },
+        {
+          "N_seen": 932451,
+          "cmb_projection": {
+            "D_par": 0.0157510913384367,
+            "D_perp": 0.006690811306022477
+          },
+          "dipole": {
+            "D": 0.017113264863391025,
+            "axis_sep_cmb_deg": 23.015007850836373,
+            "b_deg": 29.945838884234863,
+            "bvec": [
+              -0.006082631952829542,
+              -0.013523649091743443,
+              0.008542618922460351
+            ],
+            "l_deg": 245.78286104042004
+          },
+          "fit_diag": {
+            "deviance": 27823.13215910439,
+            "deviance_over_dof": 1.1570794377070777,
+            "dispersion_phi": 1.1521232972709565,
+            "dispersion_phi_eff": 1.1521232972709565,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 27703.956806177423,
+            "pearson_over_dof": 1.1521232972709565
+          },
+          "w1_cut": 16.15
+        },
+        {
+          "N_seen": 1001128,
+          "cmb_projection": {
+            "D_par": 0.015744071093074925,
+            "D_perp": 0.007151435746499589
+          },
+          "dipole": {
+            "D": 0.01729216029939896,
+            "axis_sep_cmb_deg": 24.428992793912634,
+            "b_deg": 29.223882063784856,
+            "bvec": [
+              -0.006599243615774213,
+              -0.013571809900978046,
+              0.008442438482540879
+            ],
+            "l_deg": 244.06882924980488
+          },
+          "fit_diag": {
+            "deviance": 28163.190118735074,
+            "deviance_over_dof": 1.1712214139039787,
+            "dispersion_phi": 1.1662899444723553,
+            "dispersion_phi_eff": 1.1662899444723553,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 28044.608004782254,
+            "pearson_over_dof": 1.1662899444723553
+          },
+          "w1_cut": 16.2
+        },
+        {
+          "N_seen": 1077197,
+          "cmb_projection": {
+            "D_par": 0.015323209615723208,
+            "D_perp": 0.007165111713482999
+          },
+          "dipole": {
+            "D": 0.016915660755468097,
+            "axis_sep_cmb_deg": 25.060725843521684,
+            "b_deg": 29.474099023266348,
+            "bvec": [
+              -0.0068302512773543095,
+              -0.01304663525710155,
+              0.008323013561831922
+            ],
+            "l_deg": 242.36677845488316
+          },
+          "fit_diag": {
+            "deviance": 28401.086235509938,
+            "deviance_over_dof": 1.1811147897991323,
+            "dispersion_phi": 1.177125225851354,
+            "dispersion_phi_eff": 1.177125225851354,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 28305.15318082166,
+            "pearson_over_dof": 1.177125225851354
+          },
+          "w1_cut": 16.25
+        },
+        {
+          "N_seen": 1162883,
+          "cmb_projection": {
+            "D_par": 0.015177965575545842,
+            "D_perp": 0.007162495762897111
+          },
+          "dipole": {
+            "D": 0.016783086264628853,
+            "axis_sep_cmb_deg": 25.26266726685003,
+            "b_deg": 30.475370033822532,
+            "bvec": [
+              -0.0071340855434324935,
+              -0.012582739622744697,
+              0.008511843020825268
+            ],
+            "l_deg": 240.4478929527931
+          },
+          "fit_diag": {
+            "deviance": 28648.845494589128,
+            "deviance_over_dof": 1.1914183437822976,
+            "dispersion_phi": 1.1879428343591416,
+            "dispersion_phi_eff": 1.1879428343591416,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 28565.27339499992,
+            "pearson_over_dof": 1.1879428343591416
+          },
+          "w1_cut": 16.3
+        },
+        {
+          "N_seen": 1254030,
+          "cmb_projection": {
+            "D_par": 0.01455923684796398,
+            "D_perp": 0.0076344487615334035
+          },
+          "dipole": {
+            "D": 0.01643947035301293,
+            "axis_sep_cmb_deg": 27.67123557664366,
+            "b_deg": 28.172923635734886,
+            "bvec": [
+              -0.007388284625922804,
+              -0.01246701372004966,
+              0.007761636726750184
+            ],
+            "l_deg": 239.34788770220914
+          },
+          "fit_diag": {
+            "deviance": 28940.26494537299,
+            "deviance_over_dof": 1.203537592338559,
+            "dispersion_phi": 1.2010616100862066,
+            "dispersion_phi_eff": 1.2010616100862066,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 28880.727476132924,
+            "pearson_over_dof": 1.2010616100862066
+          },
+          "w1_cut": 16.35
+        },
+        {
+          "N_seen": 1359698,
+          "cmb_projection": {
+            "D_par": 0.01441455820763072,
+            "D_perp": 0.007664859171238458
+          },
+          "dipole": {
+            "D": 0.016325732891239293,
+            "axis_sep_cmb_deg": 28.001557484672027,
+            "b_deg": 28.221816507023505,
+            "bvec": [
+              -0.0074833455786409014,
+              -0.012285249941146364,
+              0.00772021549377292
+            ],
+            "l_deg": 238.65304580950595
+          },
+          "fit_diag": {
+            "deviance": 29430.167142818627,
+            "deviance_over_dof": 1.2239111346094413,
+            "dispersion_phi": 1.221473199929134,
+            "dispersion_phi_eff": 1.221473199929134,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 29371.544565495955,
+            "pearson_over_dof": 1.221473199929134
+          },
+          "w1_cut": 16.4
+        },
+        {
+          "N_seen": 1473681,
+          "cmb_projection": {
+            "D_par": 0.014112001753989141,
+            "D_perp": 0.007497527954475627
+          },
+          "dipole": {
+            "D": 0.015980035010372665,
+            "axis_sep_cmb_deg": 27.9811431405495,
+            "b_deg": 27.896852559354684,
+            "bvec": [
+              -0.007235817505983329,
+              -0.012128583543153522,
+              0.007476759003043153
+            ],
+            "l_deg": 239.18003029601059
+          },
+          "fit_diag": {
+            "deviance": 30214.643253867984,
+            "deviance_over_dof": 1.2565351099504276,
+            "dispersion_phi": 1.254471043295443,
+            "dispersion_phi_eff": 1.254471043295443,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 30165.01070708222,
+            "pearson_over_dof": 1.254471043295443
+          },
+          "w1_cut": 16.45
+        },
+        {
+          "N_seen": 1604240,
+          "cmb_projection": {
+            "D_par": 0.013787644207045088,
+            "D_perp": 0.007238201054485966
+          },
+          "dipole": {
+            "D": 0.015572112486275769,
+            "axis_sep_cmb_deg": 27.698455897419333,
+            "b_deg": 28.99506075113071,
+            "bvec": [
+              -0.0071996676733259365,
+              -0.01156192454284515,
+              0.007548335812909105
+            ],
+            "l_deg": 238.08927364895266
+          },
+          "fit_diag": {
+            "deviance": 31126.92342746631,
+            "deviance_over_dof": 1.2944740675150257,
+            "dispersion_phi": 1.2931914377373124,
+            "dispersion_phi_eff": 1.2931914377373124,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 31096.081311831414,
+            "pearson_over_dof": 1.2931914377373124
+          },
+          "w1_cut": 16.5
+        },
+        {
+          "N_seen": 1753984,
+          "cmb_projection": {
+            "D_par": 0.013725659354076497,
+            "D_perp": 0.008170892734032102
+          },
+          "dipole": {
+            "D": 0.01597364118713095,
+            "axis_sep_cmb_deg": 30.76536222010776,
+            "b_deg": 25.2265029509524,
+            "bvec": [
+              -0.0076573389873241075,
+              -0.012254568721875159,
+              0.006807930511488162
+            ],
+            "l_deg": 238.00055625868885
+          },
+          "fit_diag": {
+            "deviance": 32017.038700881734,
+            "deviance_over_dof": 1.3314912542993318,
+            "dispersion_phi": 1.3305145935436427,
+            "dispersion_phi_eff": 1.3305145935436427,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 31993.55391635043,
+            "pearson_over_dof": 1.3305145935436427
+          },
+          "w1_cut": 16.55
+        },
+        {
+          "N_seen": 1917142,
+          "cmb_projection": {
+            "D_par": 0.013854663393420837,
+            "D_perp": 0.009463456518156542
+          },
+          "dipole": {
+            "D": 0.016778221211321387,
+            "axis_sep_cmb_deg": 34.33511042653298,
+            "b_deg": 21.807573108446746,
+            "bvec": [
+              -0.008581975569605419,
+              -0.013000335675448671,
+              0.006232950718912129
+            ],
+            "l_deg": 236.56980434491496
+          },
+          "fit_diag": {
+            "deviance": 33043.34293392231,
+            "deviance_over_dof": 1.374172125672557,
+            "dispersion_phi": 1.3735403532097086,
+            "dispersion_phi_eff": 1.3735403532097086,
+            "dof": 24046.0,
+            "n_obs": 24051.0,
+            "n_params": 5.0,
+            "pearson_chi2": 33028.15133328065,
+            "pearson_over_dof": 1.3735403532097086
+          },
+          "w1_cut": 16.6
+        }
+      ]
+    },
+    "cmb_fixed_external_gaia": {
+      "meta": {
+        "dipole_axis": "CMB (fixed)",
+        "max_iter": 200,
+        "nuisance_names": [
+          "abs_elat_z_perp_cmb",
+          "sin_elon_z_perp_cmb",
+          "cos_elon_z_perp_cmb",
+          "sin2_elon_z_perp_cmb",
+          "cos2_elon_z_perp_cmb",
+          "ebv_mean_z_perp_cmb",
+          "log_w1cov_mean_z_perp_cmb",
+          "lognexp_z_perp_cmb",
+          "log_invvar_z_perp_cmb",
+          "log1p_starcount_z_perp_cmb",
+          "gaia_logp_offset"
+        ],
+        "offset_used": true,
+        "ridge_prec_nuisance": 0.1111111111111111
+      },
+      "rows": [
+        {
+          "N_seen": 379879,
+          "cmb_projection": {
+            "D_par": 0.14248728374346345,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14248728374346345,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.00988246091474471,
+              -0.09435800188677859,
+              0.10630865663149683
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26295.34723579274,
+            "deviance_over_dof": 1.093861942501466,
+            "dispersion_phi": 1.0820269818286352,
+            "dispersion_phi_eff": 1.0820269818286352,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26010.84661617856,
+            "pearson_over_dof": 1.0820269818286352
+          },
+          "w1_cut": 15.5
+        },
+        {
+          "N_seen": 407391,
+          "cmb_projection": {
+            "D_par": 0.14307915901128077,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14307915901128077,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009923511484640756,
+              -0.09474995382922696,
+              0.10675025017558004
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26381.145018526073,
+            "deviance_over_dof": 1.0974310503151576,
+            "dispersion_phi": 1.0875561924924553,
+            "dispersion_phi_eff": 1.0875561924924553,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26143.763311326133,
+            "pearson_over_dof": 1.0875561924924553
+          },
+          "w1_cut": 15.55
+        },
+        {
+          "N_seen": 436609,
+          "cmb_projection": {
+            "D_par": 0.14276526611292747,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14276526611292747,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.00990174088014964,
+              -0.09454208751360269,
+              0.10651605712007774
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26363.699838176195,
+            "deviance_over_dof": 1.0967053470683554,
+            "dispersion_phi": 1.0888171215523625,
+            "dispersion_phi_eff": 1.0888171215523625,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26174.074784997243,
+            "pearson_over_dof": 1.0888171215523625
+          },
+          "w1_cut": 15.6
+        },
+        {
+          "N_seen": 468277,
+          "cmb_projection": {
+            "D_par": 0.1428180142088664,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.1428180142088664,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.00990539931887307,
+              -0.09457701838466265,
+              0.1065554120651073
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26474.06692086636,
+            "deviance_over_dof": 1.1012965148661076,
+            "dispersion_phi": 1.0939803547426936,
+            "dispersion_phi_eff": 1.0939803547426936,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26298.193747659614,
+            "pearson_over_dof": 1.0939803547426936
+          },
+          "w1_cut": 15.65
+        },
+        {
+          "N_seen": 501888,
+          "cmb_projection": {
+            "D_par": 0.14162858992712013,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14162858992712013,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009822904666251516,
+              -0.09378935722871516,
+              0.10566799183899797
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26541.136336441006,
+            "deviance_over_dof": 1.1040865400574487,
+            "dispersion_phi": 1.0966816046609622,
+            "dispersion_phi_eff": 1.0966816046609622,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26363.12909444487,
+            "pearson_over_dof": 1.0966816046609622
+          },
+          "w1_cut": 15.7
+        },
+        {
+          "N_seen": 536409,
+          "cmb_projection": {
+            "D_par": 0.14136539220555178,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14136539220555178,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009804650116596881,
+              -0.09361506229897915,
+              0.10547162206147609
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26510.929290717846,
+            "deviance_over_dof": 1.1028299551028682,
+            "dispersion_phi": 1.0967498726815554,
+            "dispersion_phi_eff": 1.0967498726815554,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26364.77018939191,
+            "pearson_over_dof": 1.0967498726815554
+          },
+          "w1_cut": 15.75
+        },
+        {
+          "N_seen": 574401,
+          "cmb_projection": {
+            "D_par": 0.14170930632516882,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14170930632516882,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.00982850289668962,
+              -0.09384280928309698,
+              0.10572821371718423
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26594.148439301047,
+            "deviance_over_dof": 1.106291794138735,
+            "dispersion_phi": 1.100885376067488,
+            "dispersion_phi_eff": 1.100885376067488,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26464.183555286345,
+            "pearson_over_dof": 1.100885376067488
+          },
+          "w1_cut": 15.8
+        },
+        {
+          "N_seen": 615210,
+          "cmb_projection": {
+            "D_par": 0.14105854870057283,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14105854870057283,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009783368435416424,
+              -0.09341186423623919,
+              0.10524268850366371
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26883.939975543362,
+            "deviance_over_dof": 1.1183468520131188,
+            "dispersion_phi": 1.1135272504831326,
+            "dispersion_phi_eff": 1.1135272504831326,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26768.081574364027,
+            "pearson_over_dof": 1.1135272504831326
+          },
+          "w1_cut": 15.85
+        },
+        {
+          "N_seen": 659630,
+          "cmb_projection": {
+            "D_par": 0.13998605715419438,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13998605715419438,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.00970898386221085,
+              -0.09270163833608848,
+              0.10444251088395834
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27019.195542026522,
+            "deviance_over_dof": 1.1239733575450943,
+            "dispersion_phi": 1.11947631416719,
+            "dispersion_phi_eff": 1.11947631416719,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26911.09111626508,
+            "pearson_over_dof": 1.11947631416719
+          },
+          "w1_cut": 15.9
+        },
+        {
+          "N_seen": 706281,
+          "cmb_projection": {
+            "D_par": 0.14054557118170366,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14054557118170366,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009747789960290921,
+              -0.09307216000143549,
+              0.10485995995778644
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27076.541320708508,
+            "deviance_over_dof": 1.1263588885023714,
+            "dispersion_phi": 1.1218874885355579,
+            "dispersion_phi_eff": 1.1218874885355579,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26969.053336906276,
+            "pearson_over_dof": 1.1218874885355579
+          },
+          "w1_cut": 15.95
+        },
+        {
+          "N_seen": 755475,
+          "cmb_projection": {
+            "D_par": 0.14026316386282286,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.14026316386282286,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009728203094589263,
+              -0.09288514408234638,
+              0.1046492580487854
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27257.99321502568,
+            "deviance_over_dof": 1.13390711822562,
+            "dispersion_phi": 1.1291697387954602,
+            "dispersion_phi_eff": 1.1291697387954602,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27144.11135090407,
+            "pearson_over_dof": 1.1291697387954602
+          },
+          "w1_cut": 16.0
+        },
+        {
+          "N_seen": 810508,
+          "cmb_projection": {
+            "D_par": 0.1397578791196435,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.1397578791196435,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.00969315816570791,
+              -0.09255053416139288,
+              0.10427226902315065
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27371.994851237312,
+            "deviance_over_dof": 1.1386494800631188,
+            "dispersion_phi": 1.1341920584955456,
+            "dispersion_phi_eff": 1.1341920584955456,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27264.84289417442,
+            "pearson_over_dof": 1.1341920584955456
+          },
+          "w1_cut": 16.05
+        },
+        {
+          "N_seen": 867658,
+          "cmb_projection": {
+            "D_par": 0.139527210908725,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.139527210908725,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009677159758560362,
+              -0.09239778094083002,
+              0.10410016926108005
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27614.91725034478,
+            "deviance_over_dof": 1.1487548255062516,
+            "dispersion_phi": 1.1440640279195828,
+            "dispersion_phi_eff": 1.1440640279195828,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27502.155167158853,
+            "pearson_over_dof": 1.1440640279195828
+          },
+          "w1_cut": 16.1
+        },
+        {
+          "N_seen": 932451,
+          "cmb_projection": {
+            "D_par": 0.13903128727884767,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13903128727884767,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009642764086468074,
+              -0.09206937014111324,
+              0.10373016448943324
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27801.70357106105,
+            "deviance_over_dof": 1.156524962396982,
+            "dispersion_phi": 1.1515154418854479,
+            "dispersion_phi_eff": 1.1515154418854479,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27681.279707484282,
+            "pearson_over_dof": 1.1515154418854479
+          },
+          "w1_cut": 16.15
+        },
+        {
+          "N_seen": 1001128,
+          "cmb_projection": {
+            "D_par": 0.13895526919413828,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13895526919413828,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009637491715971442,
+              -0.09201902940619298,
+              0.10367344798636828
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28138.39402678539,
+            "deviance_over_dof": 1.170530971620508,
+            "dispersion_phi": 1.1655416644354981,
+            "dispersion_phi_eff": 1.1655416644354981,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28018.45607136494,
+            "pearson_over_dof": 1.1655416644354981
+          },
+          "w1_cut": 16.2
+        },
+        {
+          "N_seen": 1077197,
+          "cmb_projection": {
+            "D_par": 0.13865612310568948,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13865612310568948,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009616743902908932,
+              -0.09182092873056291,
+              0.1034502574112934
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28378.68430544262,
+            "deviance_over_dof": 1.180526823305571,
+            "dispersion_phi": 1.1764484312798873,
+            "dispersion_phi_eff": 1.1764484312798873,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28280.64383953721,
+            "pearson_over_dof": 1.1764484312798873
+          },
+          "w1_cut": 16.25
+        },
+        {
+          "N_seen": 1162883,
+          "cmb_projection": {
+            "D_par": 0.13869934082409985,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13869934082409985,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009619741345219531,
+              -0.09184954839014355,
+              0.10348250181560921
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28628.55658794454,
+            "deviance_over_dof": 1.1909212774218785,
+            "dispersion_phi": 1.187347704997638,
+            "dispersion_phi_eff": 1.187347704997638,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28542.651480438217,
+            "pearson_over_dof": 1.187347704997638
+          },
+          "w1_cut": 16.3
+        },
+        {
+          "N_seen": 1254030,
+          "cmb_projection": {
+            "D_par": 0.13787795365957242,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13787795365957242,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009562772566420085,
+              -0.09130560896211855,
+              0.10286967122651272
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28917.922328995825,
+            "deviance_over_dof": 1.2029586226130797,
+            "dispersion_phi": 1.200429543855821,
+            "dispersion_phi_eff": 1.200429543855821,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28857.12580475008,
+            "pearson_over_dof": 1.200429543855821
+          },
+          "w1_cut": 16.35
+        },
+        {
+          "N_seen": 1359698,
+          "cmb_projection": {
+            "D_par": 0.13777128944508155,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13777128944508155,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009555374678671688,
+              -0.09123497373146666,
+              0.10279008988384643
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 29404.6453492469,
+            "deviance_over_dof": 1.2232058467177045,
+            "dispersion_phi": 1.2206909640898886,
+            "dispersion_phi_eff": 1.2206909640898886,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 29344.190085756833,
+            "pearson_over_dof": 1.2206909640898886
+          },
+          "w1_cut": 16.4
+        },
+        {
+          "N_seen": 1473681,
+          "cmb_projection": {
+            "D_par": 0.13744530214605508,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13744530214605508,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009532765245347572,
+              -0.09101909825564534,
+              0.1025468732898602
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 30183.477672670484,
+            "deviance_over_dof": 1.2556045456412697,
+            "dispersion_phi": 1.253471810151304,
+            "dispersion_phi_eff": 1.253471810151304,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 30132.2088442272,
+            "pearson_over_dof": 1.253471810151304
+          },
+          "w1_cut": 16.45
+        },
+        {
+          "N_seen": 1604240,
+          "cmb_projection": {
+            "D_par": 0.1373186032957425,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.1373186032957425,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009523977819527796,
+              -0.09093519567821697,
+              0.10245234426088569
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 31092.462819426488,
+            "deviance_over_dof": 1.2934174807365735,
+            "dispersion_phi": 1.2920567757326529,
+            "dispersion_phi_eff": 1.2920567757326529,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 31059.752831837242,
+            "pearson_over_dof": 1.2920567757326529
+          },
+          "w1_cut": 16.5
+        },
+        {
+          "N_seen": 1753984,
+          "cmb_projection": {
+            "D_par": 0.13677497345189468,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13677497345189468,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009486273397471528,
+              -0.09057519284509499,
+              0.10204674625321855
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 31980.788999884557,
+            "deviance_over_dof": 1.3303710220843028,
+            "dispersion_phi": 1.3293247168675433,
+            "dispersion_phi_eff": 1.3293247168675433,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 31955.636868778874,
+            "pearson_over_dof": 1.3293247168675433
+          },
+          "w1_cut": 16.55
+        },
+        {
+          "N_seen": 1917142,
+          "cmb_projection": {
+            "D_par": 0.13644110874437407,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.13644110874437407,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.009463117612364237,
+              -0.09035410078779339,
+              0.1017976523858873
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 33009.22511894751,
+            "deviance_over_dof": 1.3731530063208748,
+            "dispersion_phi": 1.372401366448656,
+            "dispersion_phi_eff": 1.372401366448656,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 32991.15644805924,
+            "pearson_over_dof": 1.372401366448656
+          },
+          "w1_cut": 16.6
+        }
+      ]
+    },
+    "cmb_fixed_maximal": {
+      "meta": {
+        "dipole_axis": "CMB (fixed)",
+        "max_iter": 200,
+        "nuisance_names": [
+          "abs_elat_z_perp_cmb",
+          "sin_elon_z_perp_cmb",
+          "cos_elon_z_perp_cmb",
+          "sin2_elon_z_perp_cmb",
+          "cos2_elon_z_perp_cmb",
+          "ebv_mean_z_perp_cmb",
+          "log_w1cov_mean_z_perp_cmb",
+          "lognexp_z_perp_cmb",
+          "log_invvar_z_perp_cmb",
+          "log1p_starcount_z_perp_cmb"
+        ],
+        "offset_used": false,
+        "ridge_prec_nuisance": 0.1111111111111111
+      },
+      "rows": [
+        {
+          "N_seen": 379879,
+          "cmb_projection": {
+            "D_par": 0.01700287033973539,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01700287033973539,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0011792645431674559,
+              -0.011259649489044336,
+              0.012685709610066955
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26295.1467108345,
+            "deviance_over_dof": 1.0938536008500561,
+            "dispersion_phi": 1.0820276097375539,
+            "dispersion_phi_eff": 1.0820276097375539,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26010.86171048106,
+            "pearson_over_dof": 1.0820276097375539
+          },
+          "w1_cut": 15.5
+        },
+        {
+          "N_seen": 407391,
+          "cmb_projection": {
+            "D_par": 0.017595061305817335,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.017595061305817335,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0012203370088824058,
+              -0.011651810493358918,
+              0.013127538694175439
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26381.22370433931,
+            "deviance_over_dof": 1.0974343235716673,
+            "dispersion_phi": 1.08755550861113,
+            "dispersion_phi_eff": 1.08755550861113,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26143.74687150295,
+            "pearson_over_dof": 1.08755550861113
+          },
+          "w1_cut": 15.55
+        },
+        {
+          "N_seen": 436609,
+          "cmb_projection": {
+            "D_par": 0.01728111164405201,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01728111164405201,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0011985624674631231,
+              -0.011443906587838894,
+              0.012893303287931928
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26363.361096488996,
+            "deviance_over_dof": 1.0966912557298139,
+            "dispersion_phi": 1.0887957420681385,
+            "dispersion_phi_eff": 1.0887957420681385,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26173.56084357598,
+            "pearson_over_dof": 1.0887957420681385
+          },
+          "w1_cut": 15.6
+        },
+        {
+          "N_seen": 468277,
+          "cmb_projection": {
+            "D_par": 0.017333896833060577,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.017333896833060577,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0012022234788428736,
+              -0.011478862022690411,
+              0.012932685907812895
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26473.3286443033,
+            "deviance_over_dof": 1.1012658032490246,
+            "dispersion_phi": 1.0939495362567364,
+            "dispersion_phi_eff": 1.0939495362567364,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26297.45290207569,
+            "pearson_over_dof": 1.0939495362567364
+          },
+          "w1_cut": 15.65
+        },
+        {
+          "N_seen": 501888,
+          "cmb_projection": {
+            "D_par": 0.01614404502800369,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01614404502800369,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0011196991745759494,
+              -0.010690917752037591,
+              0.012044946709879297
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26540.42466132375,
+            "deviance_over_dof": 1.1040569350357232,
+            "dispersion_phi": 1.0966530388649778,
+            "dispersion_phi_eff": 1.0966530388649778,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26362.4424012752,
+            "pearson_over_dof": 1.0966530388649778
+          },
+          "w1_cut": 15.7
+        },
+        {
+          "N_seen": 536409,
+          "cmb_projection": {
+            "D_par": 0.015881134324288063,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.015881134324288063,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0011014645315588537,
+              -0.010516812891410746,
+              0.01184879107414993
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26509.53023920046,
+            "deviance_over_dof": 1.1027717558634078,
+            "dispersion_phi": 1.0966882893595955,
+            "dispersion_phi_eff": 1.0966882893595955,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26363.289787915317,
+            "pearson_over_dof": 1.0966882893595955
+          },
+          "w1_cut": 15.75
+        },
+        {
+          "N_seen": 574401,
+          "cmb_projection": {
+            "D_par": 0.016224416930643575,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.016224416930643575,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0011252735119176055,
+              -0.010744141674493661,
+              0.012104911562714493
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26592.32869140042,
+            "deviance_over_dof": 1.1062160943217447,
+            "dispersion_phi": 1.1008054044508078,
+            "dispersion_phi_eff": 1.1008054044508078,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26462.26111759297,
+            "pearson_over_dof": 1.1008054044508078
+          },
+          "w1_cut": 15.8
+        },
+        {
+          "N_seen": 615210,
+          "cmb_projection": {
+            "D_par": 0.015573621910043568,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.015573621910043568,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0010801364569775357,
+              -0.010313171863234988,
+              0.01161935844832559
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 26881.850430675866,
+            "deviance_over_dof": 1.1182599288937087,
+            "dispersion_phi": 1.113439085867235,
+            "dispersion_phi_eff": 1.113439085867235,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26765.96218516246,
+            "pearson_over_dof": 1.113439085867235
+          },
+          "w1_cut": 15.85
+        },
+        {
+          "N_seen": 659630,
+          "cmb_projection": {
+            "D_par": 0.014502060517863123,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.014502060517863123,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.001005816396283288,
+              -0.009603561930272812,
+              0.010819874809448899
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27017.138539761185,
+            "deviance_over_dof": 1.1238877881676104,
+            "dispersion_phi": 1.1193989861818117,
+            "dispersion_phi_eff": 1.1193989861818117,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26909.23222882457,
+            "pearson_over_dof": 1.1193989861818117
+          },
+          "w1_cut": 15.9
+        },
+        {
+          "N_seen": 706281,
+          "cmb_projection": {
+            "D_par": 0.015060844697931284,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.015060844697931284,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0010445718744861252,
+              -0.00997360027567423,
+              0.011236779349765143
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27074.31531586444,
+            "deviance_over_dof": 1.1262662887750923,
+            "dispersion_phi": 1.1218069701398166,
+            "dispersion_phi_eff": 1.1218069701398166,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 26967.117755191048,
+            "pearson_over_dof": 1.1218069701398166
+          },
+          "w1_cut": 15.95
+        },
+        {
+          "N_seen": 755475,
+          "cmb_projection": {
+            "D_par": 0.01477830899681219,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01477830899681219,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0010249761046042566,
+              -0.009786499339233643,
+              0.011025981655772418
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27254.707448605626,
+            "deviance_over_dof": 1.1337704334042857,
+            "dispersion_phi": 1.129041092776527,
+            "dispersion_phi_eff": 1.129041092776527,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27141.018829254936,
+            "pearson_over_dof": 1.129041092776527
+          },
+          "w1_cut": 16.0
+        },
+        {
+          "N_seen": 810508,
+          "cmb_projection": {
+            "D_par": 0.01427322250284021,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01427322250284021,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0009899449256519628,
+              -0.009452020702971613,
+              0.0106491405423328
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27368.8578849673,
+            "deviance_over_dof": 1.1385189851893713,
+            "dispersion_phi": 1.134073144592016,
+            "dispersion_phi_eff": 1.134073144592016,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27261.984322847475,
+            "pearson_over_dof": 1.134073144592016
+          },
+          "w1_cut": 16.05
+        },
+        {
+          "N_seen": 867658,
+          "cmb_projection": {
+            "D_par": 0.01404236087677682,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01404236087677682,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0009739331038504224,
+              -0.009299139398932624,
+              0.010476896474723588
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27610.57424467978,
+            "deviance_over_dof": 1.1485741605174833,
+            "dispersion_phi": 1.1438959975426428,
+            "dispersion_phi_eff": 1.1438959975426428,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27498.11588492759,
+            "pearson_over_dof": 1.1438959975426428
+          },
+          "w1_cut": 16.1
+        },
+        {
+          "N_seen": 932451,
+          "cmb_projection": {
+            "D_par": 0.013546406681002281,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.013546406681002281,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0009395353118055559,
+              -0.008970708357851763,
+              0.010106868898098075
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 27798.018297347364,
+            "deviance_over_dof": 1.1563716584445012,
+            "dispersion_phi": 1.1513707246877847,
+            "dispersion_phi_eff": 1.1513707246877847,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 27677.800850769658,
+            "pearson_over_dof": 1.1513707246877847
+          },
+          "w1_cut": 16.15
+        },
+        {
+          "N_seen": 1001128,
+          "cmb_projection": {
+            "D_par": 0.013470552426906333,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.013470552426906333,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.000934274304074719,
+              -0.008920476114924093,
+              0.010050274627782395
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28134.814898759927,
+            "deviance_over_dof": 1.1703820832297487,
+            "dispersion_phi": 1.1653972687267875,
+            "dispersion_phi_eff": 1.1653972687267875,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28014.984942923245,
+            "pearson_over_dof": 1.1653972687267875
+          },
+          "w1_cut": 16.2
+        },
+        {
+          "N_seen": 1077197,
+          "cmb_projection": {
+            "D_par": 0.01317122633338594,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01317122633338594,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0009135140064378837,
+              -0.00872225623624348,
+              0.009826949752320542
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28374.22760728359,
+            "deviance_over_dof": 1.1803414288149918,
+            "dispersion_phi": 1.1762733904778298,
+            "dispersion_phi_eff": 1.1762733904778298,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28276.436033696547,
+            "pearson_over_dof": 1.1762733904778298
+          },
+          "w1_cut": 16.25
+        },
+        {
+          "N_seen": 1162883,
+          "cmb_projection": {
+            "D_par": 0.013214832562676894,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.013214832562676894,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0009165383946168535,
+              -0.008751133175698086,
+              0.009859484021589319
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28624.269827019052,
+            "deviance_over_dof": 1.1907429521618642,
+            "dispersion_phi": 1.1871789560140988,
+            "dispersion_phi_eff": 1.1871789560140988,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28538.59492362292,
+            "pearson_over_dof": 1.1871789560140988
+          },
+          "w1_cut": 16.3
+        },
+        {
+          "N_seen": 1254030,
+          "cmb_projection": {
+            "D_par": 0.01239342950573484,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01239342950573484,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0008595685135705102,
+              -0.008207183223390152,
+              0.00924664157528561
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 28913.77709901931,
+            "deviance_over_dof": 1.2027861849086614,
+            "dispersion_phi": 1.2002769715204185,
+            "dispersion_phi_eff": 1.2002769715204185,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 28853.45811837934,
+            "pearson_over_dof": 1.2002769715204185
+          },
+          "w1_cut": 16.35
+        },
+        {
+          "N_seen": 1359698,
+          "cmb_projection": {
+            "D_par": 0.01228711223401413,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01228711223401413,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0008521946886596932,
+              -0.008136777745356887,
+              0.00916731908392769
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 29401.58911082436,
+            "deviance_over_dof": 1.2230787100471883,
+            "dispersion_phi": 1.2205775057044153,
+            "dispersion_phi_eff": 1.2205775057044153,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 29341.462659628436,
+            "pearson_over_dof": 1.2205775057044153
+          },
+          "w1_cut": 16.4
+        },
+        {
+          "N_seen": 1473681,
+          "cmb_projection": {
+            "D_par": 0.011961179151300011,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.011961179151300011,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0008295890156050807,
+              -0.007920938172689665,
+              0.008924142940311365
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 30182.060496347265,
+            "deviance_over_dof": 1.2555455924267758,
+            "dispersion_phi": 1.2534272615030784,
+            "dispersion_phi_eff": 1.2534272615030784,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 30131.1379392725,
+            "pearson_over_dof": 1.2534272615030784
+          },
+          "w1_cut": 16.45
+        },
+        {
+          "N_seen": 1604240,
+          "cmb_projection": {
+            "D_par": 0.01183424411382437,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.01183424411382437,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0008207852086013402,
+              -0.007836879187277402,
+              0.008829437693927418
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 31091.617166283766,
+            "deviance_over_dof": 1.293382302353832,
+            "dispersion_phi": 1.2920313992593668,
+            "dispersion_phi_eff": 1.2920313992593668,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 31059.14280679592,
+            "pearson_over_dof": 1.2920313992593668
+          },
+          "w1_cut": 16.5
+        },
+        {
+          "N_seen": 1753984,
+          "cmb_projection": {
+            "D_par": 0.011291097893108004,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.011291097893108004,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0007831143290940519,
+              -0.007477196619312788,
+              0.008424200513725501
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 31977.996858931365,
+            "deviance_over_dof": 1.3302548716224205,
+            "dispersion_phi": 1.3292104870469912,
+            "dispersion_phi_eff": 1.3292104870469912,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 31952.89089812262,
+            "pearson_over_dof": 1.3292104870469912
+          },
+          "w1_cut": 16.55
+        },
+        {
+          "N_seen": 1917142,
+          "cmb_projection": {
+            "D_par": 0.010957624997917387,
+            "D_perp": 0.0
+          },
+          "dipole": {
+            "D": 0.010957624997917387,
+            "axis_sep_cmb_deg": 0.0,
+            "b_deg": 48.253,
+            "bvec": [
+              -0.0007599857188330734,
+              -0.007256364028172673,
+              0.008175398974533014
+            ],
+            "l_deg": 264.021
+          },
+          "fit_diag": {
+            "deviance": 33003.61750432753,
+            "deviance_over_dof": 1.3729197347779662,
+            "dispersion_phi": 1.3721779840121777,
+            "dispersion_phi_eff": 1.3721779840121777,
+            "dof": 24039.0,
+            "n_obs": 24051.0,
+            "n_params": 12.0,
+            "pearson_chi2": 32985.78655766874,
+            "pearson_over_dof": 1.3721779840121777
+          },
+          "w1_cut": 16.6
+        }
+      ]
+    },
+    "external_gaia": {
+      "meta": {
+        "max_iter": 200,
+        "nuisance_names": [
+          "abs_elat_z",
+          "sin_elon_z",
+          "cos_elon_z",
+          "sin2_elon_z",
+          "cos2_elon_z",
+          "ebv_mean_z",
+          "log_w1cov_mean_z",
+          "lognexp_z",
+          "log_invvar_z",
+          "log1p_starcount_z",
+          "gaia_logp_offset"
+        ],
+        "offset_used": true,
+        "ridge_prec_nuisance": 0.1111111111111111
+      },
+      "rows": [
+        {
+          "N_seen": 379879,
+          "cmb_projection": {
+            "D_par": -0.0038558297277609993,
+            "D_perp": 0.011211236980469151
+          },
+          "dipole": {
+            "D": 0.011855768955311355,
+            "axis_sep_cmb_deg": 71.02060243407547,
+            "b_deg": -40.15798281014184,
+            "bvec": [
+              -0.008867448154633285,
+              -0.0018628094228042929,
+              -0.007645754495203647
+            ],
+            "l_deg": 191.8637725331396
+          },
+          "fit_diag": {
+            "deviance": 26294.391417442326,
+            "deviance_over_dof": 1.0939131928877284,
+            "dispersion_phi": 1.082087029628792,
+            "dispersion_phi_eff": 1.082087029628792,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26010.12593118728,
+            "pearson_over_dof": 1.082087029628792
+          },
+          "w1_cut": 15.5
+        },
+        {
+          "N_seen": 407391,
+          "cmb_projection": {
+            "D_par": -0.0029163104174801894,
+            "D_perp": 0.008171548008785563
+          },
+          "dipole": {
+            "D": 0.008676350806127584,
+            "axis_sep_cmb_deg": 70.35923317119318,
+            "b_deg": -44.010624786680076,
+            "bvec": [
+              -0.0059865121386108566,
+              -0.0017609240847844064,
+              -0.006028256969712046
+            ],
+            "l_deg": 196.39117189138514
+          },
+          "fit_diag": {
+            "deviance": 26380.55605067101,
+            "deviance_over_dof": 1.0974978595777762,
+            "dispersion_phi": 1.0876161735084093,
+            "dispersion_phi_eff": 1.0876161735084093,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26143.029962621637,
+            "pearson_over_dof": 1.0876161735084093
+          },
+          "w1_cut": 15.55
+        },
+        {
+          "N_seen": 436609,
+          "cmb_projection": {
+            "D_par": -0.002571462436629626,
+            "D_perp": 0.010651021821288251
+          },
+          "dipole": {
+            "D": 0.010957038144524079,
+            "axis_sep_cmb_deg": 76.42689119492819,
+            "b_deg": -32.97148382213803,
+            "bvec": [
+              -0.008995267855578559,
+              -0.0018930925868214203,
+              -0.005963056394557457
+            ],
+            "l_deg": 191.88470559935575
+          },
+          "fit_diag": {
+            "deviance": 26362.773197425093,
+            "deviance_over_dof": 1.0967580479021963,
+            "dispersion_phi": 1.0888574565921483,
+            "dispersion_phi_eff": 1.0888574565921483,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26172.866684105466,
+            "pearson_over_dof": 1.0888574565921483
+          },
+          "w1_cut": 15.6
+        },
+        {
+          "N_seen": 468277,
+          "cmb_projection": {
+            "D_par": -0.0009889641807125623,
+            "D_perp": 0.0133385633987503
+          },
+          "dipole": {
+            "D": 0.01337517565092936,
+            "axis_sep_cmb_deg": 85.75966447202782,
+            "b_deg": -23.680649492285635,
+            "bvec": [
+              -0.011789259920421846,
+              -0.0033242209862739598,
+              -0.00537198557857004
+            ],
+            "l_deg": 195.7468747955298
+          },
+          "fit_diag": {
+            "deviance": 26472.57485579849,
+            "deviance_over_dof": 1.1013260746265545,
+            "dispersion_phi": 1.094004260992573,
+            "dispersion_phi_eff": 1.094004260992573,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26296.580421478477,
+            "pearson_over_dof": 1.094004260992573
+          },
+          "w1_cut": 15.65
+        },
+        {
+          "N_seen": 501888,
+          "cmb_projection": {
+            "D_par": -0.004529873451548549,
+            "D_perp": 0.011552474952008293
+          },
+          "dipole": {
+            "D": 0.012408844869842776,
+            "axis_sep_cmb_deg": 68.58921801491273,
+            "b_deg": -41.86534179956612,
+            "bvec": [
+              -0.00911259845436993,
+              -0.0015354790118133226,
+              -0.008281442182223995
+            ],
+            "l_deg": 189.56453274318005
+          },
+          "fit_diag": {
+            "deviance": 26539.798896242217,
+            "deviance_over_dof": 1.104122764747773,
+            "dispersion_phi": 1.0967109724419506,
+            "dispersion_phi_eff": 1.0967109724419506,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26361.641644587166,
+            "pearson_over_dof": 1.0967109724419506
+          },
+          "w1_cut": 15.7
+        },
+        {
+          "N_seen": 536409,
+          "cmb_projection": {
+            "D_par": -0.0008745388227201149,
+            "D_perp": 0.013983335274235224
+          },
+          "dipole": {
+            "D": 0.014010656071152264,
+            "axis_sep_cmb_deg": 86.42129686478879,
+            "b_deg": -21.54427857079285,
+            "bvec": [
+              -0.012644943211338956,
+              -0.003151653348726508,
+              -0.005144995227946245
+            ],
+            "l_deg": 193.99537099358233
+          },
+          "fit_diag": {
+            "deviance": 26509.09834856123,
+            "deviance_over_dof": 1.102845544309241,
+            "dispersion_phi": 1.096756056566542,
+            "dispersion_phi_eff": 1.096756056566542,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26362.72533168997,
+            "pearson_over_dof": 1.096756056566542
+          },
+          "w1_cut": 15.75
+        },
+        {
+          "N_seen": 574401,
+          "cmb_projection": {
+            "D_par": -0.004863059809245525,
+            "D_perp": 0.014802442963470443
+          },
+          "dipole": {
+            "D": 0.015580810903001636,
+            "axis_sep_cmb_deg": 71.81305052385245,
+            "b_deg": -37.01673830153347,
+            "bvec": [
+              -0.012288797763834333,
+              -0.0019378331955097372,
+              -0.009380400866757002
+            ],
+            "l_deg": 188.96123870267087
+          },
+          "fit_diag": {
+            "deviance": 26591.75976159631,
+            "deviance_over_dof": 1.1062844681780717,
+            "dispersion_phi": 1.1008634846548353,
+            "dispersion_phi_eff": 1.1008634846548353,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26461.45558064828,
+            "pearson_over_dof": 1.1008634846548353
+          },
+          "w1_cut": 15.8
+        },
+        {
+          "N_seen": 615210,
+          "cmb_projection": {
+            "D_par": -0.008420062801542685,
+            "D_perp": 0.016548444143412267
+          },
+          "dipole": {
+            "D": 0.01856740318810249,
+            "axis_sep_cmb_deg": 63.03241826114367,
+            "b_deg": -49.37390996926199,
+            "bvec": [
+              -0.011937478059982493,
+              -0.0019118522147652801,
+              -0.014092192867892928
+            ],
+            "l_deg": 189.09896122758732
+          },
+          "fit_diag": {
+            "deviance": 26880.30485323599,
+            "deviance_over_dof": 1.118288673845987,
+            "dispersion_phi": 1.1134616582666763,
+            "dispersion_phi_eff": 1.1134616582666763,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26764.277879756097,
+            "pearson_over_dof": 1.1134616582666763
+          },
+          "w1_cut": 15.85
+        },
+        {
+          "N_seen": 659630,
+          "cmb_projection": {
+            "D_par": -0.005220885309152384,
+            "D_perp": 0.014366257363814895
+          },
+          "dipole": {
+            "D": 0.015285515825600681,
+            "axis_sep_cmb_deg": 70.02819525913768,
+            "b_deg": -41.082576263611564,
+            "bvec": [
+              -0.011299904205372751,
+              -0.0022496270450379587,
+              -0.010044816432485058
+            ],
+            "l_deg": 191.2594441962528
+          },
+          "fit_diag": {
+            "deviance": 27016.468307373878,
+            "deviance_over_dof": 1.123953417954565,
+            "dispersion_phi": 1.1194633027391598,
+            "dispersion_phi_eff": 1.1194633027391598,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26908.539407941185,
+            "pearson_over_dof": 1.1194633027391598
+          },
+          "w1_cut": 15.9
+        },
+        {
+          "N_seen": 706281,
+          "cmb_projection": {
+            "D_par": -0.003879604050184588,
+            "D_perp": 0.013644695347152163
+          },
+          "dipole": {
+            "D": 0.014185522151221807,
+            "axis_sep_cmb_deg": 74.12792827981411,
+            "b_deg": -37.95312786851928,
+            "bvec": [
+              -0.010819560113812698,
+              -0.0028376382819099524,
+              -0.008724331872839148
+            ],
+            "l_deg": 194.6959362909764
+          },
+          "fit_diag": {
+            "deviance": 27073.908545613325,
+            "deviance_over_dof": 1.1263430771566054,
+            "dispersion_phi": 1.121884330938233,
+            "dispersion_phi_eff": 1.121884330938233,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26966.733662762304,
+            "pearson_over_dof": 1.121884330938233
+          },
+          "w1_cut": 15.95
+        },
+        {
+          "N_seen": 755475,
+          "cmb_projection": {
+            "D_par": -0.002370754403845643,
+            "D_perp": 0.016050198427702365
+          },
+          "dipole": {
+            "D": 0.016224344239813605,
+            "axis_sep_cmb_deg": 81.5976687192704,
+            "b_deg": -29.12595260658044,
+            "bvec": [
+              -0.01362860536924964,
+              -0.0038896710140456266,
+              -0.007896893129815426
+            ],
+            "l_deg": 195.92900693151046
+          },
+          "fit_diag": {
+            "deviance": 27254.362399190904,
+            "deviance_over_dof": 1.1338504139115075,
+            "dispersion_phi": 1.1291262634940964,
+            "dispersion_phi_eff": 1.1291262634940964,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27140.807995607596,
+            "pearson_over_dof": 1.1291262634940964
+          },
+          "w1_cut": 16.0
+        },
+        {
+          "N_seen": 810508,
+          "cmb_projection": {
+            "D_par": 0.0014647161080358602,
+            "D_perp": 0.01447936876508561
+          },
+          "dipole": {
+            "D": 0.01455326468915056,
+            "axis_sep_cmb_deg": 84.22367534188278,
+            "b_deg": -16.06733726088771,
+            "bvec": [
+              -0.01290069827221659,
+              -0.0053986874254155015,
+              -0.004027861875035554
+            ],
+            "l_deg": 202.70834712782525
+          },
+          "fit_diag": {
+            "deviance": 27368.92518162611,
+            "deviance_over_dof": 1.138616515439785,
+            "dispersion_phi": 1.1341784086038889,
+            "dispersion_phi_eff": 1.1341784086038889,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27262.246407611674,
+            "pearson_over_dof": 1.1341784086038889
+          },
+          "w1_cut": 16.05
+        },
+        {
+          "N_seen": 867658,
+          "cmb_projection": {
+            "D_par": -0.0006661665068846074,
+            "D_perp": 0.01822049521182297
+          },
+          "dipole": {
+            "D": 0.018232669129311777,
+            "axis_sep_cmb_deg": 87.90611970668569,
+            "b_deg": -23.48758476830258,
+            "bvec": [
+              -0.015781826581934274,
+              -0.005528125024344695,
+              -0.007266636569412657
+            ],
+            "l_deg": 199.30455305664196
+          },
+          "fit_diag": {
+            "deviance": 27609.619661849454,
+            "deviance_over_dof": 1.1486300146378272,
+            "dispersion_phi": 1.143973181821689,
+            "dispersion_phi_eff": 1.143973181821689,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27497.683371447936,
+            "pearson_over_dof": 1.143973181821689
+          },
+          "w1_cut": 16.1
+        },
+        {
+          "N_seen": 932451,
+          "cmb_projection": {
+            "D_par": -0.0020847978529424382,
+            "D_perp": 0.016366728686324366
+          },
+          "dipole": {
+            "D": 0.016498975422109895,
+            "axis_sep_cmb_deg": 82.74074354944126,
+            "b_deg": -30.476321165700977,
+            "bvec": [
+              -0.013355535865841981,
+              -0.004880844448990746,
+              -0.008367987164208071
+            ],
+            "l_deg": 200.0750725268915
+          },
+          "fit_diag": {
+            "deviance": 27796.810275881755,
+            "deviance_over_dof": 1.1564176176678351,
+            "dispersion_phi": 1.1514276928228058,
+            "dispersion_phi_eff": 1.1514276928228058,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27676.867452381783,
+            "pearson_over_dof": 1.1514276928228058
+          },
+          "w1_cut": 16.15
+        },
+        {
+          "N_seen": 1001128,
+          "cmb_projection": {
+            "D_par": -0.0032488950203827267,
+            "D_perp": 0.015091222485544854
+          },
+          "dipole": {
+            "D": 0.015436978815872044,
+            "axis_sep_cmb_deg": 77.85058117848637,
+            "b_deg": -37.23896533254798,
+            "bvec": [
+              -0.011468287959423396,
+              -0.004417493224673314,
+              -0.009341543761680506
+            ],
+            "l_deg": 201.0662876189342
+          },
+          "fit_diag": {
+            "deviance": 28133.607512824783,
+            "deviance_over_dof": 1.1704292346309766,
+            "dispersion_phi": 1.1654621067128856,
+            "dispersion_phi_eff": 1.1654621067128856,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28014.21265905763,
+            "pearson_over_dof": 1.1654621067128856
+          },
+          "w1_cut": 16.2
+        },
+        {
+          "N_seen": 1077197,
+          "cmb_projection": {
+            "D_par": -0.006421073079835384,
+            "D_perp": 0.016629286551466234
+          },
+          "dipole": {
+            "D": 0.01782591794851986,
+            "axis_sep_cmb_deg": 68.88690944064336,
+            "b_deg": -45.640549049298976,
+            "bvec": [
+              -0.01198832583822204,
+              -0.0034072744558540694,
+              -0.0127449548875806
+            ],
+            "l_deg": 195.8659999250688
+          },
+          "fit_diag": {
+            "deviance": 28372.20491823674,
+            "deviance_over_dof": 1.1803554902124533,
+            "dispersion_phi": 1.1763116020063427,
+            "dispersion_phi_eff": 1.1763116020063427,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28275.00197742646,
+            "pearson_over_dof": 1.1763116020063427
+          },
+          "w1_cut": 16.25
+        },
+        {
+          "N_seen": 1162883,
+          "cmb_projection": {
+            "D_par": -0.003134985028375257,
+            "D_perp": 0.014420952790943676
+          },
+          "dipole": {
+            "D": 0.01475777796711833,
+            "axis_sep_cmb_deg": 77.73524413630896,
+            "b_deg": -36.460164510212145,
+            "bvec": [
+              -0.011183699289473522,
+              -0.003975394455798806,
+              -0.008770012522807296
+            ],
+            "l_deg": 199.56843217001276
+          },
+          "fit_diag": {
+            "deviance": 28623.617722670828,
+            "deviance_over_dof": 1.190814898808954,
+            "dispersion_phi": 1.1872613106669743,
+            "dispersion_phi_eff": 1.1872613106669743,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28538.200124502062,
+            "pearson_over_dof": 1.1872613106669743
+          },
+          "w1_cut": 16.3
+        },
+        {
+          "N_seen": 1254030,
+          "cmb_projection": {
+            "D_par": -0.004417733134902565,
+            "D_perp": 0.0146484389487085
+          },
+          "dipole": {
+            "D": 0.015300102276954105,
+            "axis_sep_cmb_deg": 73.21753526326846,
+            "b_deg": -41.61301251158237,
+            "bvec": [
+              -0.010844230704303277,
+              -0.0036407705813114887,
+              -0.010160737162792819
+            ],
+            "l_deg": 198.55862255359926
+          },
+          "fit_diag": {
+            "deviance": 28912.19436506108,
+            "deviance_over_dof": 1.2028204170678987,
+            "dispersion_phi": 1.200321338419357,
+            "dispersion_phi_eff": 1.200321338419357,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28852.124011586086,
+            "pearson_over_dof": 1.200321338419357
+          },
+          "w1_cut": 16.35
+        },
+        {
+          "N_seen": 1359698,
+          "cmb_projection": {
+            "D_par": -0.0016211427297297618,
+            "D_perp": 0.011272402401540114
+          },
+          "dipole": {
+            "D": 0.011388378271395931,
+            "axis_sep_cmb_deg": 81.81611047696772,
+            "b_deg": -34.29770487447765,
+            "bvec": [
+              -0.008568783413898655,
+              -0.00388455197356141,
+              -0.00641727094821455
+            ],
+            "l_deg": 204.38657536270054
+          },
+          "fit_diag": {
+            "deviance": 29401.01882127106,
+            "deviance_over_dof": 1.2231567508953305,
+            "dispersion_phi": 1.2206611229267073,
+            "dispersion_phi_eff": 1.2206611229267073,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 29341.031411789263,
+            "pearson_over_dof": 1.2206611229267073
+          },
+          "w1_cut": 16.4
+        },
+        {
+          "N_seen": 1473681,
+          "cmb_projection": {
+            "D_par": -0.004867861360464672,
+            "D_perp": 0.00897704543411939
+          },
+          "dipole": {
+            "D": 0.010211925330266998,
+            "axis_sep_cmb_deg": 61.53094850212462,
+            "b_deg": -65.47524743759908,
+            "bvec": [
+              -0.0031985946897445244,
+              -0.002781488097777378,
+              -0.009290626185764319
+            ],
+            "l_deg": 221.01012128560802
+          },
+          "fit_diag": {
+            "deviance": 30179.83039678727,
+            "deviance_over_dof": 1.2555572823891197,
+            "dispersion_phi": 1.2534332821819036,
+            "dispersion_phi_eff": 1.2534332821819036,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 30128.77580380642,
+            "pearson_over_dof": 1.2534332821819036
+          },
+          "w1_cut": 16.45
+        },
+        {
+          "N_seen": 1604240,
+          "cmb_projection": {
+            "D_par": -0.0032999034816779474,
+            "D_perp": 0.007063787409459995
+          },
+          "dipole": {
+            "D": 0.007796566908225427,
+            "axis_sep_cmb_deg": 64.96000267829997,
+            "b_deg": -63.393464546581356,
+            "bvec": [
+              -0.0022966486835618556,
+              -0.0026301947393803458,
+              -0.006970935088757128
+            ],
+            "l_deg": 228.8730000382893
+          },
+          "fit_diag": {
+            "deviance": 31089.96104297306,
+            "deviance_over_dof": 1.293421019385658,
+            "dispersion_phi": 1.292061589254181,
+            "dispersion_phi_eff": 1.292061589254181,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 31057.284420902746,
+            "pearson_over_dof": 1.292061589254181
+          },
+          "w1_cut": 16.5
+        },
+        {
+          "N_seen": 1753984,
+          "cmb_projection": {
+            "D_par": -0.0037928580262293022,
+            "D_perp": 0.010269669756111438
+          },
+          "dipole": {
+            "D": 0.010947688747252635,
+            "axis_sep_cmb_deg": 69.72949128792844,
+            "b_deg": -52.286138300588505,
+            "bvec": [
+              -0.0057534764383518535,
+              -0.0034272467768819816,
+              -0.008660449024756402
+            ],
+            "l_deg": 210.78152836514724
+          },
+          "fit_diag": {
+            "deviance": 31975.977835275415,
+            "deviance_over_dof": 1.3302815590662485,
+            "dispersion_phi": 1.329231545890038,
+            "dispersion_phi_eff": 1.329231545890038,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 31950.73866855884,
+            "pearson_over_dof": 1.329231545890038
+          },
+          "w1_cut": 16.55
+        },
+        {
+          "N_seen": 1917142,
+          "cmb_projection": {
+            "D_par": -0.006906825198702742,
+            "D_perp": 0.014286653631182299
+          },
+          "dipole": {
+            "D": 0.015868607572903475,
+            "axis_sep_cmb_deg": 64.19874201463482,
+            "b_deg": -55.76208923892575,
+            "bvec": [
+              -0.008217895314144016,
+              -0.0034897401462876043,
+              -0.013118712460450072
+            ],
+            "l_deg": 203.0085687462671
+          },
+          "fit_diag": {
+            "deviance": 32999.302015616355,
+            "deviance_over_dof": 1.372854433399191,
+            "dispersion_phi": 1.3721004927363185,
+            "dispersion_phi_eff": 1.3721004927363185,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 32981.17954390289,
+            "pearson_over_dof": 1.3721004927363185
+          },
+          "w1_cut": 16.6
+        }
+      ]
+    },
+    "maximal": {
+      "meta": {
+        "max_iter": 200,
+        "nuisance_names": [
+          "abs_elat_z",
+          "sin_elon_z",
+          "cos_elon_z",
+          "sin2_elon_z",
+          "cos2_elon_z",
+          "ebv_mean_z",
+          "log_w1cov_mean_z",
+          "lognexp_z",
+          "log_invvar_z",
+          "log1p_starcount_z"
+        ],
+        "offset_used": false,
+        "ridge_prec_nuisance": 0.1111111111111111
+      },
+      "rows": [
+        {
+          "N_seen": 379879,
+          "cmb_projection": {
+            "D_par": 0.0019117357308257922,
+            "D_perp": 0.004261204722325145
+          },
+          "dipole": {
+            "D": 0.004670396042102012,
+            "axis_sep_cmb_deg": 65.83721273394751,
+            "b_deg": -16.923380903918034,
+            "bvec": [
+              0.00034560958588514143,
+              -0.004454757513238026,
+              -0.0013595178198448905
+            ],
+            "l_deg": 274.4362424141739
+          },
+          "fit_diag": {
+            "deviance": 26294.88739743326,
+            "deviance_over_dof": 1.0939338269098997,
+            "dispersion_phi": 1.0821087170762207,
+            "dispersion_phi_eff": 1.0821087170762207,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26010.647232361116,
+            "pearson_over_dof": 1.0821087170762207
+          },
+          "w1_cut": 15.5
+        },
+        {
+          "N_seen": 407391,
+          "cmb_projection": {
+            "D_par": 0.0028942516828850792,
+            "D_perp": 0.004603528432969092
+          },
+          "dipole": {
+            "D": 0.005437753841158863,
+            "axis_sep_cmb_deg": 57.84230568593642,
+            "b_deg": 3.2108781240094797,
+            "bvec": [
+              0.0032278924175382384,
+              -0.004365445202474822,
+              0.00030457439489668393
+            ],
+            "l_deg": 306.4799191492373
+          },
+          "fit_diag": {
+            "deviance": 26380.964704837177,
+            "deviance_over_dof": 1.0975148606247525,
+            "dispersion_phi": 1.0876352632088915,
+            "dispersion_phi_eff": 1.0876352632088915,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26143.488821752122,
+            "pearson_over_dof": 1.0876352632088915
+          },
+          "w1_cut": 15.55
+        },
+        {
+          "N_seen": 436609,
+          "cmb_projection": {
+            "D_par": 0.0031988909801942125,
+            "D_perp": 0.0031728441788757933
+          },
+          "dipole": {
+            "D": 0.004505534783640439,
+            "axis_sep_cmb_deg": 44.76578381942231,
+            "b_deg": 4.133592306404362,
+            "bvec": [
+              0.00022475658281334283,
+              -0.004488190422809469,
+              0.0003247689850914402
+            ],
+            "l_deg": 272.86682471408517
+          },
+          "fit_diag": {
+            "deviance": 26363.195675589046,
+            "deviance_over_dof": 1.0967756240624473,
+            "dispersion_phi": 1.0888761308846542,
+            "dispersion_phi_eff": 1.0888761308846542,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26173.315558074435,
+            "pearson_over_dof": 1.0888761308846542
+          },
+          "w1_cut": 15.6
+        },
+        {
+          "N_seen": 468277,
+          "cmb_projection": {
+            "D_par": 0.0048369293782874025,
+            "D_perp": 0.004401992106669826
+          },
+          "dipole": {
+            "D": 0.006540139166540971,
+            "axis_sep_cmb_deg": 42.30469783325076,
+            "b_deg": 8.59085756198149,
+            "bvec": [
+              -0.002569658102349125,
+              -0.005934294066229284,
+              0.0009769500961004198
+            ],
+            "l_deg": 246.58650403519948
+          },
+          "fit_diag": {
+            "deviance": 26473.069533617185,
+            "deviance_over_dof": 1.101346654475067,
+            "dispersion_phi": 1.0940272292492754,
+            "dispersion_phi_eff": 1.0940272292492754,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26297.132509464835,
+            "pearson_over_dof": 1.0940272292492754
+          },
+          "w1_cut": 15.65
+        },
+        {
+          "N_seen": 501888,
+          "cmb_projection": {
+            "D_par": 0.001264094426069864,
+            "D_perp": 0.004412051210423288
+          },
+          "dipole": {
+            "D": 0.004589567583271707,
+            "axis_sep_cmb_deg": 74.01249112678732,
+            "b_deg": -25.504987232562936,
+            "bvec": [
+              6.167552630920891e-05,
+              -0.004141844985932019,
+              -0.001976220342821817
+            ],
+            "l_deg": 270.85311889171874
+          },
+          "fit_diag": {
+            "deviance": 26540.064977810303,
+            "deviance_over_dof": 1.104133834414041,
+            "dispersion_phi": 1.0967251335633423,
+            "dispersion_phi_eff": 1.0967251335633423,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26361.98203546206,
+            "pearson_over_dof": 1.0967251335633423
+          },
+          "w1_cut": 15.7
+        },
+        {
+          "N_seen": 536409,
+          "cmb_projection": {
+            "D_par": 0.004903184540452268,
+            "D_perp": 0.004745213380849967
+          },
+          "dipole": {
+            "D": 0.006823361976879703,
+            "axis_sep_cmb_deg": 44.06199224315918,
+            "b_deg": 9.625168323087816,
+            "bvec": [
+              -0.0034859334280262465,
+              -0.005753688599751681,
+              0.0011408787402631384
+            ],
+            "l_deg": 238.78997757661404
+          },
+          "fit_diag": {
+            "deviance": 26509.242934871567,
+            "deviance_over_dof": 1.1028515594654726,
+            "dispersion_phi": 1.0967634390610839,
+            "dispersion_phi_eff": 1.0967634390610839,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26362.902784711274,
+            "pearson_over_dof": 1.0967634390610839
+          },
+          "w1_cut": 15.75
+        },
+        {
+          "N_seen": 574401,
+          "cmb_projection": {
+            "D_par": 0.0008880877339195146,
+            "D_perp": 0.006246135773484111
+          },
+          "dipole": {
+            "D": 0.006308954899500887,
+            "axis_sep_cmb_deg": 81.90781348401194,
+            "b_deg": -29.61892696748407,
+            "bvec": [
+              -0.0030914680866834295,
+              -0.004530274095070088,
+              -0.0031180688921977075
+            ],
+            "l_deg": 235.69029445464102
+          },
+          "fit_diag": {
+            "deviance": 26591.67896342266,
+            "deviance_over_dof": 1.1062811067696743,
+            "dispersion_phi": 1.100861225171235,
+            "dispersion_phi_eff": 1.100861225171235,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26461.40126944098,
+            "pearson_over_dof": 1.100861225171235
+          },
+          "w1_cut": 15.8
+        },
+        {
+          "N_seen": 615210,
+          "cmb_projection": {
+            "D_par": -0.0026505620480663265,
+            "D_perp": 0.009016672401421493
+          },
+          "dipole": {
+            "D": 0.00939818388653923,
+            "axis_sep_cmb_deg": 73.61865038463345,
+            "b_deg": -56.09153734899087,
+            "bvec": [
+              -0.0026835606818136613,
+              -0.004504104288119532,
+              -0.007799833779893816
+            ],
+            "l_deg": 239.2133701441553
+          },
+          "fit_diag": {
+            "deviance": 26880.220689302212,
+            "deviance_over_dof": 1.1182851724134548,
+            "dispersion_phi": 1.1134547824356202,
+            "dispersion_phi_eff": 1.1134547824356202,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26764.112605405004,
+            "pearson_over_dof": 1.1134547824356202
+          },
+          "w1_cut": 15.85
+        },
+        {
+          "N_seen": 659630,
+          "cmb_projection": {
+            "D_par": 0.000537370704898918,
+            "D_perp": 0.006476594648665197
+          },
+          "dipole": {
+            "D": 0.00649884955339037,
+            "axis_sep_cmb_deg": 85.25696564139496,
+            "b_deg": -35.51211010679097,
+            "bvec": [
+              -0.0021321753638542783,
+              -0.004841291436175209,
+              -0.003775019333114954
+            ],
+            "l_deg": 246.23060738322266
+          },
+          "fit_diag": {
+            "deviance": 27016.245123303743,
+            "deviance_over_dof": 1.123944132932718,
+            "dispersion_phi": 1.1194529304559981,
+            "dispersion_phi_eff": 1.1194529304559981,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26908.29008937083,
+            "pearson_over_dof": 1.1194529304559981
+          },
+          "w1_cut": 15.9
+        },
+        {
+          "N_seen": 706281,
+          "cmb_projection": {
+            "D_par": 0.001868392504398537,
+            "D_perp": 0.005883371147843787
+          },
+          "dipole": {
+            "D": 0.006172920428271642,
+            "axis_sep_cmb_deg": 72.38162197444593,
+            "b_deg": -23.509702288492868,
+            "bvec": [
+              -0.001608293997788731,
+              -0.005427236812221719,
+              -0.00246240484374839
+            ],
+            "l_deg": 253.49346634749543
+          },
+          "fit_diag": {
+            "deviance": 27073.492509463103,
+            "deviance_over_dof": 1.1263257690004203,
+            "dispersion_phi": 1.1218671904163122,
+            "dispersion_phi_eff": 1.1218671904163122,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26966.321656036896,
+            "pearson_over_dof": 1.1218671904163122
+          },
+          "w1_cut": 15.95
+        },
+        {
+          "N_seen": 755475,
+          "cmb_projection": {
+            "D_par": 0.0035084083414179813,
+            "D_perp": 0.007215876259033265
+          },
+          "dipole": {
+            "D": 0.008023577710461288,
+            "axis_sep_cmb_deg": 64.07066249659182,
+            "b_deg": -10.706171867609939,
+            "bvec": [
+              -0.004444356279041707,
+              -0.006511814501068649,
+              -0.0014905597755292467
+            ],
+            "l_deg": 235.6862060859615
+          },
+          "fit_diag": {
+            "deviance": 27253.660377037188,
+            "deviance_over_dof": 1.1338212080141943,
+            "dispersion_phi": 1.1290961706765386,
+            "dispersion_phi_eff": 1.1290961706765386,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27140.08465455196,
+            "pearson_over_dof": 1.1290961706765386
+          },
+          "w1_cut": 16.0
+        },
+        {
+          "N_seen": 810508,
+          "cmb_projection": {
+            "D_par": 0.007282418585875777,
+            "D_perp": 0.005486687769486635
+          },
+          "dipole": {
+            "D": 0.009117969244285878,
+            "axis_sep_cmb_deg": 36.99494010449084,
+            "b_deg": 14.709839060386804,
+            "bvec": [
+              -0.0037124988500916354,
+              -0.007999639538120796,
+              0.0023152716229302255
+            ],
+            "l_deg": 245.10477434203804
+          },
+          "fit_diag": {
+            "deviance": 27368.2111871699,
+            "deviance_over_dof": 1.1385868114644049,
+            "dispersion_phi": 1.1341473624576546,
+            "dispersion_phi_eff": 1.1341473624576546,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27261.50015139464,
+            "pearson_over_dof": 1.1341473624576546
+          },
+          "w1_cut": 16.05
+        },
+        {
+          "N_seen": 867658,
+          "cmb_projection": {
+            "D_par": 0.005140090819627553,
+            "D_perp": 0.009159313643072917
+          },
+          "dipole": {
+            "D": 0.010503026232767446,
+            "axis_sep_cmb_deg": 60.69941141826572,
+            "b_deg": -5.1545750216200314,
+            "bvec": [
+              -0.006574238375713371,
+              -0.008136493393693099,
+              -0.0009436233782009153
+            ],
+            "l_deg": 231.0619945076503
+          },
+          "fit_diag": {
+            "deviance": 27608.85199018337,
+            "deviance_over_dof": 1.1485980775547435,
+            "dispersion_phi": 1.1439406578333873,
+            "dispersion_phi_eff": 1.1439406578333873,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27496.901592341128,
+            "pearson_over_dof": 1.1439406578333873
+          },
+          "w1_cut": 16.1
+        },
+        {
+          "N_seen": 932451,
+          "cmb_projection": {
+            "D_par": 0.003731424116718624,
+            "D_perp": 0.007956742124988994
+          },
+          "dipole": {
+            "D": 0.008788246194913052,
+            "axis_sep_cmb_deg": 64.87512228176536,
+            "b_deg": -13.342199845751457,
+            "bvec": [
+              -0.004131120641282663,
+              -0.0074869351696961895,
+              -0.002028032345486222
+            ],
+            "l_deg": 241.1110845011101
+          },
+          "fit_diag": {
+            "deviance": 27796.311283258518,
+            "deviance_over_dof": 1.1563968583125397,
+            "dispersion_phi": 1.1514056855408186,
+            "dispersion_phi_eff": 1.1514056855408186,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27676.33846334466,
+            "pearson_over_dof": 1.1514056855408186
+          },
+          "w1_cut": 16.15
+        },
+        {
+          "N_seen": 1001128,
+          "cmb_projection": {
+            "D_par": 0.002530454990266016,
+            "D_perp": 0.007566314897474459
+          },
+          "dipole": {
+            "D": 0.007978240632213729,
+            "axis_sep_cmb_deg": 71.50816266509031,
+            "b_deg": -22.46408059422489,
+            "bvec": [
+              -0.0022546257047887383,
+              -0.007019652307710059,
+              -0.0030485189839777674
+            ],
+            "l_deg": 252.19362257189215
+          },
+          "fit_diag": {
+            "deviance": 28132.913641213287,
+            "deviance_over_dof": 1.170400367816836,
+            "dispersion_phi": 1.1654304167979141,
+            "dispersion_phi_eff": 1.1654304167979141,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28013.450928571463,
+            "pearson_over_dof": 1.1654304167979141
+          },
+          "w1_cut": 16.2
+        },
+        {
+          "N_seen": 1077197,
+          "cmb_projection": {
+            "D_par": -0.0006152926435392253,
+            "D_perp": 0.00920189013308942
+          },
+          "dipole": {
+            "D": 0.009222438238266599,
+            "axis_sep_cmb_deg": 86.1745607326842,
+            "b_deg": -44.09530772819519,
+            "bvec": [
+              -0.0027849682301928722,
+              -0.006009441982226633,
+              -0.006417470379963614
+            ],
+            "l_deg": 245.13548031516552
+          },
+          "fit_diag": {
+            "deviance": 28371.244485197647,
+            "deviance_over_dof": 1.1803155337686753,
+            "dispersion_phi": 1.1762661453594119,
+            "dispersion_phi_eff": 1.1762661453594119,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28273.90933600418,
+            "pearson_over_dof": 1.1762661453594119
+          },
+          "w1_cut": 16.25
+        },
+        {
+          "N_seen": 1162883,
+          "cmb_projection": {
+            "D_par": 0.002659998311329373,
+            "D_perp": 0.006782080111724482
+          },
+          "dipole": {
+            "D": 0.007285067031820907,
+            "axis_sep_cmb_deg": 68.58440156861191,
+            "b_deg": -19.68928581642653,
+            "bvec": [
+              -0.0019406342912498828,
+              -0.006578880852552304,
+              -0.002454478953600867
+            ],
+            "l_deg": 253.56502686552255
+          },
+          "fit_diag": {
+            "deviance": 28622.488666978832,
+            "deviance_over_dof": 1.1907679272362954,
+            "dispersion_phi": 1.1872070964726993,
+            "dispersion_phi_eff": 1.1872070964726993,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28536.896977914275,
+            "pearson_over_dof": 1.1872070964726993
+          },
+          "w1_cut": 16.3
+        },
+        {
+          "N_seen": 1254030,
+          "cmb_projection": {
+            "D_par": 0.0013887210996782837,
+            "D_perp": 0.007366701535153379
+          },
+          "dipole": {
+            "D": 0.007496455015587222,
+            "axis_sep_cmb_deg": 79.32426987283968,
+            "b_deg": -30.719349638856404,
+            "bvec": [
+              -0.001592283065510133,
+              -0.006244747553975194,
+              -0.0038294386569226175
+            ],
+            "l_deg": 255.69554707607568
+          },
+          "fit_diag": {
+            "deviance": 28911.4406737054,
+            "deviance_over_dof": 1.2027890616010901,
+            "dispersion_phi": 1.2002850091718564,
+            "dispersion_phi_eff": 1.2002850091718564,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28851.250765463912,
+            "pearson_over_dof": 1.2002850091718564
+          },
+          "w1_cut": 16.35
+        },
+        {
+          "N_seen": 1359698,
+          "cmb_projection": {
+            "D_par": 0.004201011940659886,
+            "D_perp": 0.0049959257294369145
+          },
+          "dipole": {
+            "D": 0.006527463153447648,
+            "axis_sep_cmb_deg": 49.93993721658332,
+            "b_deg": -0.6503740478013479,
+            "bvec": [
+              0.000646169647229395,
+              -0.006494978850777768,
+              -7.409274300264135e-05
+            ],
+            "l_deg": 275.6815221442666
+          },
+          "fit_diag": {
+            "deviance": 29400.316153348125,
+            "deviance_over_dof": 1.2231275181323844,
+            "dispersion_phi": 1.220624983348632,
+            "dispersion_phi_eff": 1.220624983348632,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 29340.16272475107,
+            "pearson_over_dof": 1.220624983348632
+          },
+          "w1_cut": 16.4
+        },
+        {
+          "N_seen": 1473681,
+          "cmb_projection": {
+            "D_par": 0.0009718524256214366,
+            "D_perp": 0.008545994831324235
+          },
+          "dipole": {
+            "D": 0.008601076955486842,
+            "axis_sep_cmb_deg": 83.51218290020138,
+            "b_deg": -19.916502320558948,
+            "bvec": [
+              0.006020234002668858,
+              -0.005399133457118561,
+              -0.0029299599416270986
+            ],
+            "l_deg": 318.1132556690523
+          },
+          "fit_diag": {
+            "deviance": 30178.763811807607,
+            "deviance_over_dof": 1.2555129097561095,
+            "dispersion_phi": 1.2533837915692163,
+            "dispersion_phi_eff": 1.2533837915692163,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 30127.586197949255,
+            "pearson_over_dof": 1.2533837915692163
+          },
+          "w1_cut": 16.45
+        },
+        {
+          "N_seen": 1604240,
+          "cmb_projection": {
+            "D_par": 0.0025076046237173756,
+            "D_perp": 0.00832643225742657
+          },
+          "dipole": {
+            "D": 0.008695835502492127,
+            "axis_sep_cmb_deg": 73.23969718296071,
+            "b_deg": -4.213502927744853,
+            "bvec": [
+              0.006917119329845511,
+              -0.005230947123697217,
+              -0.0006389111457502455
+            ],
+            "l_deg": 322.9022613098106
+          },
+          "fit_diag": {
+            "deviance": 31088.75877044566,
+            "deviance_over_dof": 1.2933710018074493,
+            "dispersion_phi": 1.2920080372219829,
+            "dispersion_phi_eff": 1.2920080372219829,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 31055.997190704802,
+            "pearson_over_dof": 1.2920080372219829
+          },
+          "w1_cut": 16.5
+        },
+        {
+          "N_seen": 1753984,
+          "cmb_projection": {
+            "D_par": 0.002025553545107758,
+            "D_perp": 0.007047938070592072
+          },
+          "dipole": {
+            "D": 0.007333232453086409,
+            "axis_sep_cmb_deg": 73.96552812547831,
+            "b_deg": -18.452365565976976,
+            "bvec": [
+              0.003457795554480876,
+              -0.006035934574107863,
+              -0.002321086368815542
+            ],
+            "l_deg": 299.8070276078195
+          },
+          "fit_diag": {
+            "deviance": 31974.954850560924,
+            "deviance_over_dof": 1.3302390003145534,
+            "dispersion_phi": 1.329182153423126,
+            "dispersion_phi_eff": 1.329182153423126,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 31949.551421831682,
+            "pearson_over_dof": 1.329182153423126
+          },
+          "w1_cut": 16.55
+        },
+        {
+          "N_seen": 1917142,
+          "cmb_projection": {
+            "D_par": -0.0010734073276872638,
+            "D_perp": 0.009103216187646904
+          },
+          "dipole": {
+            "D": 0.009166283229868545,
+            "axis_sep_cmb_deg": 83.27501147108678,
+            "b_deg": -47.50599559223116,
+            "bvec": [
+              0.001044455378206223,
+              -0.006103219076576637,
+              -0.0067587408676776815
+            ],
+            "l_deg": 279.71106408958195
+          },
+          "fit_diag": {
+            "deviance": 32997.69454488391,
+            "deviance_over_dof": 1.3727875585507305,
+            "dispersion_phi": 1.3720286929576042,
+            "dispersion_phi_eff": 1.3720286929576042,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 32979.45369262193,
+            "pearson_over_dof": 1.3720286929576042
+          },
+          "w1_cut": 16.6
+        }
+      ]
+    },
+    "maximal_orth": {
+      "meta": {
+        "max_iter": 200,
+        "nuisance_names": [
+          "abs_elat_z_orth",
+          "sin_elon_z_orth",
+          "cos_elon_z_orth",
+          "sin2_elon_z_orth",
+          "cos2_elon_z_orth",
+          "ebv_mean_z_orth",
+          "log_w1cov_mean_z_orth",
+          "lognexp_z_orth",
+          "log_invvar_z_orth",
+          "log1p_starcount_z_orth"
+        ],
+        "offset_used": false,
+        "ridge_prec_nuisance": 0.1111111111111111
+      },
+      "rows": [
+        {
+          "N_seen": 379879,
+          "cmb_projection": {
+            "D_par": 0.017092894082026966,
+            "D_perp": 0.0005724884041439591
+          },
+          "dipole": {
+            "D": 0.017102478506703985,
+            "axis_sep_cmb_deg": 1.9182774076990332,
+            "b_deg": 47.55208400702673,
+            "bvec": [
+              -0.0006675118104129059,
+              -0.011523482907394736,
+              0.012619767855955689
+            ],
+            "l_deg": 266.6847767557845
+          },
+          "fit_diag": {
+            "deviance": 26294.887392160217,
+            "deviance_over_dof": 1.0939338266905279,
+            "dispersion_phi": 1.0821088003039125,
+            "dispersion_phi_eff": 1.0821088003039125,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26010.649232905147,
+            "pearson_over_dof": 1.0821088003039125
+          },
+          "w1_cut": 15.5
+        },
+        {
+          "N_seen": 407391,
+          "cmb_projection": {
+            "D_par": 0.017462626297837285,
+            "D_perp": 0.0004000173086779837
+          },
+          "dipole": {
+            "D": 0.017467207305839137,
+            "axis_sep_cmb_deg": 1.3122479718294362,
+            "b_deg": 49.213688278048735,
+            "bvec": [
+              -0.0009197768691081742,
+              -0.011373142061707855,
+              0.013225315921384463
+            ],
+            "l_deg": 265.37639733382537
+          },
+          "fit_diag": {
+            "deviance": 26380.96466507508,
+            "deviance_over_dof": 1.0975148589705488,
+            "dispersion_phi": 1.087634551475026,
+            "dispersion_phi_eff": 1.087634551475026,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26143.4717138052,
+            "pearson_over_dof": 1.087634551475026
+          },
+          "w1_cut": 15.55
+        },
+        {
+          "N_seen": 436609,
+          "cmb_projection": {
+            "D_par": 0.017101462701345587,
+            "D_perp": 0.0005206238100658706
+          },
+          "dipole": {
+            "D": 0.017109385601976532,
+            "axis_sep_cmb_deg": 1.7437301958537816,
+            "b_deg": 49.5909903617865,
+            "bvec": [
+              -0.001482391028312116,
+              -0.010991469374258406,
+              0.013027708682306382
+            ],
+            "l_deg": 262.3190131230541
+          },
+          "fit_diag": {
+            "deviance": 26363.195672851733,
+            "deviance_over_dof": 1.0967756239485682,
+            "dispersion_phi": 1.0888757393323314,
+            "dispersion_phi_eff": 1.0888757393323314,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26173.306146331248,
+            "pearson_over_dof": 1.0888757393323314
+          },
+          "w1_cut": 15.6
+        },
+        {
+          "N_seen": 468277,
+          "cmb_projection": {
+            "D_par": 0.017404100075818215,
+            "D_perp": 0.0013115241755046422
+          },
+          "dipole": {
+            "D": 0.017453446510991136,
+            "axis_sep_cmb_deg": 4.309504116017688,
+            "b_deg": 47.58760860968019,
+            "bvec": [
+              -0.002514627115383006,
+              -0.011499968876681541,
+              0.012886045220235925
+            ],
+            "l_deg": 257.66562511080184
+          },
+          "fit_diag": {
+            "deviance": 26473.069515652074,
+            "deviance_over_dof": 1.1013466537276728,
+            "dispersion_phi": 1.0940267614932089,
+            "dispersion_phi_eff": 1.0940267614932089,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26297.121266012262,
+            "pearson_over_dof": 1.0940267614932089
+          },
+          "w1_cut": 15.65
+        },
+        {
+          "N_seen": 501888,
+          "cmb_projection": {
+            "D_par": 0.016373225707348997,
+            "D_perp": 0.0019266754794501479
+          },
+          "dipole": {
+            "D": 0.01648619417776306,
+            "axis_sep_cmb_deg": 6.711264488053783,
+            "b_deg": 46.11997962443116,
+            "bvec": [
+              -0.003025029673765872,
+              -0.011019754475773694,
+              0.011883131120769903
+            ],
+            "l_deg": 254.64986818131544
+          },
+          "fit_diag": {
+            "deviance": 26540.064879786845,
+            "deviance_over_dof": 1.104133830336017,
+            "dispersion_phi": 1.096725132870449,
+            "dispersion_phi_eff": 1.096725132870449,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26361.982018806986,
+            "pearson_over_dof": 1.096725132870449
+          },
+          "w1_cut": 15.7
+        },
+        {
+          "N_seen": 536409,
+          "cmb_projection": {
+            "D_par": 0.016315081076585927,
+            "D_perp": 0.0018689054460068414
+          },
+          "dipole": {
+            "D": 0.01642177451135188,
+            "axis_sep_cmb_deg": 6.534793278559637,
+            "b_deg": 44.62510822974487,
+            "bvec": [
+              -0.0028027863992774573,
+              -0.011346637577910667,
+              0.011535722005026698
+            ],
+            "l_deg": 256.1248522999506
+          },
+          "fit_diag": {
+            "deviance": 26509.24290150157,
+            "deviance_over_dof": 1.1028515580771965,
+            "dispersion_phi": 1.0967635460810758,
+            "dispersion_phi_eff": 1.0967635460810758,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26362.90535715082,
+            "pearson_over_dof": 1.0967635460810758
+          },
+          "w1_cut": 15.75
+        },
+        {
+          "N_seen": 574401,
+          "cmb_projection": {
+            "D_par": 0.01652245504178089,
+            "D_perp": 0.0019305600068961247
+          },
+          "dipole": {
+            "D": 0.016634860460728172,
+            "axis_sep_cmb_deg": 6.664483989034852,
+            "b_deg": 45.63333193497485,
+            "bvec": [
+              -0.003003345228762501,
+              -0.011237467955448726,
+              0.011891922213630142
+            ],
+            "l_deg": 255.03675597949734
+          },
+          "fit_diag": {
+            "deviance": 26591.678959588848,
+            "deviance_over_dof": 1.1062811066101779,
+            "dispersion_phi": 1.1008610775429943,
+            "dispersion_phi_eff": 1.1008610775429943,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26461.397720900957,
+            "pearson_over_dof": 1.1008610775429943
+          },
+          "w1_cut": 15.8
+        },
+        {
+          "N_seen": 615210,
+          "cmb_projection": {
+            "D_par": 0.016582735812817183,
+            "D_perp": 0.003287853342430388
+          },
+          "dipole": {
+            "D": 0.016905534793049886,
+            "axis_sep_cmb_deg": 11.214572610464419,
+            "b_deg": 40.09418822190129,
+            "bvec": [
+              -0.003726951487673364,
+              -0.012383846063785104,
+              0.010887942685191894
+            ],
+            "l_deg": 253.2506920812084
+          },
+          "fit_diag": {
+            "deviance": 26880.220656675483,
+            "deviance_over_dof": 1.1182851710561004,
+            "dispersion_phi": 1.1134575016999129,
+            "dispersion_phi_eff": 1.1134575016999129,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26764.177968360807,
+            "pearson_over_dof": 1.1134575016999129
+          },
+          "w1_cut": 15.85
+        },
+        {
+          "N_seen": 659630,
+          "cmb_projection": {
+            "D_par": 0.015652181617962363,
+            "D_perp": 0.0032675637877757455
+          },
+          "dipole": {
+            "D": 0.0159896142076306,
+            "axis_sep_cmb_deg": 11.791766584021483,
+            "b_deg": 38.62893281671173,
+            "bvec": [
+              -0.0033189929598282427,
+              -0.012042161764254267,
+              0.009981903039250855
+            ],
+            "l_deg": 254.59102740071086
+          },
+          "fit_diag": {
+            "deviance": 27016.245088647287,
+            "deviance_over_dof": 1.1239441314909218,
+            "dispersion_phi": 1.1194531865921724,
+            "dispersion_phi_eff": 1.1194531865921724,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26908.29624611605,
+            "pearson_over_dof": 1.1194531865921724
+          },
+          "w1_cut": 15.9
+        },
+        {
+          "N_seen": 706281,
+          "cmb_projection": {
+            "D_par": 0.016261433550972943,
+            "D_perp": 0.003454095121440584
+          },
+          "dipole": {
+            "D": 0.01662422913222349,
+            "axis_sep_cmb_deg": 11.991978946242332,
+            "b_deg": 38.556727264699404,
+            "bvec": [
+              -0.003526553899213675,
+              -0.012512535415641908,
+              0.010361702046908892
+            ],
+            "l_deg": 254.25995172341115
+          },
+          "fit_diag": {
+            "deviance": 27073.492494339407,
+            "deviance_over_dof": 1.1263257683712362,
+            "dispersion_phi": 1.1218669863073578,
+            "dispersion_phi_eff": 1.1218669863073578,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 26966.31674986996,
+            "pearson_over_dof": 1.1218669863073578
+          },
+          "w1_cut": 15.95
+        },
+        {
+          "N_seen": 755475,
+          "cmb_projection": {
+            "D_par": 0.016265104938380022,
+            "D_perp": 0.0042590601847669884
+          },
+          "dipole": {
+            "D": 0.016813483645990248,
+            "axis_sep_cmb_deg": 14.67359684130728,
+            "b_deg": 36.24798521675694,
+            "bvec": [
+              -0.0040684218799561305,
+              -0.01293475115268103,
+              0.009941498294467114
+            ],
+            "l_deg": 252.53985407648543
+          },
+          "fit_diag": {
+            "deviance": 27253.65920442615,
+            "deviance_over_dof": 1.133821159230609,
+            "dispersion_phi": 1.1290969144180563,
+            "dispersion_phi_eff": 1.1290969144180563,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27140.102531866818,
+            "pearson_over_dof": 1.1290969144180563
+          },
+          "w1_cut": 16.0
+        },
+        {
+          "N_seen": 810508,
+          "cmb_projection": {
+            "D_par": 0.0162048575073521,
+            "D_perp": 0.005494764641903326
+          },
+          "dipole": {
+            "D": 0.017111102983253204,
+            "axis_sep_cmb_deg": 18.730838329659115,
+            "b_deg": 32.68147710067919,
+            "bvec": [
+              -0.004881825095008895,
+              -0.013549544329475346,
+              0.009239452229911719
+            ],
+            "l_deg": 250.1861918721715
+          },
+          "fit_diag": {
+            "deviance": 27368.210909564674,
+            "deviance_over_dof": 1.1385867999153252,
+            "dispersion_phi": 1.1341472367565666,
+            "dispersion_phi_eff": 1.1341472367565666,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27261.497129917592,
+            "pearson_over_dof": 1.1341472367565666
+          },
+          "w1_cut": 16.05
+        },
+        {
+          "N_seen": 867658,
+          "cmb_projection": {
+            "D_par": 0.016316595171042537,
+            "D_perp": 0.006245348612518704
+          },
+          "dipole": {
+            "D": 0.01747099474178783,
+            "axis_sep_cmb_deg": 20.944873460275172,
+            "b_deg": 30.30267615708733,
+            "bvec": [
+              -0.005186603483037758,
+              -0.01416422312653236,
+              0.008815304010590014
+            ],
+            "l_deg": 249.88846437492214
+          },
+          "fit_diag": {
+            "deviance": 27608.851975843398,
+            "deviance_over_dof": 1.1485980769581643,
+            "dispersion_phi": 1.143939926433103,
+            "dispersion_phi_eff": 1.143939926433103,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27496.884011672493,
+            "pearson_over_dof": 1.143939926433103
+          },
+          "w1_cut": 16.1
+        },
+        {
+          "N_seen": 932451,
+          "cmb_projection": {
+            "D_par": 0.01597323658176459,
+            "D_perp": 0.006895339600315582
+          },
+          "dipole": {
+            "D": 0.017397988248665498,
+            "axis_sep_cmb_deg": 23.34893037371319,
+            "b_deg": 28.633859319561175,
+            "bvec": [
+              -0.005818961746067174,
+              -0.014118041455444845,
+              0.008337300807866444
+            ],
+            "l_deg": 247.60026028012496
+          },
+          "fit_diag": {
+            "deviance": 27796.31126252795,
+            "deviance_over_dof": 1.1563968574500958,
+            "dispersion_phi": 1.151405556189699,
+            "dispersion_phi_eff": 1.151405556189699,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 27676.335354131792,
+            "pearson_over_dof": 1.151405556189699
+          },
+          "w1_cut": 16.15
+        },
+        {
+          "N_seen": 1001128,
+          "cmb_projection": {
+            "D_par": 0.01599777227743532,
+            "D_perp": 0.007365605951804551
+          },
+          "dipole": {
+            "D": 0.017611952443665545,
+            "axis_sep_cmb_deg": 24.72202747888611,
+            "b_deg": 27.777405336740458,
+            "bvec": [
+              -0.006304516901342025,
+              -0.014250101048246824,
+              0.008207835014995384
+            ],
+            "l_deg": 246.13448621892036
+          },
+          "fit_diag": {
+            "deviance": 28132.913637328365,
+            "deviance_over_dof": 1.1704003676552135,
+            "dispersion_phi": 1.1654301984366742,
+            "dispersion_phi_eff": 1.1654301984366742,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28013.445679822336,
+            "pearson_over_dof": 1.1654301984366742
+          },
+          "w1_cut": 16.2
+        },
+        {
+          "N_seen": 1077197,
+          "cmb_projection": {
+            "D_par": 0.015600328389200592,
+            "D_perp": 0.007366922082326705
+          },
+          "dipole": {
+            "D": 0.017252298015567977,
+            "axis_sep_cmb_deg": 25.278023571228577,
+            "b_deg": 27.8390670380699,
+            "bvec": [
+              -0.0065047310502992055,
+              -0.013799301774763203,
+              0.008056645164723418
+            ],
+            "l_deg": 244.76169271878615
+          },
+          "fit_diag": {
+            "deviance": 28371.244470255217,
+            "deviance_over_dof": 1.1803155331470323,
+            "dispersion_phi": 1.176265656543503,
+            "dispersion_phi_eff": 1.176265656543503,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28273.89758633618,
+            "pearson_over_dof": 1.176265656543503
+          },
+          "w1_cut": 16.25
+        },
+        {
+          "N_seen": 1162883,
+          "cmb_projection": {
+            "D_par": 0.015505381022469397,
+            "D_perp": 0.007345791232179022
+          },
+          "dipole": {
+            "D": 0.01715743248504019,
+            "axis_sep_cmb_deg": 25.34960754916716,
+            "b_deg": 28.516697661162176,
+            "bvec": [
+              -0.0067542764785524295,
+              -0.013478177420326152,
+              0.008191213106506019
+            ],
+            "l_deg": 243.38332150184442
+          },
+          "fit_diag": {
+            "deviance": 28622.488607626023,
+            "deviance_over_dof": 1.1907679247670684,
+            "dispersion_phi": 1.1872069280493218,
+            "dispersion_phi_eff": 1.1872069280493218,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28536.89292952155,
+            "pearson_over_dof": 1.1872069280493218
+          },
+          "w1_cut": 16.3
+        },
+        {
+          "N_seen": 1254030,
+          "cmb_projection": {
+            "D_par": 0.01492846809008022,
+            "D_perp": 0.007876772424226637
+          },
+          "dipole": {
+            "D": 0.01687906109176694,
+            "axis_sep_cmb_deg": 27.817668159096808,
+            "b_deg": 25.99951515031341,
+            "bvec": [
+              -0.006965582160576539,
+              -0.013477229907363131,
+              0.007399164988560207
+            ],
+            "l_deg": 242.66823474745678
+          },
+          "fit_diag": {
+            "deviance": 28911.440621393755,
+            "deviance_over_dof": 1.2027890594247932,
+            "dispersion_phi": 1.200285065752211,
+            "dispersion_phi_eff": 1.200285065752211,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 28851.252125485895,
+            "pearson_over_dof": 1.200285065752211
+          },
+          "w1_cut": 16.35
+        },
+        {
+          "N_seen": 1359698,
+          "cmb_projection": {
+            "D_par": 0.014838694204516547,
+            "D_perp": 0.007940857265028701
+          },
+          "dipole": {
+            "D": 0.016829856202555983,
+            "axis_sep_cmb_deg": 28.153252721341453,
+            "b_deg": 25.73722886521419,
+            "bvec": [
+              -0.007016705055876525,
+              -0.013438715245823246,
+              0.007308272196574696
+            ],
+            "l_deg": 242.42975988681746
+          },
+          "fit_diag": {
+            "deviance": 29400.316101710294,
+            "deviance_over_dof": 1.22312751598412,
+            "dispersion_phi": 1.220624454502748,
+            "dispersion_phi_eff": 1.220624454502748,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 29340.150012882554,
+            "pearson_over_dof": 1.220624454502748
+          },
+          "w1_cut": 16.4
+        },
+        {
+          "N_seen": 1473681,
+          "cmb_projection": {
+            "D_par": 0.014586539252419133,
+            "D_perp": 0.007861280433906662
+          },
+          "dipole": {
+            "D": 0.016570059065159903,
+            "axis_sep_cmb_deg": 28.32203691358952,
+            "b_deg": 25.03974198997983,
+            "bvec": [
+              -0.006728295034640267,
+              -0.013420565769645476,
+              0.007013224491797132
+            ],
+            "l_deg": 243.3734631275337
+          },
+          "fit_diag": {
+            "deviance": 30178.763747679128,
+            "deviance_over_dof": 1.2555129070882027,
+            "dispersion_phi": 1.2533840709203616,
+            "dispersion_phi_eff": 1.2533840709203616,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 30127.59291271273,
+            "pearson_over_dof": 1.2533840709203616
+          },
+          "w1_cut": 16.45
+        },
+        {
+          "N_seen": 1604240,
+          "cmb_projection": {
+            "D_par": 0.014324430429959466,
+            "D_perp": 0.007602880173016329
+          },
+          "dipole": {
+            "D": 0.01621706181982401,
+            "axis_sep_cmb_deg": 27.95771641470765,
+            "b_deg": 25.643455766886724,
+            "bvec": [
+              -0.006631446526801161,
+              -0.013029242314751773,
+              0.007018251615156886
+            ],
+            "l_deg": 243.02543516592687
+          },
+          "fit_diag": {
+            "deviance": 31088.758679933802,
+            "deviance_over_dof": 1.2933709980419272,
+            "dispersion_phi": 1.2920070177847371,
+            "dispersion_phi_eff": 1.2920070177847371,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 31055.972686491725,
+            "pearson_over_dof": 1.2920070177847371
+          },
+          "w1_cut": 16.5
+        },
+        {
+          "N_seen": 1753984,
+          "cmb_projection": {
+            "D_par": 0.014328617124132682,
+            "D_perp": 0.008707104236622455
+          },
+          "dipole": {
+            "D": 0.01676672099360507,
+            "axis_sep_cmb_deg": 31.285892493332483,
+            "b_deg": 21.74261904152183,
+            "bvec": [
+              -0.007014177646976191,
+              -0.013904941169916848,
+              0.0062110269581775275
+            ],
+            "l_deg": 243.23189728788148
+          },
+          "fit_diag": {
+            "deviance": 31974.954833791784,
+            "deviance_over_dof": 1.3302389996169148,
+            "dispersion_phi": 1.329184029190402,
+            "dispersion_phi_eff": 1.329184029190402,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 31949.59650964969,
+            "pearson_over_dof": 1.329184029190402
+          },
+          "w1_cut": 16.55
+        },
+        {
+          "N_seen": 1917142,
+          "cmb_projection": {
+            "D_par": 0.014518133459218097,
+            "D_perp": 0.010085345469623573
+          },
+          "dipole": {
+            "D": 0.01767739778308235,
+            "axis_sep_cmb_deg": 34.7866388923227,
+            "b_deg": 18.3961598518964,
+            "bvec": [
+              -0.007868457899199231,
+              -0.014814031913159017,
+              0.00557872934867432
+            ],
+            "l_deg": 242.0250399627936
+          },
+          "fit_diag": {
+            "deviance": 32997.69417691433,
+            "deviance_over_dof": 1.3727875432422654,
+            "dispersion_phi": 1.3720290993692588,
+            "dispersion_phi_eff": 1.3720290993692588,
+            "dof": 24037.0,
+            "n_obs": 24051.0,
+            "n_params": 14.0,
+            "pearson_chi2": 32979.46346153887,
+            "pearson_over_dof": 1.3720290993692588
+          },
+          "w1_cut": 16.6
+        }
+      ]
+    }
+  }
+}

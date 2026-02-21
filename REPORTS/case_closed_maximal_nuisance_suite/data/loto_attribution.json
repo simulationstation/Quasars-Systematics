@@ -1,0 +1,73 @@
+{
+  "full": {
+    "D": 0.00920547410599184,
+    "deviance": 32997.69421118343,
+    "lb_deg": [
+      279.82022465999034,
+      -47.90863575669106
+    ]
+  },
+  "representative_cut": 16.6,
+  "rows": [
+    {
+      "D_drop": 0.012598346495492348,
+      "axis_sep_cmb_deg": 11.863603028521341,
+      "delta_deviance": 4.606989943342342,
+      "dropped": "cos_elon_z"
+    },
+    {
+      "D_drop": 0.009063857902882935,
+      "axis_sep_cmb_deg": 83.86930863296611,
+      "delta_deviance": 3.202524522697786,
+      "dropped": "log1p_starcount_z"
+    },
+    {
+      "D_drop": 0.012705381213157346,
+      "axis_sep_cmb_deg": 86.77648394348132,
+      "delta_deviance": 3.013188193719543,
+      "dropped": "sin_elon_z"
+    },
+    {
+      "D_drop": 0.010900980491029185,
+      "axis_sep_cmb_deg": 74.71260854924253,
+      "delta_deviance": 2.2318307384412037,
+      "dropped": "log_invvar_z"
+    },
+    {
+      "D_drop": 0.007747960022014305,
+      "axis_sep_cmb_deg": 85.45098815797027,
+      "delta_deviance": 1.9958281546787475,
+      "dropped": "abs_elat_z"
+    },
+    {
+      "D_drop": 0.009595708244071962,
+      "axis_sep_cmb_deg": 81.72213191361114,
+      "delta_deviance": 1.785969277159893,
+      "dropped": "ebv_mean_z"
+    },
+    {
+      "D_drop": 0.009283928411530962,
+      "axis_sep_cmb_deg": 81.36404639399068,
+      "delta_deviance": 1.4689487228242797,
+      "dropped": "sin2_elon_z"
+    },
+    {
+      "D_drop": 0.009846949025648769,
+      "axis_sep_cmb_deg": 78.7008054590286,
+      "delta_deviance": 0.5289303667668719,
+      "dropped": "lognexp_z"
+    },
+    {
+      "D_drop": 0.009213401214207674,
+      "axis_sep_cmb_deg": 82.92461236276897,
+      "delta_deviance": 0.003611554733652156,
+      "dropped": "log_w1cov_mean_z"
+    },
+    {
+      "D_drop": 0.009212875838331044,
+      "axis_sep_cmb_deg": 82.87724372130045,
+      "delta_deviance": 0.0029242875971249305,
+      "dropped": "cos2_elon_z"
+    }
+  ]
+}
