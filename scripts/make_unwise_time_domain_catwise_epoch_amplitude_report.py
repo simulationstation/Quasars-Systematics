@@ -332,12 +332,18 @@ def main() -> int:
         plt.close()
 
         plt.figure(figsize=(7.8, 4.6))
-        plt.plot(mjd[ok], d_glm[ok], "o-", lw=1.2, ms=4, label="Poisson GLM")
         ok2 = np.isfinite(mjd) & np.isfinite(d_vec)
-        plt.plot(mjd[ok2], d_vec[ok2], "s-", lw=1.1, ms=3.5, label="Vector-sum")
+        m015_glm = ok & (epoch <= 15)
+        m015_vec = ok2 & (epoch <= 15)
+        plt.plot(mjd[m015_glm], d_glm[m015_glm], "o-", lw=1.2, ms=4, label="Poisson GLM")
+        plt.plot(mjd[m015_vec], d_vec[m015_vec], "s-", lw=1.1, ms=3.5, label="Vector-sum")
         plt.xlabel("Mean MJD (per epoch)")
         plt.ylabel("Dipole amplitude")
-        plt.title("Epoch-resolved amplitude: estimator cross-check")
+        plt.title("Epoch-resolved amplitude: estimator cross-check (epochs 0–15)")
+        # Fix the y-axis range/ticks to make the stated ranges auditable by eye (max vecsum ~0.155 should
+        # not look like it exceeds ~0.16+).
+        plt.ylim(0.05, 0.158)
+        plt.yticks([0.05, 0.10, 0.155])
         plt.grid(True, alpha=0.35)
         plt.legend(loc="best", frameon=False)
         plt.tight_layout()
@@ -387,4 +393,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

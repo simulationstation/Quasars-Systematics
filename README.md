@@ -98,6 +98,7 @@ Additional PRD appendices / validation bundles:
 - `REPORTS/seasonal_drift_mc/master_report.md` (correlated-cut drift Monte Carlo + correlated seasonal injection)
 - `REPORTS/unwise_time_domain_epoch_amplitude/master_report.md` (true epoch-resolved amplitude stability test using the unWISE time-domain catalog)
 - `REPORTS/unwise_time_domain_catwise_epoch_amplitude/master_report.md` (epoch-resolved amplitude stability test using the unWISE time-domain catalog, restricted to the published CatWISE accepted parent sample)
+  - Figure sync: `mnras_letter/D_vs_epoch_compare.png` is generated for epochs `0–15` only (epoch 16 excluded as partial), with fixed y-axis ticks so the vector-sum max (~0.155) is auditable by eye.
 - `outputs/epoch_dipole_time_domain_20260204_222039UTC/finiteN_null_big_fullsample_v1.json` (highest-stat finite-`N` null on the large epoch sample, with ~3.9e7--5.4e7 selected objects per epoch)
   - headline: observed epoch variability is far beyond finite-count expectations; `10,000,000` Gaussian-null draws and `20,000` map-level multinomial+GLM null draws both produced `0` exceedances of the observed spread/chi2 metrics.
 - `REPORTS/seasonal_update/update.md` (paper-ready writeup tying the ecliptic-longitude proxy to Secrest-style residual checks)

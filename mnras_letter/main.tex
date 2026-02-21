@@ -42,8 +42,9 @@ While the dipole amplitude remains stable near $D \simeq 1.6 \times 10^{-2}$, th
 Clustered lognormal mock catalogues at $W1_{\rm max}=16.6$ yield $D_{\rm hat} \approx 0.0168$ with $\sigma_D \approx 0.0023$ (S/N $\approx 7$).
 Injection and recovery tests demonstrate that modest depth-linked completeness modulations can bias both amplitude and axis when the depth model is misspecified.
 Furthermore, a correlated-cut Monte Carlo analysis shows that the observed drift span lies in the $<1$ per cent tail under a Poisson-only null hypothesis, while injected ecliptic-longitude patterns can drive per cent-level dipoles if longitude templates are omitted.
-Finally, an epoch-sliced unWISE time-domain selection (2010--2020) exhibits strongly epoch-dependent dipole amplitudes.
-This is inconsistent with a single time-invariant kinematic dipole, indicating time-dependent selection or coverage systematics in WISE-based quasar selections.
+Finally, an epoch-sliced unWISE time-domain analysis (2010--2020) restricted to the Secrest-accepted CatWISE parent sample yields apparently epoch-dependent dipole amplitudes under dipole-only recovery ($D\simeq0.067$--$0.118$).
+However, a constrained rich parametric bootstrap with a shared dipole vector across epochs gives $P(\Delta D_{\rm sim}\ge\Delta D_{\rm obs})=0.974$ and $P(\chi^2_{\rm sim}\ge\chi^2_{\rm obs})=0.983$, showing the observed variability is expected under a constant physical dipole plus measured epoch-dependent systematics.
+We therefore treat epoch slicing as a systematics-generability diagnostic rather than evidence for a time-varying physical dipole.
 \end{abstract}
 
 \begin{keywords}
@@ -56,8 +57,8 @@ A kinematic dipole resulting from Solar System motion is expected in number coun
 Flux-limited dipole measurements can be sensitive to completeness and scan-depth structure near the faint selection boundary.
 Therefore, a central question regarding the robustness of these results is whether the inferred solution, particularly the axis direction, is stable under plausible changes to the faint limit and completeness or scan modelling.
 
-In this paper, we focus on five results that most directly diagnose the control of selection effects and systematics on the inference: (i) faint-limit axis drift and its decomposition into CMB-parallel and perpendicular components; (ii) an end-to-end depth-linked injection and recovery demonstration; (iii) a clustered-mock-covariance verification for amplitude signal-to-noise (S/N); (iv) a correlated-cut Monte Carlo demonstrating how scan- or season-linked longitude structure can mimic per cent-level dipoles; and (v) a time-domain stability test using the unWISE time-domain catalogue.
-Full methodological details, additional figures, and extended robustness suites are provided as Supplementary Data on Zenodo (Section~\ref{sec:data_code}).
+In this paper, we focus on six results that most directly diagnose the control of selection effects and systematics on the inference: (i) faint-limit axis drift and its decomposition into CMB-parallel and perpendicular components; (ii) an end-to-end depth-linked injection and recovery demonstration; (iii) a clustered-mock-covariance verification for amplitude signal-to-noise (S/N); (iv) a correlated-cut Monte Carlo demonstrating how scan- or season-linked longitude structure can mimic per cent-level dipoles; (v) a time-domain stability test using the unWISE time-domain catalogue; and (vi) a constrained rich parametric bootstrap that calibrates epoch-variability statistics under a constant dipole plus epoch-dependent nuisance fields.
+Full methodological details, additional figures, and extended robustness suites are provided as Supplementary Data on Zenodo.
 
 \section{Data and methodology}
 \subsection{CatWISE sample, masking, and fixed footprint}
@@ -87,10 +88,30 @@ We also include a longitude-pattern injection test to show how unmodelled eclipt
 Low-$\ell$ mask coupling is a recurrent concern in masked-sky analyses.
 In Supplementary Data, we further validate a GLM extension that marginalises $\ell\ge2$ spherical harmonic nuisance modes with a physically motivated Gaussian prior calibrated from clustered mock catalogues; a masked-sky injection test shows that unregularised harmonics inflate uncertainty while the prior-regularised fit remains stable.
 
-\subsection{Time-domain epoch-sliced test}
+\subsection{Time-domain epoch-sliced test (CatWISE parent)}
 A kinematic/cosmological dipole is time-invariant.
-As an independent diagnostic, we analyse the unWISE time-domain catalogue \citep{unwise_lang2014,unwise_meisner2017} by constructing epoch-sliced HEALPix count maps (17 epochs spanning 2010--2020) under a fixed sky mask and simple quasar-like WISE photometric selection.
-We measure the dipole amplitude per epoch with both a Poisson GLM dipole-only fit and a vector-sum cross-check.
+As a diagnostic directly tied to the published CatWISE selection, we restrict to the Secrest-accepted CatWISE parent sample on our fixed footprint ($W1\le16.4$, $W1-W2\ge0.8$, $W1_{\rm cov}\ge80$, $|b|>30^\circ$ and the exclusion mask).
+For each unWISE time-domain epoch \citep{unwise_lang2014,unwise_meisner2017}, we match parent objects to epoch photometry within $2^{\prime\prime}$ and form epoch-sliced HEALPix count maps using uniform per-epoch quality cuts (${\tt primary}=1$, ${\tt flags\_unwise}=0$, ${\tt flags\_info}=0$, positive fluxes and errors).
+We measure the dipole amplitude per epoch with (i) a dipole-only Poisson GLM, (ii) a minimal nuisance-basis GLM (dipole + $|\beta_{\rm ecl}|$, $\sin\lambda_{\rm ecl}$, $\cos\lambda_{\rm ecl}$, and $\log N_{\rm exp}$), and (iii) a vector-sum cross-check.
+For the GLM-based fits we test a constant-amplitude null, $D_e=D_0$,
+\begin{equation}
+\bar D_w=\frac{\sum_e D_e/\sigma_e^2}{\sum_e 1/\sigma_e^2},\qquad
+\chi^2_D=\sum_e\frac{(D_e-\bar D_w)^2}{\sigma_e^2},\qquad \nu=n_{\rm epoch}-1,
+\end{equation}
+where $\sigma_e$ is obtained from the per-epoch GLM covariance for $D=|\bm b|$ using the delta method,
+$\mathrm{Var}(D)\simeq (\bm b/D)^\top \Sigma_{\bm b}(\bm b/D)$.
+We use the diagonal-in-epoch approximation in this test.
+Because this analytic statistic can understate variability under model mismatch, we also calibrate it with a constrained rich parametric bootstrap.
+We fit
+\begin{equation}
+\log \mu_{e,p}=\alpha_e+\bm b_{\rm shared}\cdot\hat{\bm n}_p+\bm\gamma_e\cdot\bm T_p,
+\end{equation}
+with a shared dipole vector $\bm b_{\rm shared}$ across epochs and epoch-specific nuisance coefficients.
+
+Here $\bm T_p$ includes one plausible extended set: $|\beta_{\rm ecl}|$, $\sin\lambda_{\rm ecl}$, $\cos\lambda_{\rm ecl}$, $\log N_{\rm exp}$, and the additional templates $E(B\!-\!V)$, $\log(1+N_{\rm star})$, and $\log{\rm invvar}$.
+From this fitted null, we draw $N_{\rm sim}=1000$ Poisson realisations and recover each with the standard per-epoch dipole-only GLM, then compare $\Delta D$ and $\chi^2_D$ with the observed values.
+We further run leave-one-template-out reruns in the rich basis to rank nuisance drivers of epoch variability.
+Because the epoch maps are overlapping re-selections of a fixed parent list, this is a time-invariance diagnostic rather than a remeasurement of the all-epoch CatWISE dipole.
 
 \section{Results}
 \subsection{Stable amplitude but strong faint-limit axis drift}
@@ -112,7 +133,7 @@ The CMB-parallel/perpendicular decomposition shows that this drift is driven pri
 \subsection{Clustered-mock-covariance verification: high amplitude S/N persists}
 Figure~\ref{fig:lss_cov} shows the clustered lognormal mock-catalogue amplitude distribution at $W1_{\rm max}=16.6$.
 For the real data we obtain $D_{\rm hat}\approx0.0168$ with mock percentiles consistent with $\sigma_D\approx0.0023$, implying an amplitude S/N of order $\sim7$ at this representative cut.
-This covariance is used as a diagnostic upgrade beyond Poisson-only noise, not as a final precision covariance for cosmological parameter inference.
+This covariance is used as a diagnostic upgrade beyond Poisson-only noise, not as a final precision covariance for cosmological parameter inference; we do not interpret the resulting S/N as a cosmological significance claim.
 
 \begin{figure}[t]
 \centering
@@ -147,40 +168,44 @@ A seasonal/scan-linked longitude-pattern injection shows that if ecliptic-longit
 \label{fig:drift_mc}
 \end{figure*}
 
-\subsection{True time-domain instability in unWISE epoch-sliced selections}
-Figure~\ref{fig:time_domain} shows the unWISE epoch-sliced amplitudes and the per-epoch sample sizes.
-Across epochs 0--15 (excluding epoch 16, which has much smaller $N$ and is likely partial), the dipole amplitude varies strongly in time under two estimators.
-In the Poisson GLM dipole-only fits, $D$ ranges from $\sim0.146$ to $\sim0.220$ across epochs, while the vector-sum cross-check ranges from $\sim0.103$ to $\sim0.150$.
-Per-epoch sample sizes are large and vary comparatively modestly (tens of millions), so the epoch dependence in $D$ is not driven by a trivial collapse of $N$.
-These epoch maps are overlapping re-selections from a fixed parent catalogue, not independent additive catalogues, so theoretical $1/\sqrt{N_{\rm epoch}}$ vector-cancellation expectations are not the relevant null.
-Because a kinematic/cosmological dipole is time-invariant, this epoch dependence is a strong diagnostic that time-dependent selection/coverage/background effects imprint large-scale anisotropy in WISE-based quasar-like selections.
-We emphasise that this is a time-invariance diagnostic, not a claim that the per-epoch selection is an exact reproduction of the published CatWISE accepted-catalogue selection.
+\subsection{Controlled time-domain epoch-sliced diagnostic in unWISE (CatWISE parent)}
+Figure~\ref{fig:time_domain} shows the epoch-sliced amplitudes and per-epoch sample sizes for the CatWISE-parent time-domain selection.
+Across epochs 0--15 (excluding epoch 16, which has much smaller $N$ and is likely partial), dipole-only Poisson GLM fits give apparently epoch-dependent amplitudes $D=0.067$--$0.118$ (typical $\sigma_D\sim3$--$5\times10^{-3}$), while the vector-sum cross-check spans $0.058$--$0.155$ (expected broader; no nuisance marginalisation).
+Under the constrained rich bootstrap null with a shared dipole vector ($D_{\rm shared}=0.0948$), the observed dipole-only variability is not extreme: $P(\Delta D_{\rm sim}\ge\Delta D_{\rm obs})=0.974$ and $P(\chi^2_{\rm sim}\ge\chi^2_{\rm obs})=0.983$ (equivalently, lower-tail probabilities $0.026$ and $0.017$).
+The corresponding analytic $\chi^2_D$ statistic is large in dipole-only fits ($\chi^2=308.2$ for $\nu=15$, $p=1.10\times10^{-56}$) and in the minimal nuisance-basis fit ($\chi^2=51.0$ for $\nu=15$, $p=8.21\times10^{-6}$).
+Using the richer nuisance basis defined in Section~2.4 yields a similarly large analytic result ($\chi^2=52.7$ for $\nu=15$, $p=4.32\times10^{-6}$).
+Per-epoch comparability metrics are stable ($N=2.076$--$2.304\times10^5$; active-pixel fraction $0.974$--$0.997$), and the conclusion persists on common-support and matched-depth subsets (minimal basis: $\chi^2=46.5$, $p=4.50\times10^{-5}$; richer basis: $\chi^2=52.5$, $p=4.70\times10^{-6}$, both for $\nu=15$).
+Any positive cross-epoch covariance would reduce the effective degrees of freedom of analytic $\chi^2_D$, further motivating the bootstrap calibration as the primary null.
+Thus, large analytic $\chi^2_D$ values from dipole-only recovery are not a calibrated test for time-variation when epoch-dependent systematics are present.
+We then inject a constant true dipole through empirically fitted epoch-dependent nuisance fields and recover with dipole-only fits; in all $N_{\rm sim}=1000$ trials, both $\Delta D_{\rm sim}$ and $\chi^2_{\rm sim}$ exceed the observed values (equivalently, complementary Monte Carlo tail $<10^{-3}$ at this resolution).
+This injection is intentionally anchored to empirically fitted epoch-dependent nuisance fields to test whether measured time-dependent survey structure can generate the observed spread under dipole-only recovery.
+In this construction, $\chi^2_{\rm sim}$ is typically larger than $\chi^2_{\rm obs}$ because empirically fitted epoch-dependent nuisance fields can project strongly onto $\ell=1$ under dipole-only recovery.
+Leave-one-template-out reruns rank the dominant drivers as $\cos\lambda_{\rm ecl}$ ($\Delta\chi^2=+22.4$), stellar-count ($+6.5$), $\sin\lambda_{\rm ecl}$ ($+4.4$), and depth ($+3.6$), indicating a primarily longitude-structured plus stellar/depth systematic origin.
+The wider vector-sum range is expected because that cross-check does not marginalise nuisance templates; correspondingly, $(D_{\rm vec}-D_{\rm GLM})$ correlates with per-epoch nuisance-attribution strength ($r\simeq0.77$).
+Here the null is constant amplitude $D_e=D_0$; direction stability is reported separately in Supplementary Data.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.49\textwidth]{D_vs_epoch_compare.png}\hfill
 \includegraphics[width=0.49\textwidth]{N_vs_epoch.png}
-\caption{\textbf{True time-domain epoch-sliced stability test (unWISE).}
-\textit{Left:} Epoch-resolved dipole amplitudes from a Poisson GLM (dipole-only) and a vector-sum cross-check; amplitudes vary strongly with epoch.
-\textit{Right:} Per-epoch sample sizes on the fixed sky mask; epoch 16 has much smaller $N$ and is likely partial.}
+\caption{\textbf{Controlled time-domain epoch-sliced diagnostic (unWISE; CatWISE parent).}
+\textit{Left:} Epoch-resolved dipole amplitudes for epochs 0--15 from a dipole-only Poisson GLM fit and a vector-sum cross-check; amplitudes vary across epoch under dipole-only recovery.
+\textit{Right:} Per-epoch sample sizes for the fixed CatWISE parent footprint; epoch 16 has much smaller $N$ and is likely partial.}
 \label{fig:time_domain}
 \end{figure*}
 
 \section{Discussion and conclusions}
-Across multiple estimators on a fixed footprint, the CatWISE number-count dipole remains non-zero at the $D\sim10^{-2}$ level, and clustered mock catalogues imply a high nominal amplitude S/N.
+Across multiple estimators on a fixed footprint, the CatWISE number-count dipole remains non-zero at the $D\sim10^{-2}$ level, and clustered mock catalogues imply a high nominal amplitude S/N in this diagnostic covariance treatment.
 However, the axis drifts with the faint limit, driven by a growing CMB-perpendicular component, suggesting a degeneracy with completeness or scan modelling near the magnitude boundary.
 End-to-end injections and correlated-cut Monte Carlo tests show that modest depth- and scan-linked modulations, including ecliptic-longitude structure, can bias both amplitude and axis when the recovery model is misspecified.
-Finally, unWISE epoch slicing yields strongly time-dependent amplitudes, inconsistent with a time-invariant kinematic dipole.
+Finally, unWISE epoch slicing restricted to the Secrest-accepted CatWISE parent sample yields apparently time-dependent dipole-only amplitudes.
+Although analytic constant-$D$ statistics are large, richer-template injections and constrained rich parametric bootstrap calibration show that the observed epoch variability is expected under a constant shared dipole once measured epoch-dependent systematics are propagated through dipole-only recovery.
+We therefore do not interpret epoch variability as evidence for a time-varying physical dipole; instead it indicates that dipole-only epoch fits are systematics-dominated.
 These diagnostics motivate caution regarding cosmological interpretations of the CatWISE dipole without an end-to-end completeness model validated against external information and in the time domain.
 
 \clearpage
 
-\section*{AI assistance disclosure}
-The author used large language models extensively in preparing this work.
-
-\section*{Data and code availability}
-\label{sec:data_code}
-Software and reproducibility materials for this analysis are archived on Zenodo at \doi{10.5281/zenodo.18643926}; related supplementary assets used in this study are archived at \doi{10.5281/zenodo.18489200}.
+\noindent\textit{Data and code availability:} Software and reproducibility materials for this analysis are archived on Zenodo at \doi{10.5281/zenodo.18643926}; related supplementary assets used in this study are archived at \doi{10.5281/zenodo.18489200}.
 This work used the CatWISE2020 catalogue and the unWISE Time-Domain catalogue provided via NASA/IPAC IRSA (\doi{10.26131/IRSA552}; \doi{10.26131/IRSA580}).
 
 % ========================= Bibliography =========================

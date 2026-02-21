@@ -1,6 +1,6 @@
 # CatWISE-parent unWISE time-domain epoch-resolved dipole amplitude
 
-Date: 2026-02-04 (UTC)
+Date: 2026-02-20 (UTC)
 
 This report summarizes an **epoch-resolved, amplitude-only** dipole stability test using the
 unWISE Time-Domain Catalog (IRSA580) **restricted to the published CatWISE/Secrest accepted AGN parent sample**.
