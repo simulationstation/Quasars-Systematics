@@ -3,8 +3,7 @@
 %%   baseline_rvmp_fig5_poisson_glm.png
 %%   cmb_projection_plot.png
 %%   validate_depth_systematic_recovery.png
-%%   D_vs_epoch_compare.png
-%%   N_vs_epoch.png
+%%   Anomaly_Time_Domain.png
 %%   drift_mc_null_hist.png
 %%   drift_mc_inject_bias.png
 %%   lss_cov_D_hist_w1max16p6.png
@@ -19,7 +18,7 @@
 \usepackage{bm}
 \usepackage{lastpage}
 
-\title[Systematics in the CatWISE quasar dipole]{Time-domain instability and selection systematics in the CatWISE quasar dipole}
+\title[CatWISE quasar dipole systematics]{Selection systematics in the CatWISE quasar dipole: axis drift and a calibrated epoch-slicing diagnostic}
 
 \author[A. Smith]{
 Aiden Smith$^{1}$\thanks{E-mail: aidenblakesmithtravel@gmail.com} \\
@@ -36,15 +35,12 @@ $^{1}$Independent researcher
 
 \begin{abstract}
 Recent studies have reported a dipole in CatWISE AGN number counts with an amplitude that exceeds standard kinematic expectations.
-We investigate this signal using the publicly available CatWISE sample and exclusion mask.
-By scanning cumulative faint limits $W1 \le W1_{\rm max}$ ($15.5 \le W1_{\rm max} \le 16.6$) on a fixed, coverage-defined footprint, we fit dipoles using both linear regression, following the methodology of \citet{secrest2022} after removing the dominant ecliptic-latitude trend, and Poisson generalised linear models (GLM) on HEALPix counts with nuisance templates.
-While the dipole amplitude remains stable near $D \simeq 1.6 \times 10^{-2}$, the dipole axis is unstable: its sign-invariant separation from the CMB dipole axis increases from $\sim1^\circ$ at $W1_{\rm max}=15.5$ to $\sim34^\circ$ at $W1_{\rm max}=16.6$, driven by a growing component perpendicular to the CMB.
-Clustered lognormal mock catalogues at $W1_{\rm max}=16.6$ yield $D_{\rm hat} \approx 0.0168$ with $\sigma_D \approx 0.0023$ (S/N $\approx 7$).
-Injection and recovery tests demonstrate that modest depth-linked completeness modulations can bias both amplitude and axis when the depth model is misspecified.
-Furthermore, a correlated-cut Monte Carlo analysis shows that the observed drift span lies in the $<1$ per cent tail under a Poisson-only null hypothesis, while injected ecliptic-longitude patterns can drive per cent-level dipoles if longitude templates are omitted.
-Finally, an epoch-sliced unWISE time-domain analysis (2010--2020) restricted to the Secrest-accepted CatWISE parent sample yields apparently epoch-dependent dipole amplitudes under dipole-only recovery ($D\simeq0.067$--$0.118$).
-However, a constrained rich parametric bootstrap with a shared dipole vector across epochs gives $P(\Delta D_{\rm sim}\ge\Delta D_{\rm obs})=0.974$ and $P(\chi^2_{\rm sim}\ge\chi^2_{\rm obs})=0.983$, showing the observed variability is expected under a constant physical dipole plus measured epoch-dependent systematics.
-We therefore treat epoch slicing as a systematics-generability diagnostic rather than evidence for a time-varying physical dipole.
+Flux-limited dipole inference on a masked sky is sensitive to anisotropic depth and completeness structure near the faint selection boundary.
+Using the publicly available CatWISE sample and exclusion mask, we scan cumulative faint limits $W1 \le W1_{\rm max}$ ($15.5 \le W1_{\rm max} \le 16.6$) on a fixed, coverage-defined footprint and fit dipoles using both linear regression, following the methodology of \citet{secrest2022} after removing the dominant ecliptic-latitude trend, and Poisson generalised linear models (GLM) on HEALPix counts with nuisance templates.
+Across the scan, the dipole mode remains formally non-zero at $D\simeq1.6\times10^{-2}$ (clustered lognormal mocks at $W1_{\rm max}=16.6$ yield $D_{\rm hat}\approx0.0168$ with $\sigma_D\approx0.0023$), but the inferred axis drifts strongly with faint limit: its separation from the CMB dipole grows from $\sim1^\circ$ at $W1_{\rm max}=15.5$ to $\sim34^\circ$ at $W1_{\rm max}=16.6$, driven by a growing CMB-perpendicular component.
+Injection/recovery tests and a correlated-cut drift Monte Carlo show that modest depth- and scan-linked systematics (including ecliptic-longitude structure) can bias both amplitude and axis under plausible template misspecification.
+As a complementary diagnostic, unWISE epoch slicing (2010--2020) on the fixed Secrest-accepted CatWISE parent sample yields large apparent epoch-to-epoch variability under dipole-only recovery; however, a constrained rich parametric bootstrap with a shared dipole vector across epochs gives $P(\Delta D_{\rm sim}\ge\Delta D_{\rm obs})=0.974$ and $P(\chi^2_{\rm sim}\ge\chi^2_{\rm obs})=0.983$, showing this behaviour is expected under a constant physical dipole once measured epoch-dependent systematics are propagated through the same recovery pipeline.
+We therefore treat both faint-limit scans and epoch slicing as systematics/identifiability diagnostics rather than evidence for a time-varying physical dipole.
 \end{abstract}
 
 \begin{keywords}
@@ -57,7 +53,11 @@ A kinematic dipole resulting from Solar System motion is expected in number coun
 Flux-limited dipole measurements can be sensitive to completeness and scan-depth structure near the faint selection boundary.
 Therefore, a central question regarding the robustness of these results is whether the inferred solution, particularly the axis direction, is stable under plausible changes to the faint limit and completeness or scan modelling.
 
+More generally, catalogue dipole measurements on masked skies face a low-$\ell$ identifiability problem: anisotropic depth and selection structure can project into $\ell=1$ under the footprint and yield high-significance but template-sensitive dipole solutions.
+CatWISE provides a concrete case study, and the diagnostics emphasised here (end-to-end injections, correlated-cut nulls, and calibrated epoch slicing) are broadly applicable to other flux-limited dipole claims.
+
 In this paper, we focus on six results that most directly diagnose the control of selection effects and systematics on the inference: (i) faint-limit axis drift and its decomposition into CMB-parallel and perpendicular components; (ii) an end-to-end depth-linked injection and recovery demonstration; (iii) a clustered-mock-covariance verification for amplitude signal-to-noise (S/N); (iv) a correlated-cut Monte Carlo demonstrating how scan- or season-linked longitude structure can mimic per cent-level dipoles; (v) a time-domain stability test using the unWISE time-domain catalogue; and (vi) a constrained rich parametric bootstrap that calibrates epoch-variability statistics under a constant dipole plus epoch-dependent nuisance fields.
+We do not claim a closed image-level completeness solution; instead, we use constrained modelling and calibrated nulls as diagnostics of low-$\ell$ identifiability and systematics-generability under realistic survey structure.
 Full methodological details, additional figures, and extended robustness suites are provided as Supplementary Data on Zenodo.
 
 \section{Data and methodology}
@@ -169,7 +169,7 @@ A seasonal/scan-linked longitude-pattern injection shows that if ecliptic-longit
 \end{figure*}
 
 \subsection{Controlled time-domain epoch-sliced diagnostic in unWISE (CatWISE parent)}
-Figure~\ref{fig:time_domain} shows the epoch-sliced amplitudes and per-epoch sample sizes for the CatWISE-parent time-domain selection.
+Figure~\ref{fig:time_domain} shows the epoch-sliced dipole direction, amplitude, and per-epoch sample sizes for the CatWISE-parent time-domain selection.
 Across epochs 0--15 (excluding epoch 16, which has much smaller $N$ and is likely partial), dipole-only Poisson GLM fits give apparently epoch-dependent amplitudes $D=0.067$--$0.118$ (typical $\sigma_D\sim3$--$5\times10^{-3}$), while the vector-sum cross-check spans $0.058$--$0.155$ (expected broader; no nuisance marginalisation).
 Under the constrained rich bootstrap null with a shared dipole vector ($D_{\rm shared}=0.0948$), the observed dipole-only variability is not extreme: $P(\Delta D_{\rm sim}\ge\Delta D_{\rm obs})=0.974$ and $P(\chi^2_{\rm sim}\ge\chi^2_{\rm obs})=0.983$.
 The corresponding analytic $\chi^2_D$ statistic is large in dipole-only fits ($\chi^2=308.2$ for $\nu=15$, $p=1.10\times10^{-56}$) and in the minimal nuisance-basis fit ($\chi^2=51.0$ for $\nu=15$, $p=8.21\times10^{-6}$).
@@ -177,7 +177,7 @@ Using the richer nuisance basis defined in Section~2.4 yields a similarly large 
 Per-epoch comparability metrics are stable ($N=2.076$--$2.304\times10^5$; active-pixel fraction $0.974$--$0.997$), and the conclusion persists on common-support and matched-depth subsets (minimal basis: $\chi^2=46.5$, $p=4.50\times10^{-5}$; richer basis: $\chi^2=52.5$, $p=4.70\times10^{-6}$, both for $\nu=15$).
 Any positive cross-epoch covariance would reduce the effective degrees of freedom of analytic $\chi^2_D$, further motivating the bootstrap calibration as the primary null.
 Thus, large analytic $\chi^2_D$ values from dipole-only recovery are not a calibrated test for time-variation.
-We then inject a constant true dipole through empirically fitted epoch-dependent nuisance fields and recover with dipole-only fits; in all $N_{\rm sim}=1000$ trials, both $\Delta D_{\rm sim}$ and $\chi^2_{\rm sim}$ exceed the observed values (equivalently, complementary Monte Carlo tail $<10^{-3}$ at this resolution).
+We then inject a constant true dipole through empirically fitted epoch-dependent nuisance fields and recover with dipole-only fits; in all $N_{\rm sim}=1000$ trials, both $\Delta D_{\rm sim}$ and $\chi^2_{\rm sim}$ exceed the observed values (so $P(\Delta D_{\rm sim}\ge\Delta D_{\rm obs})>0.999$ and $P(\chi^2_{\rm sim}\ge\chi^2_{\rm obs})>0.999$ at this Monte Carlo resolution).
 This injection is intentionally anchored to empirically fitted epoch-dependent nuisance fields to test whether measured time-dependent survey structure can generate the observed spread under dipole-only recovery.
 In this construction, $\chi^2_{\rm sim}$ is typically larger than $\chi^2_{\rm obs}$ because empirically fitted epoch-dependent nuisance fields can project strongly onto $\ell=1$ under dipole-only recovery.
 Leave-one-template-out reruns rank the dominant drivers as $\cos\lambda_{\rm ecl}$ ($\Delta\chi^2=+22.4$), stellar-count ($+6.5$), $\sin\lambda_{\rm ecl}$ ($+4.4$), and depth ($+3.6$), indicating a primarily longitude-structured plus stellar/depth systematic origin.
@@ -186,27 +186,40 @@ Here the null is constant amplitude $D_e=D_0$; direction stability is reported s
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.49\textwidth]{D_vs_epoch_compare.png}\hfill
-\includegraphics[width=0.49\textwidth]{N_vs_epoch.png}
+\includegraphics[width=\textwidth]{Anomaly_Time_Domain.png}
 \caption{\textbf{Controlled time-domain epoch-sliced diagnostic (unWISE; CatWISE parent).}
-\textit{Left:} Epoch-resolved dipole amplitudes for epochs 0--15 from a dipole-only Poisson GLM fit and a vector-sum cross-check; amplitudes vary across epoch under dipole-only recovery.
-\textit{Right:} Per-epoch sample sizes for the fixed CatWISE parent footprint; epoch 16 has much smaller $N$ and is likely partial.}
+\textit{Left:} Dipole direction per epoch (colors follow time), with the CMB dipole direction marked for reference.
+\textit{Top-right:} Epoch-resolved dipole amplitudes for epochs 0--15 from a dipole-only Poisson GLM fit and a vector-sum cross-check.
+\textit{Bottom-right:} Per-epoch sample sizes for the fixed CatWISE parent footprint; epoch 16 is omitted due to incomplete coverage.
+Although dipole-only recovery appears epoch-dependent in both amplitude and direction, Section~2.4's constrained rich bootstrap shows this variability is expected under a constant shared physical dipole once measured epoch-dependent systematics are propagated through the same recovery pipeline; the figure is therefore a systematics diagnostic rather than evidence for a time-varying dipole.}
 \label{fig:time_domain}
 \end{figure*}
 
 \section{Discussion and conclusions}
-Across multiple estimators on a fixed footprint, the CatWISE number-count dipole remains non-zero at the $D\sim10^{-2}$ level, and clustered mock catalogues imply a high nominal amplitude S/N in this diagnostic covariance treatment.
+Across multiple estimators on a fixed footprint, the CatWISE number-count dipole remains formally non-zero at the $D\sim10^{-2}$ level, and clustered mock catalogues imply a high \emph{formal} amplitude S/N in this diagnostic covariance treatment (not interpreted as cosmological significance).
 However, the axis drifts with the faint limit, driven by a growing CMB-perpendicular component, suggesting a degeneracy with completeness or scan modelling near the magnitude boundary.
 End-to-end injections and correlated-cut Monte Carlo tests show that modest depth- and scan-linked modulations, including ecliptic-longitude structure, can bias both amplitude and axis when the recovery model is misspecified.
 Finally, unWISE epoch slicing restricted to the Secrest-accepted CatWISE parent sample yields apparently time-dependent dipole-only amplitudes.
 Although analytic constant-$D$ statistics are large, richer-template injections and constrained rich parametric bootstrap calibration show that the observed epoch variability is expected under a constant shared dipole once measured epoch-dependent systematics are propagated through dipole-only recovery.
-We therefore do not interpret epoch variability as evidence for a time-varying physical dipole; instead it indicates that dipole-only epoch fits are systematics-dominated.
-In Supplementary Data, we also run a maximal-nuisance GLM suite at a representative cut ($W1_{\rm max}=16.6$) with a ridge-regularised extended template basis and held-out sky validation (\texttt{case\_closed\_maximal\_nuisance\_suite}; all values below are at $W1_{\rm max}=16.6$).
-The free-axis solution is strongly nuisance-subspace sensitive: a baseline fit gives $D=0.01678$ with axis separation $34.3^\circ$ to the CMB, while a maximal-nuisance fit gives $D=0.00578$ and $73.4^\circ$; constraining nuisance templates to be orthogonal to the monopole/dipole subspace restores $D=0.01776$ and $34.8^\circ$, illustrating strong low-$\ell$ coupling under the footprint.
+We therefore do not interpret epoch variability as evidence for a time-varying physical dipole; instead it indicates that per-epoch dipole-only fits are strongly systematics-coupled and not physically interpretable as dipole measurements.
+
+\paragraph{Conservative constrained estimates.}
+At a representative cut ($W1_{\rm max}=16.6$), a ridge-regularised extended-template (``maximal-nuisance'') GLM suite with held-out sky validation (Supplementary Data: \texttt{case\_closed\_maximal\_nuisance\_suite}) shows that the inferred solution is strongly nuisance-subspace sensitive.
+For example, a baseline fit gives $D=0.01678$ with axis separation $34.3^\circ$ to the CMB, while a maximal-nuisance fit gives $D=0.00578$ and $73.4^\circ$; constraining nuisance templates to be orthogonal to the monopole/dipole subspace restores $D=0.01776$ and $34.8^\circ$, illustrating strong low-$\ell$ coupling under the footprint.
 In the CMB-fixed model, we find $D_{\parallel}=-0.00815$ in-sample and $D_{\parallel,{\rm test}}=-0.00250$ in a 2-fold held-out wedge split.
 A constrained-null parametric bootstrap with $D_{\parallel,{\rm true}}=0.0046$ yields $p_{\rm abs}\equiv P(|D_{\parallel,{\rm sim}}|\ge |D_{\parallel,{\rm obs}}|)=0.707$, indicating that the observed CMB-parallel amplitude is not anomalous under a kinematic-scale constrained null once measured systematics are propagated through the recovery pipeline.
 Leave-one-template-out attribution ranks the dominant drivers as explicit low-$\ell$ harmonic modes (e.g.\ $Y_{2,0}$ and $Y_{2,1}$), stellar-density, and ecliptic-longitude structure, reinforcing the role of mode coupling and selection systematics.
-These diagnostics motivate caution regarding cosmological interpretations of the CatWISE dipole without an end-to-end completeness model validated against external information and in the time domain.
+As an additional systematics/identifiability check (Supplementary Data: \texttt{end\_to\_end\_completeness\_suite}), we fit a map-level pixel-count model using only catalogue-independent predictors (unWISE depth/variance, dust, stellar density, star-based W1 residuals, explicit low-$\ell$ modes, unWISE \texttt{msk} artifact proxies, and unWISE frames-table scan-angle/epoch-drift proxies).
+We do not treat any external completeness proxy as a fixed multiplicative correction (i.e.\ coefficient forced to unity), because a mis-specified scaling can project into low-$\ell$ modes under the survey mask and bias dipole inference.
+When external proxies are used, we include them as fit templates with regularization (and, where relevant, orthogonalization to the physical dipole mode) rather than imposing them as a hard correction.
+Supplementary Data include a controlled $\gamma$-stress test (\texttt{gamma\_fixed\_vs\_fit\_stress\_test}) using an externally trained spatial completeness proxy map $T_{\rm ext}$ (Gaia qsocand) to illustrate this failure mode without asserting $\gamma\neq1$ in nature.
+In Poisson injections $\mu_{\rm sim}=\mu_0\exp(\gamma_{\rm true}T_{\rm ext})$ (with $\mu_0$ from a nuisance-only fit), forcing $\gamma=1$ as a fixed offset manufactures large spurious CMB-perpendicular dipoles (e.g.\ $\langle D_\perp\rangle\simeq0.071$ at $W1_{\rm max}=16.6$ for $\gamma_{\rm true}=0.25$), while fitting $\gamma$ recovers $\gamma_{\rm true}$ and yields $\langle D_\perp\rangle\simeq0.006$.
+On real data at $W1_{\rm max}=16.6$, a minimal 2-fold wedge held-out check improves test deviance by $\Delta{\rm dev}\simeq-1.5\times10^3$ when $\gamma$ is fit rather than fixed to unity.
+In-sample unconstrained fits can reproduce the observed dipole and drive the residual dipole towards zero, but a refit-bootstrap shows this behaviour also occurs for injected kinematic-scale $\ell=1$ modes, demonstrating that near-zero residuals can reflect mode absorption rather than a physically meaningful ``correction''.
+To test genuinely out-of-sample predictability, we also perform a cross-fit sky split (5 ecliptic-longitude wedge folds), predicting each fold from a model trained on the rest.
+At $W1_{\rm max}=16.6$ the unconstrained cross-fit captures a large fraction of the observed amplitude ($D_{\rm obs}=0.0178$ vs $D_{\rm pred,oos}=0.0157$) with moderate directional agreement ($\sim16^\circ$), leaving a residual dipole $\sim5\times10^{-3}$; we interpret this as evidence that survey structure can predict much of the apparent dipole rather than a closed physical decomposition.
+Enforcing a CMB-mode preservation constraint by projecting predictors orthogonal to $\{1,\hat{\bm n}\!\cdot\!\hat{\bm u}_{\rm CMB}\}$ and including a fixed kinematic-scale CMB-parallel offset leaves a large residual CMB-parallel component ($D_{\parallel,{\rm resid}}\simeq 0.011$ at $W1_{\rm max}=16.6$) that is inconsistent with a kinematic-scale constrained null ($p_{\rm abs}<10^{-3}$ for $D_{\parallel,{\rm true}}=0.0046$; $N_{\rm sim}=1000$), even with these additional artifact proxies.
+These results strengthen the systematics/identifiability interpretation, but do not yet provide a validated end-to-end image-level completeness explanation for the dipole.
 
 \clearpage
 
